@@ -59,8 +59,3 @@ void Core::Loop()
 
     }
 }
-
-void Core::Test()
-{
-    std::cout << "test"<<std::endl;
-}

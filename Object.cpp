@@ -29,7 +29,6 @@ void Car::ProcessColl(const Object& other)
 
 void Circle::Update()
 {
-	// Å°º¸µå ÀÔ·Â Ã³¸®
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
 		auto pos = GetPos();
 		SetPos(sf::Vector2<float>(pos.x + 1, pos.y + 1));

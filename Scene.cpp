@@ -7,9 +7,9 @@ std::list<std::list<std::unique_ptr<Object>>*> Scene::m_mgr_obj{};
 
 void Scene::Init()
 {
-	// auto circle = Object::CreatePtr<Circle>();
-	// circle->SetPos(sf::Vector2f(50.f, 50.f));
-	// Scene::Attach(circle);
+	auto circle = Object::CreatePtr<Circle>();
+	circle->SetPos(sf::Vector2f(50.f, 50.f));
+	Scene::Attach(circle);
 }
 
 void Scene::Update()
