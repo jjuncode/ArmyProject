@@ -6,8 +6,9 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-fdiagnostics-color=always",
+                "-std=c++17",           // C++17 표준 사용
                 "-g",
-                "${file}",
+                "/workspaces/ArmyProject/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 
