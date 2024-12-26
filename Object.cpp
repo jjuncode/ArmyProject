@@ -2,31 +2,6 @@
 #include "Object.h"
 #include "Core.h"
 
-void Wall::Update()
-{
-
-}
-
-void Wall::Render()
-{
-}
-
-void Wall::ProcessColl(const Object& other)
-{
-}
-
-void Car::Update()
-{
-}
-
-void Car::Render()
-{
-}
-
-void Car::ProcessColl(const Object& other)
-{
-}
-
 void Circle::Update()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {

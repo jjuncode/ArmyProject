@@ -33,38 +33,6 @@ public:
 	static std::unique_ptr<T> CreatePtr() {	return std::make_unique<T>();}
 };
 
-class Wall : public Object {	
-public:
-	Wall() { std::cout << "Wall 생성" << std::endl; }
-	~Wall() { std::cout << "Wall 소멸" << std::endl; }
-
-	Wall(const Wall& other) { std::cout << "Wall 복사생성자 " << std::endl; }
-
-
-private:
-	void Update() override;
-	void Render() override;
-	void ProcessColl(const Object& other) override;
-};
-
-class Car : public Object {
-private:
-	int hp{10};
-
-public:
-	void SetHp(int _hp) { hp = _hp; }
-
-public:
-	Car() { std::cout << "Car 생성" << std::endl; }
-	~Car() { std::cout << "Car 소멸" << std::endl; }
-	Car(const Car& other) { std::cout << "Car 복사생성자 " << std::endl; }
-
-private:
-	void Update() override;
-	void Render() override;
-	void ProcessColl(const Object& other) override;
-};
-
 class Circle : public Object {
 public:
 	Circle() { std::cout << "Circle 생성" << std::endl; }
