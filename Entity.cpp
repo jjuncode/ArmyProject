@@ -1,3 +1,3 @@
 #include "pch.h"
-#include "Object.h"
+#include "Entity.h"
 #include "Core.h"
