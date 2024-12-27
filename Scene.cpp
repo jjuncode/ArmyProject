@@ -3,12 +3,14 @@
 #include "Object.h"
 #include "Core.h"
 #include "Component.h"
+#include "MemoryPool.h"
 
 std::list<std::unique_ptr<Object>> Scene::m_list_obj{};
 
 void Scene::Init()
 {
 	Object obj;
+	auto ptr = MemoryPool<Component>::Acquire();
 	//	auto camera = obj.AddComponent<Camera>();
 
 	// auto circle = Object::CreatePtr<Circle>();
