@@ -1,17 +1,14 @@
 #pragma once
-class Object;
 
 class Component{
-    public:
-        Object* m_owner;
+    private:
+        uint m_owner_id;
 
+    public:
         virtual void Update();
         virtual void Render();
 
-        void SetOwner(Object* obj){m_owner = obj;};
-        void Reset();   // reset self 
+        void SetOwner(uint _id){m_owner_id = _id;}
 
         virtual ~Component();
-
-
 };

@@ -4,18 +4,11 @@ class Entity {
 private:
 //	std::vector<std::unique_ptr<Component>> m_components;	// Not Holding 
 	bool dead{ false };
-	int m_id;
-	static int id_cnt;
-	static std::stack<int> remain_id;
+	uint m_id;
+	static uint id_cnt;
+	static std::stack<uint> remain_id;
 
 public:
-	void Dead() 
-	{ 
-		dead = true;
-		remain_id.push(m_id);
-	}
-	bool IsDead() { return dead; }
-
 	Entity()
 	{
 		if ( !remain_id.size()){
@@ -26,5 +19,22 @@ public:
 			m_id = remain_id.top();
 			remain_id.pop();
 		}		
+	}
+
+	void Dead() 
+	{ 
+		dead = true;
+		remain_id.push(m_id);
+	}
+	bool IsDead() { return dead; }
+
+	// Component Template 
+	template<typename T>
+	std::shared_ptr<T> AddComponent()
+	{
+		std::shared_ptr<T> component{std::make_shared<T>()};
+		component->SetOwner(m_id);
+
+		return component;
 	}
 };
