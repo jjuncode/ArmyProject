@@ -51,7 +51,7 @@ void Core::Loop()
 		// 고정된 시간 간격으로 게임 업데이트
 		while (time_acc >= time_frame) {
 			// 게임 로직 업데이트
-			Scene::Update();
+			Scene::Update(dt.count());
 			time_acc -= time_frame;
 
 		}

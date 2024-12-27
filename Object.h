@@ -2,13 +2,14 @@
 
 class Object {
 private:
+	std::vector<std::unique_ptr<Component>> m_components;	// holding components
 	bool dead{ false };
 
 public:
 	void Dead() { dead = true; }
 	bool IsDead() { return dead; }
  
-	virtual void Update(){};
+	virtual void Update(float dt){};
 	virtual void Render(){};
 
 	Object()
