@@ -29,10 +29,10 @@ public:
 	bool IsDead() { return dead; }
 
 	// Component Template 
-	template<typename T>
-	std::shared_ptr<T> AddComponent()
+	template<typename T, typename... V>
+	std::unique_ptr<T> AddComponent(V&&... params)
 	{
-		std::shared_ptr<T> component{std::make_shared<T>()};
+		std::unique_ptr<T> component{std::make_unique<T>(std::forward<T>(params)...)};
 		component->SetOwner(m_id);
 
 		return component;

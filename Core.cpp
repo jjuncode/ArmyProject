@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Core.h"
-#include "Object.h"
-#include "Scene.h"
+#include "Entity.h"
+#include "SceneMgr.h"
 
 sf::RenderWindow* Core::m_window{};
 
@@ -17,7 +17,7 @@ void Core::Init()
     view.setCenter(0,-0);
     window.setView(view);
 
-    Scene::Init();
+    SceneMgr::Init();
 }
 
 void Core::Loop()
@@ -51,11 +51,11 @@ void Core::Loop()
 		// 고정된 시간 간격으로 게임 업데이트
 		while (time_acc >= time_frame) {
 			// 게임 로직 업데이트
-			Scene::Update(dt.count());
+			SceneMgr::Update(dt.count());
 			time_acc -= time_frame;
 
 		}
-        Scene::Render();
+        SceneMgr::Render();
 
     }
 }

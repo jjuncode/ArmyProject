@@ -9,10 +9,6 @@ void Component::Render()
 {
 }
 
-void Component::Reset()
-{
-}
-
 Component::~Component()
 {
 }

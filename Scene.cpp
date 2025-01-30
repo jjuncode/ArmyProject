@@ -2,12 +2,10 @@
 #include "Scene.h"
 #include "Entity.h"
 #include "Core.h"
-#include "Component.h"
-
-// std::list<std::unique_ptr<Object>> Scene::m_list_obj{};
 
 void Scene::Init()
 {
+
 }
 
 void Scene::Update(float dt)
@@ -35,7 +33,7 @@ void Scene::Render()
 
 void Scene::DeleteDead()
 {
-	for (auto iter = m_list_entity.begin(); iter != m_list_entity.end(); ++iter ){
-		std::remove_if(m_list_entity.begin(), m_list_entity.end(), [](auto& x) {return x->IsDead(); });
-	}
+	// for (auto iter = m_vec_component.begin(); iter != m_vec_component.end(); ++iter ){
+	// 	std::remove_if(m_vec_component.begin(), m_vec_component.end(), [](auto& x) {return x->IsDead(); });
+	// }
 }
