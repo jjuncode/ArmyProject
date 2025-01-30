@@ -1,6 +1,9 @@
 #pragma once
 
 class Entity {
+	// Entity는 ID update만 돌려주는 클래스
+	// + Component생성
+
 private:
 //	std::vector<std::unique_ptr<Component>> m_components;	// Not Holding 
 	bool dead{ false };
