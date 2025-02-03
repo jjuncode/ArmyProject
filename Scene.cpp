@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "Scene.h"
-#include "Entity.h"
 #include "Core.h"
 
 void Scene::Init()
 {
-	
 }
 
 void Scene::Update(float dt)
@@ -24,9 +22,9 @@ void Scene::Render()
 	auto window = Core::GetWindowContext();
 	window->clear();
 
-	// for (const auto& obj : m_list_obj) {
-	// 	obj->Render();
-	// }
+	for (const auto& obj : m_vec_component) {
+		obj->Render();
+	}
 
 	window->display();
 }

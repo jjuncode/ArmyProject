@@ -25,6 +25,7 @@ EOF
 docker compose up -d
 
 Display Set ) 
+export DISPLAY=:0
 export DISPLAY=127.0.0.1:0
 
 Port ) ports:
@@ -34,3 +35,5 @@ Port ) ports:
 if Error occur ) // Container Restart 
 docker compose down
 docker compose up -d
+
+ssh -X // it's Fucking Good

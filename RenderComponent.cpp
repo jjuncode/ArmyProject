@@ -1,0 +1,12 @@
+#include "RenderComponent.h"
+#include "pch.h"
+#include "Core.h"
+
+void RenderComponent::Render()
+{
+    sf::CircleShape circle{15};
+	circle.setFillColor(sf::Color::Blue);
+	auto window = Core::GetWindowContext();
+	circle.setPosition(-10,-10);
+	window->draw(circle);
+}

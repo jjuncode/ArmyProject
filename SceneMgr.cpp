@@ -4,11 +4,6 @@
 
 std::unique_ptr<Scene> SceneMgr::m_cur_scene{};
 
-void SceneMgr::Init()
-{
-    m_cur_scene->Init();
-}
-
 void SceneMgr::Update(float dt)
 {
     m_cur_scene->Update(dt);

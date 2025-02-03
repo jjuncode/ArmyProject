@@ -1,11 +1,11 @@
 #pragma once
+#include <stack>
 
 class Entity {
 	// Entity는 ID update만 돌려주는 클래스
 	// + Component생성
 
 private:
-//	std::vector<std::unique_ptr<Component>> m_components;	// Not Holding 
 	bool dead{ false };
 	uint m_id;
 	static uint id_cnt;
@@ -35,9 +35,18 @@ public:
 	template<typename T, typename... V>
 	std::unique_ptr<T> AddComponent(V&&... params)
 	{
-		std::unique_ptr<T> component{std::make_unique<T>(std::forward<T>(params)...)};
+		std::unique_ptr<T> component{std::make_unique<T>(std::forward<V>(params)...)};
 		component->SetOwner(m_id);
 
 		return component;
 	}
+
+	// template<typename T>
+	// std::unique_ptr<T> AddComponent()
+	// {
+	// 	std::unique_ptr<T> component{std::make_unique<T>()};
+	// 	component->SetOwner(m_id);
+
+	// 	return component;
+	// }
 };

@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Entity.h"
 #include "SceneMgr.h"
+#include "PlayScene.h"
 
 sf::RenderWindow* Core::m_window{};
 
@@ -17,7 +18,7 @@ void Core::Init()
     view.setCenter(0,-0);
     window.setView(view);
 
-    SceneMgr::Init();
+    SceneMgr::ChangeScene<PlayScene>();
 }
 
 void Core::Loop()
