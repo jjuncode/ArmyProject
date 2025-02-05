@@ -1,14 +1,14 @@
 #pragma once
 #include <stack>
+#include "Component.h"
 
 class Entity {
 	// Entity는 ID update만 돌려주는 클래스
 	// + Component생성
 
 private:
-	bool dead{ false };
-	uint m_id;
-	static uint id_cnt;
+	uint m_id{};
+	static uint id_cnt;	
 	static std::stack<uint> remain_id;
 
 public:
@@ -24,12 +24,14 @@ public:
 		}		
 	}
 
-	void Dead() 
+	static void Dead(int _id) 
 	{ 
-		dead = true;
-		remain_id.push(m_id);
+		remain_id.push(_id);
 	}
-	bool IsDead() { return dead; }
+
+	static uint32_t GetID(const std::unique_ptr<Component>& _comp){
+		return _comp->GetID();
+	}
 
 	// Component Template 
 	template<typename T, typename... V>
@@ -41,12 +43,12 @@ public:
 		return component;
 	}
 
-	// template<typename T>
-	// std::unique_ptr<T> AddComponent()
-	// {
-	// 	std::unique_ptr<T> component{std::make_unique<T>()};
-	// 	component->SetOwner(m_id);
+	template<typename T,typename Other>
+	static std::unique_ptr<T> AttachComponent(const std::unique_ptr<Other>& _comp)	// Entity에 다른 component를 부착
+	{
+		std::unique_ptr<T> component{std::make_unique<T>()};
+		component->SetOwner(_comp->GetOwnerID());
 
-	// 	return component;
-	// }
+		return component;
+	}
 };

@@ -7,7 +7,12 @@
 void PlayScene::Init()
 {
     std::unique_ptr<Scene>& cur_scene = SceneMgr::GetCurScene();
-    cur_scene->AddComponent<RenderComponent>();
+
+    Entity obj;
+    auto comp = obj.AddComponent<RenderComponent>();
+    auto new_comp = Entity::AttachComponent<RenderComponent>(comp);
+    cur_scene->AddComponent(std::move(comp));
+    cur_scene->AddComponent(std::move(new_comp));
 }
 
 void PlayScene::Update(float dt)

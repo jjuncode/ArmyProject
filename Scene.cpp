@@ -14,7 +14,7 @@ void Scene::Update(float dt)
 	// }
 
 	// 죽은애 삭제 
-	DeleteDead();
+	// DeleteDead();
 }
 
 void Scene::Render()
@@ -27,11 +27,4 @@ void Scene::Render()
 	}
 
 	window->display();
-}
-
-void Scene::DeleteDead()
-{
-	// for (auto iter = m_vec_component.begin(); iter != m_vec_component.end(); ++iter ){
-	// 	std::remove_if(m_vec_component.begin(), m_vec_component.end(), [](auto& x) {return x->IsDead(); });
-	// }
 }
