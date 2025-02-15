@@ -2,6 +2,14 @@
 #include <stack>
 #include "Component.h"
 
+enum class EntityStatus{
+	// Entity 상태
+	kActive,	
+	kDeActive,
+	kDead,
+	END
+};
+
 class Entity {
 	// Entity는 ID update만 돌려주는 클래스
 	// + Component생성

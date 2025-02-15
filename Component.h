@@ -1,11 +1,12 @@
 #pragma once
 #include <cstdint>
 #include <iostream>
+#include <stack>
 
 class Component{
     private:
         static uint32_t id_cnt;
-	    static std::stack<uint> remain_id;
+	    static std::stack<uint32_t> remain_id;
 
         uint32_t m_id;          // my id
         uint32_t m_owner_id;    // owner id
