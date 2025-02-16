@@ -29,7 +29,7 @@ void Scene::Render()
 	window->display();
 }
 
-void Scene::AddComponent(std::unique_ptr<Component> &&_comp)
+void Scene::AddComponent(std::shared_ptr<Component> &&_comp) noexcept
 {
 	auto idx{_comp->GetID()};
 	if (idx + 1 <= m_vec_component.size())
@@ -49,7 +49,7 @@ void Scene::AddComponent(std::unique_ptr<Component> &&_comp)
 	m_vec_status[idx] = EntityStatus::kActive;
 }
 
-void Scene::DeleteComponent(const std::unique_ptr<Component> &_comp)
+void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 {
 	_comp->Delete();
 

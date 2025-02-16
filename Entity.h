@@ -37,7 +37,7 @@ public:
 		remain_id.push(_id);
 	}
 
-	static uint32_t GetID(const std::unique_ptr<Component>& _comp){
+	static uint32_t GetID(std::shared_ptr<Component>&& _comp)noexcept{
 		return _comp->GetID();
 	}
 
@@ -52,7 +52,7 @@ public:
 	}
 
 	template<typename T,typename Other>
-	static std::unique_ptr<T> AttachComponent(const std::unique_ptr<Other>& _comp)	// Entity에 다른 component를 부착
+	static std::unique_ptr<T> AttachComponent(const std::shared_ptr<Other>& _comp)	// Entity에 다른 component를 부착
 	{
 		std::unique_ptr<T> component{std::make_unique<T>()};
 		component->SetOwner(_comp->GetOwnerID());

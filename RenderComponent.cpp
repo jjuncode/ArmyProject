@@ -4,12 +4,12 @@
 
 void RenderComponent::Render()
 {
-	auto id = GetOwnerID();	// self id
+	// auto id = GetOwnerID();	// self id
 
 
-    // sf::CircleShape circle{15};
-	// circle.setFillColor(sf::Color::Blue);
-	// auto window = Core::GetWindowContext();
-	// circle.setPosition(-10,-10);
-	// window->draw(circle);
+    sf::CircleShape circle{15};
+	circle.setFillColor(sf::Color::Blue);
+	auto window = Core::GetWindowContext();
+	circle.setPosition(-10,-10);
+	window->draw(circle);
 }

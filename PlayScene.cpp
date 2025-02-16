@@ -10,9 +10,7 @@ void PlayScene::Init()
 
     Entity obj;
     auto comp = obj.AddComponent<RenderComponent>();
-    auto new_comp = Entity::AttachComponent<RenderComponent>(comp);
     cur_scene->AddComponent(std::move(comp));
-    cur_scene->AddComponent(std::move(new_comp));
 }
 
 void PlayScene::Update(float dt)
