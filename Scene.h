@@ -23,30 +23,15 @@ public:
 	virtual void Update(float dt);		// 임시로 오브젝트를 업데이트 돌리기 
 	virtual void Render();				// 임시로 오브젝트를 업데이트 돌리기 
 
-	void AddComponent(std::unique_ptr<Component>&& _comp){
-		auto idx{_comp->GetID()};
-		if (idx+1 <= m_vec_component.size()){	// id - 2 , 요소가 3개면 0 1 2 
-			// 만약 넣으려는 요소가 앞쪽이라면
-			// 기존것은 삭제되고 새로 대체된다.
-			m_vec_component[idx] = std::move(_comp);
+	void AddComponent(std::unique_ptr<Component>&& _comp);
+	void DeleteComponent(const std::unique_ptr<Component>& _comp);
+	
+	template<typename T>
+	const std::unique_ptr<T>& GetComponent(const uint32_t& _owner_id){
+		// Component getter
+		// Owner ID를 이용해서 Component를 가져와야함
+		// 해당 type으로 접근이 가능해야한다.
+		// Using T
 
-		}
-		else
-			// 아니면 그냥 insert
-			m_vec_component.emplace_back(std::move(_comp));
-
-		// 기본으로 활성화 
-		if ( m_vec_status.size() <= idx )
-			m_vec_status.reserve(idx+1*2);
-
-		m_vec_status[idx] = EntityStatus::kActive;
-	}
-
-	void DeleteComponent(const std::unique_ptr<Component>& _comp){
-		_comp->Delete();
-
-		// Component deactivate in Loop
-		m_vec_status[_comp->GetID()] = EntityStatus::kDeActive;
 	};
-
 };
