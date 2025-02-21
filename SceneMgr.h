@@ -18,8 +18,14 @@ class SceneMgr{
             m_cur_scene->Init();
         }
 
-        static std::unique_ptr<Scene>& GetCurScene(){
+        static std::unique_ptr<Scene> &GetCurScene()
+        {
             return m_cur_scene;
         }
 
+        template <typename T>
+        static std::shared_ptr<T> GetComponent(const uint32_t &_id)
+        {
+            return m_cur_scene->GetComponentOrigin<T>(_id);
+        };
 };
