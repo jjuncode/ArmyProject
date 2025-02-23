@@ -6,7 +6,7 @@
 #include "TransformComponent.h"
 #include "ColorComponent.h"
 
-void CircleObject::Init()
+void CircleObject::Init(Vec2 _pos, uint32_t _scale, sf::Color _color)
 {
     auto& cur_scene = SceneMgr::GetCurScene();
 
@@ -15,11 +15,11 @@ void CircleObject::Init()
     cur_scene->AddComponent<RenderComponent>(std::move(render));
     
     auto color = obj.AddComponent<ColorComponent>();
-    color->SetColor(sf::Color::Red);
+    color->SetColor(_color);
     cur_scene->AddComponent<ColorComponent>(std::move(color));
     
     auto transform = obj.AddComponent<TransformComponent>();
-    transform->SetPos(Vec2(-25, 10 ));
-    transform->SetScale(100);
+    transform->SetPos(_pos);
+    transform->SetScale(_scale);
     cur_scene->AddComponent<TransformComponent>(std::move(transform));
 }
