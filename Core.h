@@ -1,17 +1,22 @@
 #pragma once
+#include "struct.h"
+#include "SFML/Graphics.hpp"
 
-class Core
-{
-public:
-	static void Init();
-	static void Loop();
+class Core{
+	private:
+		static sf::RenderWindow* m_window;
+		static Vec2 m_window_size;
 
-	static sf::RenderWindow* GetWindowContext() { return m_window; }
+	public:
+		static void Init();
+		static void Loop();
 
-private:
-	static void SetWindowContext(sf::RenderWindow* _window ) { m_window = _window; }
+	public:
+		static sf::RenderWindow *GetWindowContext() { return m_window; }
+		static Vec2 GetWindowSize() {return m_window_size; }
 
-	Core() {}
-	static sf::RenderWindow* m_window;
-
+	private:
+		static void SetWindowContext(sf::RenderWindow *_window) { m_window = _window; }
+		static void SetWindowSize(Vec2 _size){m_window_size = _size;}
+		Core() {}
 };
