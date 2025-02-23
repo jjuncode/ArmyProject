@@ -1,6 +1,6 @@
 #pragma once
 #include <stack>
-#include "Component.h"
+#include "../Component/Component.h"
 
 enum class EntityStatus{
 	// Entity 상태

@@ -9,6 +9,9 @@
                 "-std=c++17",           // C++17 표준 사용
                 "-g",
                 "/workspaces/ArmyProject/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
+                "/workspaces/ArmyProject/Component/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
+                "/workspaces/ArmyProject/Object/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
+
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 

@@ -2,8 +2,8 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
-#include "Component.h"
-#include "Entity.h"
+#include "Component/Component.h"
+#include "Object/Entity.h"
 
 class Scene
 {

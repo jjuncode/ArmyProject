@@ -1,5 +1,5 @@
 #pragma once
-#include "struct.h"
+#include "../struct.h"
 #include "SFML/Graphics.hpp"
 
 class CircleObject{

@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "struct.h"
+#include "../struct.h"
 
 class TransformComponent : public Component{
     private:

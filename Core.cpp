@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Core.h"
-#include "Entity.h"
+#include "Object/Entity.h"
 #include "SceneMgr.h"
 #include "PlayScene.h"
 

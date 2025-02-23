@@ -1,10 +1,10 @@
 #include "CircleObject.h"
-#include "pch.h"
+#include "../pch.h"
 #include "Entity.h"
-#include "SceneMgr.h"
-#include "RenderComponent.h"
-#include "TransformComponent.h"
-#include "ColorComponent.h"
+#include "../SceneMgr.h"
+#include "../Component/RenderComponent.h"
+#include "../Component/TransformComponent.h"
+#include "../Component/ColorComponent.h"
 
 void CircleObject::Init(Vec2 _pos, uint32_t _scale, sf::Color _color)
 {

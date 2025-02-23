@@ -1,8 +1,8 @@
 #include "RenderComponent.h"
-#include "pch.h"
-#include "Core.h"
+#include "../pch.h"
+#include "../Core.h"
+#include "../SceneMgr.h"
 #include "TransformComponent.h"
-#include "SceneMgr.h"
 #include "ColorComponent.h"
 
 void RenderComponent::Render()
