@@ -15,17 +15,17 @@ void RenderComponent::Render()
 
 	if(transform){
 		auto pos = transform ->GetPos();
-		float scale = transform ->GetScale();
+		Vec2 scale = transform ->GetScale();
 
-		sf::CircleShape circle{scale};
+		m_shape->setScale(scale.x,scale.y);
+		m_shape->setPosition(pos.x,  pos.y);
 		
 		if(color)
-			circle.setFillColor(color->GetColor());
+			m_shape->setFillColor(color->GetColor());
 		else
-			circle.setFillColor(color_basic);
+			m_shape->setFillColor(color_basic);
 
 		auto window = Core::GetWindowContext();
-		circle.setPosition(pos.x,  pos.y);
-		window->draw(circle);
+		window->draw(*m_shape.get());
 	}
 }

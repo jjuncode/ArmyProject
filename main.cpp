@@ -3,6 +3,6 @@
 
 int main()
 {
-	Core::Init();
+	Core::Init(800,600);
 	Core::Loop();
 }

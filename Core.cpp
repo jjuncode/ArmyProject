@@ -5,11 +5,13 @@
 #include "PlayScene.h"
 
 sf::RenderWindow* Core::m_window{};
-Vec2 Core::m_window_size{800,600};
+Vec2 Core::m_window_size{};
 
-void Core::Init()
+void Core::Init(int x, int y)
 {
     // 윈도우 생성
+    SetWindowSize(Vec2(x,y));
+
     static sf::RenderWindow window(sf::VideoMode(m_window_size.x, m_window_size.y), "Test");
     Core::SetWindowContext(&window);
 

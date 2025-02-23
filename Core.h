@@ -8,7 +8,7 @@ class Core{
 		static Vec2 m_window_size;
 
 	public:
-		static void Init();
+		static void Init(int x, int y);
 		static void Loop();
 
 	public:
