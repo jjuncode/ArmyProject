@@ -8,6 +8,8 @@ class TransformComponent : public Component{
         uint32_t m_scale;
 
     public:
+        void Update(float dt) override;
+
         Vec2 GetPos() { return m_pos; }
         void SetPos(const Vec2& _pos){m_pos = _pos;}
 

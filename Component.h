@@ -26,7 +26,7 @@ class Component{
         }
         virtual ~Component() = default;
 
-        virtual void Update();
+        virtual void Update(float dt);
         virtual void Render();
 
         void SetOwner(uint32_t _id){m_owner_id = _id;}

@@ -6,5 +6,5 @@ class RenderComponent : public Component
     private:
 
     public:
-        virtual void Render();
+        void Render() override;
 };

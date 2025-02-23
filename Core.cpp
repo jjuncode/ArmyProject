@@ -56,7 +56,7 @@ void Core::Loop()
 			time_acc -= time_frame;
 
 		}
-        SceneMgr::Render();
+      SceneMgr::Render();
 
     }
 }

@@ -3,26 +3,29 @@
 #include "Core.h"
 #include "TransformComponent.h"
 #include "SceneMgr.h"
+#include "ColorComponent.h"
 
 void RenderComponent::Render()
 {
-	auto id = GetOwnerID();	// self id
-	auto transform = SceneMgr::GetComponent<TransformComponent>(id);
+	auto id_owner = GetOwnerID();	// self id
+	auto transform = SceneMgr::GetComponent<TransformComponent>(id_owner);
+	auto color = SceneMgr::GetComponent<ColorComponent>(id_owner);
+
+	sf::Color color_basic{sf::Color::Magenta};
 
 	if(transform){
 		auto pos = transform ->GetPos();
 		float scale = transform ->GetScale();
 
 		sf::CircleShape circle{scale};
-		circle.setFillColor(sf::Color::Blue);
+		
+		if(color)
+			circle.setFillColor(color->GetColor());
+		else
+			circle.setFillColor(color_basic);
+
 		auto window = Core::GetWindowContext();
 		circle.setPosition(pos.x,  pos.y);
 		window->draw(circle);
 	}
-
-    // sf::CircleShape circle{15};
-	// circle.setFillColor(sf::Color::Blue);
-	// auto window = Core::GetWindowContext();
-	// circle.setPosition(-10,-10);
-	// window->draw(circle);
 }
