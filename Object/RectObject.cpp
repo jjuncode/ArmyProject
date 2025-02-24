@@ -12,6 +12,7 @@ void RectObject::Init(Vec2 _pos, Vec2 _scale, sf::Color _color)
 
     Entity obj;
     auto render = obj.AddComponent<RenderComponent>();
+    render->SetShape<sf::RectangleShape>(sf::Vector2f(1,1));
     cur_scene->AddComponent<RenderComponent>(std::move(render));
     
     auto color = obj.AddComponent<ColorComponent>();

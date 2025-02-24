@@ -47,10 +47,7 @@ public:
 	{
 		std::unique_ptr<T> component{std::make_unique<T>(std::forward<V>(params)...)};
 		component->SetOwner(m_id);
-
-		std::cout << "생성된 COMPONENT ID : " << component->GetID()<<std::endl;
-		std::cout << "생성된 COMPONENT OWNER ID : " << component->GetOwnerID()<<std::endl;
-
+		
 		return component;
 	}
 

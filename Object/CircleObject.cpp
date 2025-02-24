@@ -12,7 +12,7 @@ void CircleObject::Init(Vec2 _pos, uint32_t _scale, sf::Color _color)
 
     Entity obj;
     auto render = obj.AddComponent<RenderComponent>();
-    render->SetShape<sf::CircleShape>();
+    render->SetShape<sf::CircleShape>(1);
     cur_scene->AddComponent<RenderComponent>(std::move(render));
     
     auto color = obj.AddComponent<ColorComponent>();
