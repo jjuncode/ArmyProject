@@ -3,6 +3,7 @@
 #include "Object/Entity.h"
 #include "Mgr/SceneMgr.h"
 #include "PlayScene.h"
+#include "Mgr/InputMgr.h"
 
 sf::RenderWindow* Core::m_window{};
 Vec2 Core::m_window_size{};
@@ -41,6 +42,9 @@ void Core::Loop()
         while (window_context->pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window_context->close();
+            else{
+                InputMgr::UpdateInputState(event);
+            }
         }
 
 

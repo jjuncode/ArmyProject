@@ -3,6 +3,7 @@
 #include "Object/CircleObject.h"
 #include "Object/GridObject.h"
 #include "Object/RectObject.h"
+#include "Mgr/InputMgr.h"
 
 void PlayScene::Init()
 {
