@@ -1,7 +1,7 @@
 #include "RectObject.h"
 #include "../pch.h"
 #include "Entity.h"
-#include "../SceneMgr.h"
+#include "../Mgr/SceneMgr.h"
 #include "../Component/RenderComponent.h"
 #include "../Component/TransformComponent.h"
 #include "../Component/ColorComponent.h"

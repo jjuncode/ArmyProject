@@ -7,4 +7,5 @@
 #include <algorithm>
 #include <chrono>
 #include <stack>
+#include <stdint.h>
 #include <memory>

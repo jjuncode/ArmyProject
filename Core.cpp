@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Core.h"
 #include "Object/Entity.h"
-#include "SceneMgr.h"
+#include "Mgr/SceneMgr.h"
 #include "PlayScene.h"
 
 sf::RenderWindow* Core::m_window{};

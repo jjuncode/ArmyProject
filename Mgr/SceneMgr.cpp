@@ -1,6 +1,5 @@
-#include "pch.h"
-#include "Scene.h"
 #include "SceneMgr.h"
+#include "../pch.h"
 
 std::unique_ptr<Scene> SceneMgr::m_cur_scene{};
 

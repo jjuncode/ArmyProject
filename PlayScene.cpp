@@ -16,10 +16,12 @@ void PlayScene::Init()
     circle3.Init(Vec2(70,70), 10, sf::Color::White);
 
     GridObject grid;
-    grid.Init(40);
+    constexpr uint32_t gird_offset{40};
+    grid.Init(gird_offset);
 
     RectObject rect;
-    rect.Init(Vec2(60-20,60-20), Vec2(40,40), sf::Color::Red);
+    rect.Init(Vec2(60-20,60-20), Vec2(gird_offset,gird_offset)
+            , sf::Color::Red);
 }
 
 void PlayScene::Update(float dt)

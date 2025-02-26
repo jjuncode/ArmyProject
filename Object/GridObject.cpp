@@ -2,7 +2,7 @@
 #include "../Core.h"
 #include "../pch.h"
 #include "Entity.h"
-#include "../SceneMgr.h"
+#include "../Mgr/SceneMgr.h"
 #include "../Component/RenderComponent.h"
 #include "../Component/TransformComponent.h"
 #include "../Component/ColorComponent.h"
@@ -27,7 +27,7 @@ void GridObject::Init(uint32_t offset)
         cur_scene->AddComponent<ColorComponent>(std::move(color));
 
         auto transform = obj.AddComponent<TransformComponent>();
-        transform->SetPos(Vec2(0 ,i* offset));
+        transform->SetPos(Vec2(0 ,i* offset -2.5f));
         transform->SetScale(Vec2(window_size.x, 5));
         cur_scene->AddComponent<TransformComponent>(std::move(transform));
     }
@@ -44,7 +44,7 @@ void GridObject::Init(uint32_t offset)
         cur_scene->AddComponent<ColorComponent>(std::move(color));
 
         auto transform = obj.AddComponent<TransformComponent>();
-        transform->SetPos(Vec2(i* offset ,0));
+        transform->SetPos(Vec2(i* offset -2.5f,0));
         transform->SetScale(Vec2(5,window_size.y));
         cur_scene->AddComponent<TransformComponent>(std::move(transform));
     }

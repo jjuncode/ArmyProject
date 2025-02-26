@@ -5,7 +5,8 @@
             "includePath": [
                 "/workspaces/ArmyProject/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
                 "/workspaces/ArmyProject/Component/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
-                "/workspaces/ArmyProject/Object/*.cpp" // 디렉터리의 모든 .cpp 파일 포함
+                "/workspaces/ArmyProject/Object/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
+                "/workspaces/ArmyProject/Mgr/*.cpp" // 디렉터리의 모든 .cpp 파일 포함
 
             ],
             "defines": [],
