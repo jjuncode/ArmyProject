@@ -31,6 +31,7 @@ public:
 			remain_id.pop();
 		}		
 	}
+	const uint32_t GetEntityID() const {return m_id;}
 
 	static void Dead(int _id) 
 	{ 
@@ -40,6 +41,8 @@ public:
 	static uint32_t GetID(std::shared_ptr<Component>&& _comp)noexcept{
 		return _comp->GetID();
 	}
+
+	static uint32_t GetEntitySize() { return id_cnt; } 
 
 	// Component Template 
 	template<typename T, typename... V>

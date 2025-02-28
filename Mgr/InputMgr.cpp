@@ -1,5 +1,9 @@
 #include "InputMgr.h"
 #include "../pch.h"
+#include "../Core.h"
+
+MouseState InputMgr::mouse_state{MouseState::kNone};
+Vec2 InputMgr::mouse_pos{};
 
 void InputMgr::UpdateInputState(sf::Event _event)
 {
@@ -8,6 +12,12 @@ void InputMgr::UpdateInputState(sf::Event _event)
 
 void InputMgr::UpdateMouseState(sf::Event event)
 {
+    auto window = Core::GetWindowContext();
+    sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+
+    mouse_pos.x = mousePos.x;
+    mouse_pos.y = mousePos.y;
+
     // 마우스 버튼이 눌렸을 때 감지
     if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
@@ -15,12 +25,6 @@ void InputMgr::UpdateMouseState(sf::Event event)
                 // 아무것도 아니었으면 TAP
                 mouse_state = MouseState::kLeftTap;
             }
-            else if ( mouse_state == MouseState::kLeftTap){
-                // TAP 이었으면 HOLD
-                mouse_state== MouseState::kLeftHold;
-            }
-            mouse_pos.x = event.mouseButton.x; 
-            mouse_pos.y = event.mouseButton.y;
         }
         else if (event.mouseButton.button == sf::Mouse::Right)
         {
@@ -28,12 +32,6 @@ void InputMgr::UpdateMouseState(sf::Event event)
                 // 아무것도 아니었으면 TAP
                 mouse_state = MouseState::kRightTap;
             }
-            else if ( mouse_state == MouseState::kRightTap){
-                // TAP 이었으면 HOLD
-                mouse_state== MouseState::kRightHold;
-            }
-            mouse_pos.x = event.mouseButton.x; 
-            mouse_pos.y = event.mouseButton.y;
         }
     }
     // 마우스 버튼이 떼어졌을 때 감지
@@ -41,29 +39,21 @@ void InputMgr::UpdateMouseState(sf::Event event)
     {
         if (event.mouseButton.button == sf::Mouse::Left){
             mouse_state = MouseState::kLeftUp;
-            mouse_pos.x = event.mouseButton.x; 
-            mouse_pos.y = event.mouseButton.y;
         }
         else if ( event.mouseButton.button == sf::Mouse::Right){
             mouse_state = MouseState::kRightUp;
-            mouse_pos.x = event.mouseButton.x; 
-            mouse_pos.y = event.mouseButton.y;
         }
     }
     else{
-        // 안눌림
-        if ( mouse_state == MouseState::kLeftTap || mouse_state == MouseState::kLeftHold){
-            mouse_state = MouseState::kLeftUp;
-            mouse_pos.x = event.mouseButton.x; 
-            mouse_pos.y = event.mouseButton.y;
+        // 안떨어짐 
+        if ( mouse_state == MouseState::kLeftTap ){
+            mouse_state = MouseState::kLeftHold;
         }
-        else if ( mouse_state == MouseState::kRightTap || mouse_state == MouseState::kRightHold){
-            mouse_state = MouseState::kRightUp;
-            mouse_pos.x = event.mouseButton.x; 
-            mouse_pos.y = event.mouseButton.y;
+        else if ( mouse_state == MouseState::kRightTap ){
+            mouse_state = MouseState::kRightHold;
         }
-        else{
+
+        if ( mouse_state == MouseState::kLeftUp || mouse_state == MouseState::kRightUp)
             mouse_state = MouseState::kNone;
-        }
     }
 }

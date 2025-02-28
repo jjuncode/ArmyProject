@@ -24,6 +24,9 @@ class InputMgr{
     public:
         static void UpdateInputState(sf::Event _event);
 
+        static MouseState GetMouseState(){return mouse_state;}
+        static Vec2 GetMousePos(){return mouse_pos;}
+
     private:
         static void UpdateMouseState(sf::Event event);
 

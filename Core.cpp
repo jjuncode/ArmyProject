@@ -18,8 +18,8 @@ void Core::Init(int x, int y)
 
     // 뷰 생성 ( 좌하단 0,0설정 ) 
     static sf::View view{window.getDefaultView()};
-    view.setSize(m_window_size.x, -m_window_size.y); 
-    view.setCenter(m_window_size.x/2, m_window_size.y/2);
+    // view.setSize(m_window_size.x, -m_window_size.y); 
+    // view.setCenter(m_window_size.x/2, m_window_size.y/2);
     window.setView(view);
 
     SceneMgr::ChangeScene<PlayScene>();
@@ -43,7 +43,6 @@ void Core::Loop()
             if (event.type == sf::Event::Closed)
                 window_context->close();
             else{
-                InputMgr::UpdateInputState(event);
             }
         }
 
@@ -59,6 +58,7 @@ void Core::Loop()
 		// 고정된 시간 간격으로 게임 업데이트
 		while (time_acc >= time_frame) {
 			// 게임 로직 업데이트
+            InputMgr::UpdateInputState(event);
 			SceneMgr::Update(dt.count());
 			time_acc -= time_frame;
 

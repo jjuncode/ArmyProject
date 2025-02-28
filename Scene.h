@@ -23,21 +23,33 @@ private:
 	virtual void Init();
 	virtual void Update(float dt);		// 임시로 오브젝트를 업데이트 돌리기 
 	virtual void Render();				// 임시로 오브젝트를 업데이트 돌리기
+	
+	// ================================
+	// Entity Method
+	// ================================
+public:
+	template <typename T>
+	auto& GetEntityVector(){
+		static std::vector<uint32_t> vec_entity_id{};
+		return vec_entity_id;
+	}
 
+	template<typename T> 
+	void AddEntity(const Entity& _entity){
+		auto& vec = GetEntityVector<T>();
+		vec.emplace_back(_entity.GetEntityID());	// entity의 자신 id를 return하도록
+	}
+	
+	// ================================
+	// Component Method 
+	// ================================
 private:
 	template <typename T>
-	auto& AccessComponentMap()
+	auto &AccessComponentMap()
 	{
 		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_component{};
 		return map_component;
 	}
-
-	// template <typename T>
-	// void SetComponentMap(std::shared_ptr<T> &&rhs)
-	// {
-	// 	auto& map_component = AccessComponentMap<T>();
-	// 	map_component[rhs->GetOwnerID()] = rhs;
-	// };
 
 public:
 	template<typename T>

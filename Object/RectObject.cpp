@@ -23,4 +23,6 @@ void RectObject::Init(Vec2 _pos, Vec2 _scale, sf::Color _color)
     transform->SetPos(_pos);
     transform->SetScale(_scale);
     cur_scene->AddComponent<TransformComponent>(std::move(transform));
+
+    SceneMgr::AddEntity<RectObject>(obj);
 }

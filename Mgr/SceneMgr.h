@@ -28,4 +28,14 @@ class SceneMgr{
         {
             return m_cur_scene->GetComponentOrigin<T>(_id);
         };
+
+        template<typename T>
+        static const std::vector<uint32_t> GetEntityVector(){
+            return m_cur_scene->GetEntityVector<T>();
+        }
+
+        template<typename T>
+        static void AddEntity(const Entity& _entity){
+            m_cur_scene->AddEntity<T>(_entity);
+        }
 };
