@@ -39,7 +39,7 @@ public:
 		auto& vec = GetEntityVector<T>();
 		vec.emplace_back(_entity.GetEntityID());	// entity의 자신 id를 return하도록
 	}
-	
+
 	// ================================
 	// Component Method 
 	// ================================
@@ -57,19 +57,24 @@ public:
 		auto idx{_comp->GetID()}; 
 
 		// size setting 
-		if (m_vec_component.size() <= idx)
+		if (m_vec_component.capacity() <= idx)
 			m_vec_component.reserve(idx + 1 * 2);
 
 		if (idx + 1 <= m_vec_component.size()){ 
 			// 만약 넣으려는 요소가 앞쪽이라면
 			// 기존것은 삭제되고 새로 대체된다.
 			m_vec_component[idx] = _comp;
-		}	
-		else
-		// 아니면 그냥 insert ?? ? ? 
-			m_vec_component.emplace_back(_comp);
 
-		if (m_vec_status.size() <= idx)
+			// 기본으로 활성화
+			m_vec_status[idx] = EntityStatus::kActive;
+		}
+		else{
+			// 아니면 그냥 insert
+			m_vec_component.emplace_back(_comp);
+			m_vec_status.emplace_back(EntityStatus::kActive);
+		}
+
+		if (m_vec_status.capacity() <= idx)
 			m_vec_status.reserve(idx + 1 * 2);
 
 		// 기본으로 활성화	
@@ -84,13 +89,18 @@ public:
 		auto& map_component = AccessComponentMap<T>();
 
 		auto iter {map_component.find(_owner_id)};
-		
 		if ( iter != map_component.end()){
 			// Find
-			return iter->second.lock();
+			auto comp = iter->second.lock();
+			auto id = comp->GetID();
+			if ( m_vec_status[id] == EntityStatus::kActive ) 
+				return comp;
+			else if ( m_vec_status[id] == EntityStatus::kDead ) 
+				return nullptr;
+
 		}
-		else
-			return nullptr;
+
+		return nullptr;
 	} 
 
 	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;

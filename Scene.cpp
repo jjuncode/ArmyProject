@@ -9,7 +9,8 @@ void Scene::Init()
 void Scene::Update(float dt)
 {
 	for (const auto& obj : m_vec_component) {
-		obj->Update(dt);
+		if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
+			obj->Update(dt);
 	}
 	// for (const auto& obj : m_list_obj) {
 	// 	// 각 obj에 대해
@@ -34,9 +35,9 @@ void Scene::Render()
 
 void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 {
-	_comp->Delete();
+	// Component dead in Loop
+	m_vec_status[_comp->GetID()] = EntityStatus::kDead;
 
-	// Component deactivate in Loop
-	m_vec_status[_comp->GetID()] = EntityStatus::kDeActive;
+	_comp->Delete();
 }
 

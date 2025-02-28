@@ -29,6 +29,10 @@ class SceneMgr{
             return m_cur_scene->GetComponentOrigin<T>(_id);
         };
 
+        static void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept{
+            m_cur_scene ->DeleteComponent(std::move(_comp));
+        }
+
         template<typename T>
         static const std::vector<uint32_t> GetEntityVector(){
             return m_cur_scene->GetEntityVector<T>();

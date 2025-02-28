@@ -32,13 +32,13 @@ void PlayScene::Update(float dt)
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();
 
+    RectObject rect;
+    
+    Vec2 offset{mouse_pos.x % static_cast<int>(gird_offset) , mouse_pos.y %static_cast<int>(gird_offset) };
+    mouse_pos -= offset;
+    
+    // 0~40 -> 0 , 40~ 80 -> 40 ... 
     if (mouse_state == MouseState::kLeftTap || mouse_state == MouseState::kLeftHold){
-        RectObject rect;
-        auto rect_pos = mouse_pos;
-        
-        Vec2 offset{rect_pos.x % static_cast<int>(gird_offset) , rect_pos.y %static_cast<int>(gird_offset) };
-        rect_pos -= offset;
-        // 0~40 -> 0 , 40~ 80 -> 40 ... 
 
         bool same{false};
         
@@ -46,15 +46,27 @@ void PlayScene::Update(float dt)
         for(const auto& id: vec_id){
             auto transform = SceneMgr::GetComponent<TransformComponent>(id);
             auto pos = transform->GetPos();
-            if ( rect_pos == pos ) {
+            if ( mouse_pos == pos ) {
                 same= true;
                 break;
             }
         }
 
         if ( !same ){
-            rect.Init(Vec2(rect_pos.x, rect_pos.y), Vec2(gird_offset,gird_offset), sf::Color::Cyan);
+            rect.Init(Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset), sf::Color::Cyan);
         }
 
+    }
+    else if (mouse_state == MouseState::kRightTap || mouse_state == MouseState::kRightHold){
+        auto vec_id = SceneMgr::GetEntityVector<RectObject>();
+        for(const auto& id: vec_id){
+            auto transform = SceneMgr::GetComponent<TransformComponent>(id);
+            auto pos = transform->GetPos();
+            if ( mouse_pos == pos ) {
+                SceneMgr::DeleteComponent(transform);
+                std::cout << "DELETE" << std::endl;
+                break;
+            }
+        }
     }
 }
