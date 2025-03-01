@@ -45,10 +45,12 @@ void PlayScene::Update(float dt)
         auto vec_id = SceneMgr::GetEntityVector<RectObject>();
         for(const auto& id: vec_id){
             auto transform = SceneMgr::GetComponent<TransformComponent>(id);
-            auto pos = transform->GetPos();
-            if ( mouse_pos == pos ) {
-                same= true;
-                break;
+            if ( transform ) {
+                auto pos = transform->GetPos();
+                if (mouse_pos == pos){
+                    same = true;
+                    break;
+                }
             }
         }
 
@@ -61,11 +63,13 @@ void PlayScene::Update(float dt)
         auto vec_id = SceneMgr::GetEntityVector<RectObject>();
         for(const auto& id: vec_id){
             auto transform = SceneMgr::GetComponent<TransformComponent>(id);
-            auto pos = transform->GetPos();
-            if ( mouse_pos == pos ) {
-                SceneMgr::DeleteComponent(transform);
-                std::cout << "DELETE" << std::endl;
-                break;
+            if ( transform ) {
+                auto pos = transform->GetPos();
+                if (mouse_pos == pos){
+                    SceneMgr::DeleteComponent(transform);
+                    std::cout << "DELETE" << std::endl;
+                    break;
+                }
             }
         }
     }

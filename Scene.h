@@ -60,7 +60,10 @@ public:
 		if (m_vec_component.capacity() <= idx)
 			m_vec_component.reserve(idx + 1 * 2);
 
-		if (idx + 1 <= m_vec_component.size()){ 
+		if (m_vec_status.capacity() <= idx)
+			m_vec_status.reserve(idx + 1 * 2);
+
+		if (idx + 1 <= m_vec_component.size()){
 			// 만약 넣으려는 요소가 앞쪽이라면
 			// 기존것은 삭제되고 새로 대체된다.
 			m_vec_component[idx] = _comp;
@@ -74,12 +77,6 @@ public:
 			m_vec_status.emplace_back(EntityStatus::kActive);
 		}
 
-		if (m_vec_status.capacity() <= idx)
-			m_vec_status.reserve(idx + 1 * 2);
-
-		// 기본으로 활성화	
-		m_vec_status[idx] = EntityStatus::kActive;	
-
 		auto& map = AccessComponentMap<T>();
 		map[_comp->GetOwnerID()] = _comp;
 	}	
@@ -91,13 +88,15 @@ public:
 		auto iter {map_component.find(_owner_id)};
 		if ( iter != map_component.end()){
 			// Find
-			auto comp = iter->second.lock();
-			auto id = comp->GetID();
-			if ( m_vec_status[id] == EntityStatus::kActive ) 
-				return comp;
-			else if ( m_vec_status[id] == EntityStatus::kDead ) 
-				return nullptr;
-
+			
+			if ( !iter->second.expired()){
+				auto comp = iter->second.lock(); // 죽었는가 
+				auto id = comp->GetID();
+				if (m_vec_status[id] == EntityStatus::kActive)
+					return comp;
+				else if (m_vec_status[id] == EntityStatus::kDead)
+					return nullptr;
+			}
 		}
 
 		return nullptr;
