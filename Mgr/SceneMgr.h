@@ -24,22 +24,30 @@ class SceneMgr{
         }
 
         template <typename T>
-        static std::shared_ptr<T> GetComponent(const uint32_t &_id)
+        static std::shared_ptr<T> GetComponentOrigin(const uint32_t &_id)
         {
             return m_cur_scene->GetComponentOrigin<T>(_id);
         };
+
+        static std::shared_ptr<Component> GetComponent(const uint32_t _id){
+            return m_cur_scene -> GetComponent(_id);
+        }
 
         static void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept{
             m_cur_scene ->DeleteComponent(std::move(_comp));
         }
 
         template<typename T>
-        static const std::vector<uint32_t> GetEntityVector(){
+        static const std::vector<uint32_t>& GetEntityVector(){
             return m_cur_scene->GetEntityVector<T>();
         }
 
         template<typename T>
         static void AddEntity(const Entity& _entity){
             m_cur_scene->AddEntity<T>(_entity);
+        }
+
+        static const auto& GetComponentsID(const uint32_t& _owner_id){
+            return m_cur_scene->GetComponentsID(_owner_id);
         }
 };

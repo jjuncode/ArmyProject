@@ -8,8 +8,8 @@
 void RenderComponent::Render()
 {
 	auto id_owner = GetOwnerID();	// self id
-	auto transform = SceneMgr::GetComponent<TransformComponent>(id_owner);
-	auto color = SceneMgr::GetComponent<ColorComponent>(id_owner);
+	auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id_owner);
+	auto color = SceneMgr::GetComponentOrigin<ColorComponent>(id_owner);
 
 	sf::Color color_basic{sf::Color::Magenta};
 

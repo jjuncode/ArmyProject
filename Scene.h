@@ -12,8 +12,9 @@ private:
 
 	// Deactive Component
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
+	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	// entity components
 
-	public:	
+public:	
 	Scene() {}
 	virtual ~Scene() = default;
 	
@@ -38,6 +39,10 @@ public:
 	void AddEntity(const Entity& _entity){
 		auto& vec = GetEntityVector<T>();
 		vec.emplace_back(_entity.GetEntityID());	// entity의 자신 id를 return하도록
+	}
+
+	const auto& GetComponentsID(const uint32_t _owner_id){
+		return m_map_entity_components_id[_owner_id];
 	}
 
 	// ================================
@@ -79,7 +84,12 @@ public:
 
 		auto& map = AccessComponentMap<T>();
 		map[_comp->GetOwnerID()] = _comp;
+		m_map_entity_components_id[_comp->GetOwnerID()].emplace_back(idx);
 	}	
+
+	std::shared_ptr<Component> GetComponent(const uint32_t _id){
+		return m_vec_component[_id];
+	}
 	
 	template<typename T>
 	std::shared_ptr<T> GetComponentOrigin(const uint32_t& _owner_id){
@@ -103,4 +113,8 @@ public:
 	} 
 
 	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;
+
+	void PrintComponents(){
+		std::cout << "COMPONENT 개수 : " << m_vec_component.size() << std::endl;
+	}
 };

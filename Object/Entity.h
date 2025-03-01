@@ -42,8 +42,6 @@ public:
 		return _comp->GetID();
 	}
 
-	static uint32_t GetEntitySize() { return id_cnt; } 
-
 	// Component Template 
 	template<typename T, typename... V>
 	std::unique_ptr<T> AddComponent(V&&... params)

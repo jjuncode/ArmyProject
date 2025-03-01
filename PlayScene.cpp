@@ -44,7 +44,7 @@ void PlayScene::Update(float dt)
         
         auto vec_id = SceneMgr::GetEntityVector<RectObject>();
         for(const auto& id: vec_id){
-            auto transform = SceneMgr::GetComponent<TransformComponent>(id);
+            auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id);
             if ( transform ) {
                 auto pos = transform->GetPos();
                 if (mouse_pos == pos){
@@ -62,11 +62,15 @@ void PlayScene::Update(float dt)
     else if (mouse_state == MouseState::kRightTap || mouse_state == MouseState::kRightHold){
         auto vec_id = SceneMgr::GetEntityVector<RectObject>();
         for(const auto& id: vec_id){
-            auto transform = SceneMgr::GetComponent<TransformComponent>(id);
+            auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id);
             if ( transform ) {
                 auto pos = transform->GetPos();
                 if (mouse_pos == pos){
-                    SceneMgr::DeleteComponent(transform);
+                    auto vec_id = SceneMgr::GetComponentsID(transform->GetOwnerID());
+                    for (const auto& id : vec_id){
+                        auto comp = SceneMgr::GetComponent(id);
+                        SceneMgr::DeleteComponent(std::move(comp));
+                    }
                     std::cout << "DELETE" << std::endl;
                     break;
                 }

@@ -39,5 +39,8 @@ void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 	m_vec_status[_comp->GetID()] = EntityStatus::kDead;
 
 	_comp->Delete();
+
+	// Really Delete
+	_comp.reset();
 }
 
