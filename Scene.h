@@ -113,8 +113,4 @@ public:
 	} 
 
 	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;
-
-	void PrintComponents(){
-		std::cout << "COMPONENT 개수 : " << m_vec_component.size() << std::endl;
-	}
 };

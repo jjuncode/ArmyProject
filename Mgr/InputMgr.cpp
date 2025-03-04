@@ -3,11 +3,23 @@
 #include "../Core.h"
 
 MouseState InputMgr::mouse_state{MouseState::kNone};
+std::array<KeyState,sf::Keyboard::KeyCount> InputMgr::key_state{KeyState::kNone};
+
 Vec2 InputMgr::mouse_pos{};
 
 void InputMgr::UpdateInputState(sf::Event _event)
 {
     UpdateMouseState(_event);
+    UpdateKeyState(_event);
+}
+
+void InputMgr::UpdateKeyNone()
+{
+    for (int i=0; i<sf::Keyboard::KeyCount; ++i){
+        if (key_state[i] == KeyState::kUp){
+            key_state[i] = KeyState::kNone;
+        }
+    }
 }
 
 void InputMgr::UpdateMouseState(sf::Event event)
@@ -55,5 +67,30 @@ void InputMgr::UpdateMouseState(sf::Event event)
 
         if ( mouse_state == MouseState::kLeftUp || mouse_state == MouseState::kRightUp)
             mouse_state = MouseState::kNone;
+    }
+}
+
+void InputMgr::UpdateKeyState(sf::Event event)
+{
+    if ( event.type == sf::Event::KeyPressed){
+        if ( key_state[event.key.code] == KeyState::kNone ){
+            key_state[event.key.code] = KeyState::kTap;
+        }
+    }
+    else if ( event.type == sf::Event::KeyReleased){
+        if ( key_state[event.key.code] == KeyState::kHold){
+            key_state[event.key.code] = KeyState::kUp;
+        }
+    }
+    else{
+        for (int i=0; i<sf::Keyboard::KeyCount; ++i){
+            if ( key_state[i] == KeyState::kTap ){
+                key_state[i] = KeyState::kHold;
+            }
+            
+            if (key_state[i] == KeyState::kUp){
+                key_state[i] = KeyState::kNone;
+            }
+        }
     }
 }

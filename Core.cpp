@@ -37,15 +37,15 @@ void Core::Loop()
 
     // 메인 루프
     while (window_context->isOpen()) {
-        // 이벤트 처리
         sf::Event event;
+        // 이벤트 처리
         while (window_context->pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window_context->close();
             else{
+              InputMgr::UpdateInputState(event);
             }
         }
-
 
         // 경과된 시간 계산
         Clock::time_point time_cur = Clock::now();
@@ -58,12 +58,13 @@ void Core::Loop()
 		// 고정된 시간 간격으로 게임 업데이트
 		while (time_acc >= time_frame) {
 			// 게임 로직 업데이트
-            InputMgr::UpdateInputState(event);
 			SceneMgr::Update(dt.count());
 			time_acc -= time_frame;
 
 		}
-      SceneMgr::Render();
+        InputMgr::UpdateKeyNone();
+
+        SceneMgr::Render();
 
     }
 }
