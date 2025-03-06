@@ -8,6 +8,14 @@ struct Vec2
     Vec2():x{},y{}{}
     Vec2(int _x, int _y ): x{_x}, y{_y}{};
 
+    Vec2 operator- (const Vec2& rhs){
+        return Vec2(x-rhs.x, y-rhs.y);
+    }
+
+    Vec2 operator+ (const Vec2& rhs){
+        return Vec2(x+rhs.x, y+rhs.y);
+    }
+
     Vec2& operator -= (const Vec2& rhs){
        x -= rhs.x;
        y -= rhs.y;

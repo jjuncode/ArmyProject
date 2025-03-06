@@ -7,11 +7,13 @@
 
 class Scene
 {
-private:
+protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
-
+	
 	// Deactive Component
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
+
+private:
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	// entity components
 
 public:	
@@ -31,7 +33,7 @@ public:
 public:
 	template <typename T>
 	auto& GetEntityVector(){
-		static std::vector<uint32_t> vec_entity_id{};
+		static std::vector<uint32_t> vec_entity_id{}; 	// entity id vector 
 		return vec_entity_id;
 	}
 

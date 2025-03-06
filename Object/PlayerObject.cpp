@@ -2,9 +2,11 @@
 #include "../pch.h"
 #include "Entity.h"
 #include "../Mgr/SceneMgr.h"
+
 #include "../Component/RenderComponent.h"
 #include "../Component/TransformComponent.h"
 #include "../Component/ColorComponent.h"
+#include "../Component/PlayerScript.h"
 
 void PlayerObject::Init(Vec2 _pos, Vec2 _scale, sf::Color _color)
 {
@@ -23,6 +25,9 @@ void PlayerObject::Init(Vec2 _pos, Vec2 _scale, sf::Color _color)
     transform->SetPos(_pos);
     transform->SetScale(_scale);
     cur_scene->AddComponent<TransformComponent>(std::move(transform));
+
+    auto script = obj.AddComponent<PlayerScript>();
+    cur_scene ->AddComponent<PlayerScript>(std::move(script));
 
     SceneMgr::AddEntity<PlayerObject>(obj);
 }

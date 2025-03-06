@@ -39,11 +39,12 @@ void Core::Loop()
     while (window_context->isOpen()) {
         sf::Event event;
         // 이벤트 처리
+
         while (window_context->pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window_context->close();
             else{
-              InputMgr::UpdateInputState(event);
+                InputMgr::UpdateInputState(event);
             }
         }
 
@@ -59,11 +60,10 @@ void Core::Loop()
 		while (time_acc >= time_frame) {
 			// 게임 로직 업데이트
 			SceneMgr::Update(dt.count());
+            InputMgr::UpdateKeyState();
 			time_acc -= time_frame;
 
 		}
-        InputMgr::UpdateKeyNone();
-
         SceneMgr::Render();
 
     }

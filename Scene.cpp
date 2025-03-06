@@ -8,13 +8,9 @@ void Scene::Init()
 
 void Scene::Update(float dt)
 {
-	for (const auto& obj : m_vec_component) {
-		if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
-			obj->Update(dt);
-	}
-	// for (const auto& obj : m_list_obj) {
-	// 	// 각 obj에 대해
-	// 	obj->Update(dt);
+	// for (const auto& obj : m_vec_component) {
+	// 	if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
+	// 		obj->Update(dt);
 	// }
 
 	// 죽은애 삭제 

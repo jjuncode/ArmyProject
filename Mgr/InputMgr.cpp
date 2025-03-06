@@ -13,10 +13,13 @@ void InputMgr::UpdateInputState(sf::Event _event)
     UpdateKeyState(_event);
 }
 
-void InputMgr::UpdateKeyNone()
+void InputMgr::UpdateKeyState()
 {
     for (int i=0; i<sf::Keyboard::KeyCount; ++i){
-        if (key_state[i] == KeyState::kUp){
+        if (key_state[i] == KeyState::kTap){
+            key_state[i] = KeyState::kHold;
+        }
+        else if (key_state[i] == KeyState::kUp){
             key_state[i] = KeyState::kNone;
         }
     }
@@ -80,17 +83,6 @@ void InputMgr::UpdateKeyState(sf::Event event)
     else if ( event.type == sf::Event::KeyReleased){
         if ( key_state[event.key.code] == KeyState::kHold){
             key_state[event.key.code] = KeyState::kUp;
-        }
-    }
-    else{
-        for (int i=0; i<sf::Keyboard::KeyCount; ++i){
-            if ( key_state[i] == KeyState::kTap ){
-                key_state[i] = KeyState::kHold;
-            }
-            
-            if (key_state[i] == KeyState::kUp){
-                key_state[i] = KeyState::kNone;
-            }
         }
     }
 }

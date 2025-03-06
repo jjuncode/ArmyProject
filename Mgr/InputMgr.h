@@ -31,13 +31,35 @@ class InputMgr{
 
     public:
         static void UpdateInputState(sf::Event _event);
-        static void UpdateKeyNone();
-
+        static void UpdateKeyState();
+        
         static MouseState GetMouseState(){return mouse_state;}
         static Vec2 GetMousePos(){return mouse_pos;}
-
-    private:
+        
+        static KeyState GetKeyState(sf::Keyboard::Key _key ) { return key_state[_key];}
+        
+        static bool IsTap(sf::Keyboard::Key _key ) {
+            if ( GetKeyState(_key ) == KeyState::kTap){
+                return true;
+            }
+            return false;
+        }
+        static bool IsHold(sf::Keyboard::Key _key ) {
+            if ( GetKeyState(_key ) == KeyState::kHold){
+                return true;
+            }
+            return false;
+        }
+        static bool IsUp(sf::Keyboard::Key _key ) {
+            if ( GetKeyState(_key ) == KeyState::kUp){
+                return true;
+            }
+            return false;
+        }
+        
+        private:
         static void UpdateMouseState(sf::Event event);
         static void UpdateKeyState(sf::Event event);  
+        
 
 };

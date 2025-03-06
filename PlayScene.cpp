@@ -23,6 +23,11 @@ void PlayScene::Init()
 
 void PlayScene::Update(float dt)
 {
+    for (const auto &obj : m_vec_component){
+        if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
+            obj->Update(dt);
+    }
+
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();
 
