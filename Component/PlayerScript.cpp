@@ -7,27 +7,29 @@
 
 void PlayerScript::Update(float dt)
 {
+    uint32_t grid_offset{40};
+
     if ( InputMgr::IsTap(sf::Keyboard::Left)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos-Vec2(40,0));
+        transform->SetPos(pos-Vec2(grid_offset,0));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Right)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(40,0));
+        transform->SetPos(pos+Vec2(grid_offset,0));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Up)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(0,-40));
+        transform->SetPos(pos+Vec2(0,-grid_offset));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Down)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(0,40));
+        transform->SetPos(pos+Vec2(0,grid_offset));
     }
 }

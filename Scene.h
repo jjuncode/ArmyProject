@@ -1,32 +1,50 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <bitset>
 #include <unordered_map>
 #include "Component/Component.h"
 #include "Object/Entity.h"
+
+enum class ObjectType{
+    kPlayer = 0,
+    kWall,
+    
+    kEND
+};
+
 
 class Scene
 {
 protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
-	
-	// Deactive Component
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
 
 private:
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	// entity components
+
+	// Collision Layer
+	// std::bitset<static_cast<std::size_t>(ObjectType::kEND)>
+	// m_collision_layer[static_cast<uint32_t>(ObjectType::kEND)];
+
 
 public:	
 	Scene() {}
 	virtual ~Scene() = default;
 	
 	// =====================
-	// Object function
+	// Loop function
 	// =====================
 	virtual void Init();
 	virtual void Update(float dt);		// 임시로 오브젝트를 업데이트 돌리기 
 	virtual void Render();				// 임시로 오브젝트를 업데이트 돌리기
-	
+
+	// ======================
+	// Collision Func
+	// ======================
+	// void SetCollisionLayer(ObjectType l_type, ObjectType r_type, bool check);
+	// auto GetCollisionLayer() {return m_collision_layer; }
+
 	// ================================
 	// Entity Method
 	// ================================
