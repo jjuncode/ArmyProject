@@ -1,12 +1,9 @@
 #pragma once
-#include <vector>
-#include <memory>
-#include <bitset>
-#include <unordered_map>
+#include "pch.h"
 #include "Component/Component.h"
 #include "Object/Entity.h"
 
-enum class ObjectType{
+enum class CollisionEntityType{
     kPlayer = 0,
     kWall,
     
@@ -21,11 +18,15 @@ protected:
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
 
 private:
-	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	// entity components
+	// Entity Components Map
+	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
+
+	// Collision Entity Map
+	std::unordered_map<CollisionEntityType, std::vector<uint32_t>> m_map_collision_entity;
 
 	// Collision Layer
-	// std::bitset<static_cast<std::size_t>(ObjectType::kEND)>
-	// m_collision_layer[static_cast<uint32_t>(ObjectType::kEND)];
+	std::bitset<static_cast<std::size_t>(CollisionEntityType::kEND)>
+	m_collision_layer[static_cast<uint32_t>(CollisionEntityType::kEND)];
 
 
 public:	
@@ -44,6 +45,12 @@ public:
 	// ======================
 	// void SetCollisionLayer(ObjectType l_type, ObjectType r_type, bool check);
 	// auto GetCollisionLayer() {return m_collision_layer; }
+	void AddCollisionEntity(CollisionEntityType _type, uint32_t entity_id){
+		auto& vec = m_map_collision_entity[_type];
+		vec.emplace_back(entity_id);
+		std::sort(vec.begin(), vec.end());
+	}
+
 
 	// ================================
 	// Entity Method

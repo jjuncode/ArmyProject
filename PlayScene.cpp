@@ -54,7 +54,7 @@ void PlayScene::Update(float dt)
         }
 
         if ( !same ){
-            rect.Init(Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset), sf::Color::Cyan);
+            rect.Init(Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset), sf::Color::Yellow);
         }
 
     }

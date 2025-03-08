@@ -7,6 +7,7 @@
 #include "../Component/TransformComponent.h"
 #include "../Component/ColorComponent.h"
 #include "../Component/PlayerScript.h"
+#include "../Component/ColliderComponent.h"
 
 void PlayerObject::Init(Vec2 _pos, Vec2 _scale, sf::Color _color)
 {
@@ -28,6 +29,9 @@ void PlayerObject::Init(Vec2 _pos, Vec2 _scale, sf::Color _color)
 
     auto script = obj.AddComponent<PlayerScript>();
     cur_scene ->AddComponent<PlayerScript>(std::move(script));
+
+    auto collider = obj.AddComponent<ColliderComponent>(CollisionEntityType::kPlayer);
+    cur_scene ->AddComponent<ColliderComponent>(std::move(collider));
 
     SceneMgr::AddEntity<PlayerObject>(obj);
 }
