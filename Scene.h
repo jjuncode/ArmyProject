@@ -19,7 +19,7 @@ protected:
 
 private:
 	// Entity Components Map
-	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
+	std::unordered_map<uint32_t, std::list<uint32_t>> m_map_entity_components_id;	
 
 	// Collision Entity Map
 	std::unordered_map<CollisionEntityType, std::vector<uint32_t>> m_map_collision_entity;
@@ -55,11 +55,12 @@ public:
 	}
 
 	void AddCollisionEntity(CollisionEntityType _type, uint32_t entity_id){
-		auto& vec = m_map_collision_entity[_type];
-		vec.emplace_back(entity_id);
-		std::sort(vec.begin(), vec.end());
+		auto& list = m_map_collision_entity[_type];
+		list.emplace_back(entity_id);
+		std::sort(list.begin(), list.end());
 	}
 
+	void DeleteCollisionEntity(CollisionEntityType _type, const uint32_t& entity_id) noexcept;
 
 	// ================================
 	// Entity Method

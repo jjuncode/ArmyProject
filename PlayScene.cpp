@@ -28,8 +28,10 @@ void PlayScene::Update(float dt)
 {
     // Entity Update
     for (const auto &entity : m_vec_component){
-        if (m_vec_status[entity->GetID()] == EntityStatus::kActive)
-            entity->Update(dt);
+        if (entity){
+            if (m_vec_status[entity->GetID()] == EntityStatus::kActive)
+                entity->Update(dt);
+        }
     }
 
     // Collision Check

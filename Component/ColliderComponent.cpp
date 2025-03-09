@@ -7,8 +7,17 @@ void ColliderComponent::Init(CollisionEntityType _type)
 {
     auto& cur_scene = SceneMgr::GetCurScene();
 
+    m_type = _type;
     auto id = GetOwnerID();
+
     cur_scene->AddCollisionEntity(_type, GetOwnerID());
+}
+
+ColliderComponent::~ColliderComponent()
+{
+    std::cout << "FUCK "<< std::endl;
+
+   SceneMgr::GetCurScene()->DeleteCollisionEntity(m_type, GetOwnerID());
 }
 
 void ColliderComponent::Render()
