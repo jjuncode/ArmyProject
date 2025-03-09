@@ -24,9 +24,9 @@ class SceneMgr{
         }
 
         template <typename T>
-        static std::shared_ptr<T> GetComponentOrigin(const uint32_t &_id)
+        static std::shared_ptr<T> GetComponentOrigin(const uint32_t &_owner_id)
         {
-            return m_cur_scene->GetComponentOrigin<T>(_id);
+            return m_cur_scene->GetComponentOrigin<T>(_owner_id);
         };
 
         static std::shared_ptr<Component> GetComponent(const uint32_t _id){

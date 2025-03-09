@@ -3,7 +3,7 @@
 #include "Component/Component.h"
 #include "Object/Entity.h"
 
-enum class CollisionEntityType{
+enum class CollisionEntityType {
     kPlayer = 0,
     kWall,
     
@@ -43,8 +43,17 @@ public:
 	// ======================
 	// Collision Func
 	// ======================
-	// void SetCollisionLayer(ObjectType l_type, ObjectType r_type, bool check);
-	// auto GetCollisionLayer() {return m_collision_layer; }
+	void SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_type, bool check);
+
+	const auto& GetCollisionLayer(){
+		return m_collision_layer;
+	}
+
+	const auto& GetCollisionEntity(uint32_t _type ){
+		auto type = static_cast<CollisionEntityType>(_type);
+		return m_map_collision_entity[type];
+	}
+
 	void AddCollisionEntity(CollisionEntityType _type, uint32_t entity_id){
 		auto& vec = m_map_collision_entity[_type];
 		vec.emplace_back(entity_id);
@@ -70,6 +79,10 @@ public:
 
 	const auto& GetComponentsID(const uint32_t _owner_id){
 		return m_map_entity_components_id[_owner_id];
+	}
+
+	EntityStatus GetEntityStatus(uint32_t entity_id ){
+		return m_vec_status[entity_id];
 	}
 
 	// ================================

@@ -7,7 +7,8 @@ void ColliderComponent::Init(CollisionEntityType _type)
 {
     auto& cur_scene = SceneMgr::GetCurScene();
 
-    cur_scene->AddCollisionEntity(_type,GetOwnerID());
+    auto id = GetOwnerID();
+    cur_scene->AddCollisionEntity(_type, GetOwnerID());
 }
 
 void ColliderComponent::Render()
@@ -27,4 +28,13 @@ void ColliderComponent::Render()
         auto window = Core::GetWindowContext();
         window->draw(rect);
     }
+}
+
+void ColliderComponent::Collision(uint32_t coll_entity_id)
+{
+    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+    auto pos = transform->GetPos();
+    auto scale = transform->GetScale();
+    std::cout << "COLLISON OCCUR ID : " << GetID() << std::endl;
+    std::cout << "COLLISON OCCUR OPPONENT ENTITY ID : " << coll_entity_id << std::endl;
 }

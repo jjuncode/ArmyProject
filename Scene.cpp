@@ -8,13 +8,6 @@ void Scene::Init()
 
 void Scene::Update(float dt)
 {
-	// for (const auto& obj : m_vec_component) {
-	// 	if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
-	// 		obj->Update(dt);
-	// }
-
-	// 죽은애 삭제 
-	// DeleteDead();
 }
 
 void Scene::Render()
@@ -30,22 +23,22 @@ void Scene::Render()
 }
 
 
-// void Scene::SetCollisionLayer(ObjectType l_type, ObjectType r_type, bool check)
-// {
-//     int row{};
-//     int col{};
+void Scene::SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_type, bool check)
+{
+    int row{};
+    int col{};
 
-//     if ( l_type < r_type ) {
-//         row = static_cast<int>(l_type);
-//         col = static_cast<int>(r_type);
-//     }
-//     else{
-//         row = static_cast<int>(r_type);
-//         col = static_cast<int>(l_type);
-//     }
+    if ( l_type < r_type ) {
+        row = static_cast<int>(l_type);
+        col = static_cast<int>(r_type);
+    }
+    else{
+        row = static_cast<int>(r_type);
+        col = static_cast<int>(l_type);
+    }
 
-//     m_collision_layer[row][col] = check;
-// }
+    m_collision_layer[row][col] = check;
+}
 
 void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 {

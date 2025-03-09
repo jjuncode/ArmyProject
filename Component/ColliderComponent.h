@@ -5,12 +5,12 @@ enum class CollisionEntityType;
 
 class ColliderComponent : public Component {
     public:
-        ColliderComponent(CollisionEntityType _type){
-            Init(_type);
-        }
+        ColliderComponent() = default;
 
         void Render() override;
 
-    private:
+        void Collision(uint32_t coll_entity_id);    // Collision rhs ID
         void Init(CollisionEntityType _type);
+
+    private:
 };

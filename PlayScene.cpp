@@ -8,6 +8,7 @@
 
 #include "Mgr/InputMgr.h"
 #include "Mgr/SceneMgr.h"
+#include "Mgr/CollisionMgr.h"
 
 #include "Component/TransformComponent.h"
 
@@ -19,14 +20,20 @@ void PlayScene::Init()
     PlayerObject player;
     int node = gird_offset;
     player.Init(Vec2(5*node,5*node), Vec2(gird_offset,gird_offset), sf::Color::Red);
+
+    SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }
 
 void PlayScene::Update(float dt)
 {
-    for (const auto &obj : m_vec_component){
-        if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
-            obj->Update(dt);
+    // Entity Update
+    for (const auto &entity : m_vec_component){
+        if (m_vec_status[entity->GetID()] == EntityStatus::kActive)
+            entity->Update(dt);
     }
+
+    // Collision Check
+   CollisionMgr::Collision();
 
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();

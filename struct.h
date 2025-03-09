@@ -42,4 +42,6 @@ struct Vec2f
 
     Vec2f():x{},y{}{}
     Vec2f(float _x, float _y ): x{_x}, y{_y}{};
+
+    Vec2f(Vec2 rhs) : x{static_cast<float>(rhs.x)}, y{static_cast<float>(rhs.y)}{};
 };
