@@ -15,8 +15,6 @@ void ColliderComponent::Init(CollisionEntityType _type)
 
 ColliderComponent::~ColliderComponent()
 {
-    std::cout << "FUCK "<< std::endl;
-
    SceneMgr::GetCurScene()->DeleteCollisionEntity(m_type, GetOwnerID());
 }
 

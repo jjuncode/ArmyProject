@@ -24,7 +24,7 @@ void CollisionMgr::Collision()
     }
 }
 
-void CollisionMgr::CollisionCheck(const std::vector<uint32_t> &left, const std::vector<uint32_t> &right)
+void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::list<uint32_t> &right)
 {
     for ( const auto& left_id : left ) {
         for ( const auto& right_id : right ){
@@ -57,12 +57,6 @@ bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *ri
 
     auto scale_left = transform_left->GetScale();
     auto scale_right = transform_right->GetScale();
-
-    // Left AABB
-    // float left1 = pos_left.x - scale_left.x / 2.0f;
-    // float right1 = pos_left.x + scale_left.x / 2.0f;
-    // float bottom1 = pos_left.y - scale_left.y / 2.0f;
-    // float top1 = pos_left.y + scale_left.y / 2.0f;
 
     // Left AABB
     Vec2f l_left_bot = pos_left;

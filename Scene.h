@@ -19,10 +19,10 @@ protected:
 
 private:
 	// Entity Components Map
-	std::unordered_map<uint32_t, std::list<uint32_t>> m_map_entity_components_id;	
+	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
 
 	// Collision Entity Map
-	std::unordered_map<CollisionEntityType, std::vector<uint32_t>> m_map_collision_entity; // ㅇㅅㄲ가 문제임 
+	std::unordered_map<CollisionEntityType, std::list<uint32_t>> m_map_collision_entity;  
 
 	// Collision Layer
 	std::bitset<static_cast<std::size_t>(CollisionEntityType::kEND)>
@@ -59,7 +59,7 @@ public:
 	void AddCollisionEntity(CollisionEntityType _type, uint32_t entity_id){
 		auto& list = m_map_collision_entity[_type];
 		list.emplace_back(entity_id);
-		std::sort(list.begin(), list.end());
+		// std::sort(list.begin(), list.end());
 	}
 
 	void DeleteCollisionEntity(CollisionEntityType _type, const uint32_t& entity_id) noexcept;
