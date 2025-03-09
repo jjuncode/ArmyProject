@@ -24,6 +24,10 @@ void Scene::Render()
 	window->display();
 }
 
+void Scene::Exit()
+{
+    m_vec_component.clear();
+}
 
 void Scene::SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_type, bool check)
 {
@@ -63,7 +67,6 @@ void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 	_comp->Delete();
     
 	// Really Delete
-    m_vec_component[_comp->GetID()].reset();
 	_comp.reset();
 }
 

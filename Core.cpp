@@ -67,4 +67,6 @@ void Core::Loop()
         SceneMgr::Render();
 
     }
+
+    SceneMgr::Exit();
 }

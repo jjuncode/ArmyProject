@@ -15,4 +15,6 @@ void SceneMgr::Render()
 
 void SceneMgr::Exit()
 {
+    m_cur_scene->Exit();
+    m_cur_scene.reset();
 }

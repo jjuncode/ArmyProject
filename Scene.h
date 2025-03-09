@@ -22,7 +22,7 @@ private:
 	std::unordered_map<uint32_t, std::list<uint32_t>> m_map_entity_components_id;	
 
 	// Collision Entity Map
-	std::unordered_map<CollisionEntityType, std::vector<uint32_t>> m_map_collision_entity;
+	std::unordered_map<CollisionEntityType, std::vector<uint32_t>> m_map_collision_entity; // ㅇㅅㄲ가 문제임 
 
 	// Collision Layer
 	std::bitset<static_cast<std::size_t>(CollisionEntityType::kEND)>
@@ -32,13 +32,15 @@ private:
 public:	
 	Scene() {}
 	virtual ~Scene() = default;
-	
+
 	// =====================
 	// Loop function
 	// =====================
 	virtual void Init();
 	virtual void Update(float dt);		// 임시로 오브젝트를 업데이트 돌리기 
 	virtual void Render();				// 임시로 오브젝트를 업데이트 돌리기
+
+	virtual void Exit();
 
 	// ======================
 	// Collision Func
@@ -128,7 +130,7 @@ public:
 		m_map_entity_components_id[_comp->GetOwnerID()].emplace_back(idx);
 	}	
 
-	std::shared_ptr<Component> GetComponent(const uint32_t _id){
+	std::shared_ptr<Component>& GetComponent(const uint32_t _id){
 		return m_vec_component[_id];
 	}
 	

@@ -14,6 +14,8 @@ class SceneMgr{
         template<typename T>
         static void ChangeScene(){
             auto scene_new = new T();
+            if ( m_cur_scene ) 
+                m_cur_scene->Exit();
             m_cur_scene.reset(scene_new);
             m_cur_scene->Init();
         }
@@ -29,7 +31,7 @@ class SceneMgr{
             return m_cur_scene->GetComponentOrigin<T>(_owner_id);
         };
 
-        static std::shared_ptr<Component> GetComponent(const uint32_t _id){
+        static std::shared_ptr<Component>& GetComponent(const uint32_t _id){
             return m_cur_scene -> GetComponent(_id);
         }
 

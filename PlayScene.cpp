@@ -76,7 +76,7 @@ void PlayScene::Update(float dt)
                 if (mouse_pos == pos){
                     auto vec_id = SceneMgr::GetComponentsID(transform->GetOwnerID());
                     for (const auto& id : vec_id){
-                        auto comp = SceneMgr::GetComponent(id);
+                        auto& comp = SceneMgr::GetComponent(id);
                         SceneMgr::DeleteComponent(std::move(comp));
                     }
                     std::cout << "DELETE" << std::endl;
