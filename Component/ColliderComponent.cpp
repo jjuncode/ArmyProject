@@ -3,19 +3,58 @@
 #include "../Core.h"
 #include "TransformComponent.h"
 
+std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
+
+
 void ColliderComponent::Init(CollisionEntityType _type)
 {
     auto& cur_scene = SceneMgr::GetCurScene();
 
-    m_type = _type;
+    m_collision_type = _type;
     auto id = GetOwnerID();
 
     cur_scene->AddCollisionEntity(_type, GetOwnerID());
 }
 
+CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
+{
+    CollisionInfoID info;
+    info.left = GetOwnerID();
+    info.right = coll_entity_id;
+
+    auto iter = m_map_collision_status.find(info.id);
+
+    if ( iter == m_map_collision_status.end()){
+        return CollisionStatus::kNone;
+    }
+
+    return iter->second;
+}
+
+void ColliderComponent::CollisionEnter()
+{
+    std::cout << "ENTER"<<std::endl;
+}
+
+void ColliderComponent::CollisionStay()
+{
+    std::cout << "STAY"<<std::endl;
+}
+
+void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
+{
+    CollisionInfoID info;
+    info.left = GetOwnerID();
+    info.right = coll_entity_id;
+
+    m_map_collision_status[info.id] = CollisionStatus::kNone;
+
+    std::cout << "EXIT"<<std::endl;
+}
+
 ColliderComponent::~ColliderComponent()
 {
-   SceneMgr::GetCurScene()->DeleteCollisionEntity(m_type, GetOwnerID());
+   SceneMgr::GetCurScene()->DeleteCollisionEntity(m_collision_type, GetOwnerID());
 }
 
 void ColliderComponent::Render()
@@ -39,9 +78,27 @@ void ColliderComponent::Render()
 
 void ColliderComponent::Collision(uint32_t coll_entity_id)
 {
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
-    auto pos = transform->GetPos();
-    auto scale = transform->GetScale();
-    std::cout << "COLLISON OCCUR ID : " << GetID() << std::endl;
-    std::cout << "COLLISON OCCUR OPPONENT ENTITY ID : " << coll_entity_id << std::endl;
+    CollisionInfoID info;
+    info.left = GetOwnerID();
+    info.right = coll_entity_id;
+
+    auto iter = m_map_collision_status.find(info.id);
+
+    if ( iter == m_map_collision_status.end() || iter->second == CollisionStatus::kNone ) {
+        // Collision Enter 
+        m_map_collision_status[info.id] = CollisionStatus::kEnter;
+        CollisionEnter();
+    }
+    else{
+        auto collision_status = iter->second;
+        if ( collision_status == CollisionStatus::kEnter){
+            iter->second = CollisionStatus::kStay;
+            CollisionStay();
+        }
+        else if ( collision_status == CollisionStatus::kStay){
+            CollisionStay();
+        }
+    }
+
+
 }

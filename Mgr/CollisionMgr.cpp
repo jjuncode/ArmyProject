@@ -38,8 +38,26 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                     continue;
                 else{
                     if (CollisionLogic(left_coll.get(), right_coll.get())){
+                        // Collision 
                         left_coll->Collision(right_coll->GetOwnerID());
                         right_coll->Collision(left_coll->GetOwnerID());
+                    }
+                    else{
+                        // Not Collision
+                        auto left_entity_id = left_coll->GetOwnerID();
+                        auto right_entity_id = right_coll->GetOwnerID();
+
+                        auto left_status = left_coll->GetCollisionStatus(right_entity_id);
+                        auto right_status = right_coll->GetCollisionStatus(left_entity_id);
+                        
+                        if ( left_status == CollisionStatus::kStay){
+                            left_coll->CollisionExit(right_entity_id);
+                        }
+
+                        if ( right_status == CollisionStatus::kStay ) {
+                            right_coll->CollisionExit(left_entity_id);
+                        }
+
                     }
                 }
             }
