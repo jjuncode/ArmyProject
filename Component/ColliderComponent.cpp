@@ -1,7 +1,9 @@
 #include "ColliderComponent.h"
 #include "../Mgr/SceneMgr.h"
 #include "../Core.h"
+
 #include "TransformComponent.h"
+#include "ColorComponent.h"
 
 std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
 
@@ -33,12 +35,12 @@ CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
 
 void ColliderComponent::CollisionEnter()
 {
-    std::cout << "ENTER"<<std::endl;
 }
 
 void ColliderComponent::CollisionStay()
 {
-    std::cout << "STAY"<<std::endl;
+    auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
+    color->SetColor(sf::Color::Cyan);
 }
 
 void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
@@ -49,7 +51,8 @@ void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
 
     m_map_collision_status[info.id] = CollisionStatus::kNone;
 
-    std::cout << "EXIT"<<std::endl;
+    auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
+    color->SetColor(sf::Color::Yellow);
 }
 
 ColliderComponent::~ColliderComponent()
