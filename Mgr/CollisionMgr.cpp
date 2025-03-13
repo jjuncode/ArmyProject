@@ -77,12 +77,12 @@ bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *ri
     auto scale_right = transform_right->GetScale();
 
     // Left AABB
-    Vec2f l_left_bot = pos_left;
-    Vec2f l_right_top = pos_left+scale_left;
+    Vec2 l_left_bot = pos_left;
+    Vec2 l_right_top = pos_left+scale_left;
 
     // Right AABB
-    Vec2f r_left_bot = pos_right;
-    Vec2f r_right_top = pos_right + scale_right;
+    Vec2 r_left_bot = pos_right;
+    Vec2 r_right_top = pos_right + scale_right;
 
     // AABB Collision
     // if (l_left_bot.x > r_right_top.x || l_left_bot.y > r_right_top.y 

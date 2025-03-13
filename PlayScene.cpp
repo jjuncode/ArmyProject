@@ -40,7 +40,8 @@ void PlayScene::Update(float dt)
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();
 
-    Vec2 offset{mouse_pos.x % static_cast<int>(gird_offset) , mouse_pos.y %static_cast<int>(gird_offset) };
+    Vec2 offset{static_cast<float>(static_cast<int>(mouse_pos.x) % static_cast<int>(gird_offset)),
+        static_cast<float>(static_cast<int>(mouse_pos.y) % static_cast<int>(gird_offset))};
     mouse_pos -= offset;
     
     // 0~40 -> 0 , 40~ 80 -> 40 ... 

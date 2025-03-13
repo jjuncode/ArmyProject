@@ -16,6 +16,8 @@ void ColliderComponent::Init(CollisionEntityType _type)
     auto id = GetOwnerID();
 
     cur_scene->AddCollisionEntity(_type, GetOwnerID());
+
+    CreateEdge();
 }
 
 CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
@@ -58,6 +60,28 @@ void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
 void ColliderComponent::CreateEdge()
 {
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+
+    Vec2 start;
+    Edge edge;
+    
+    int cnt{};
+    for ( const auto& dot : transform->GetVertexs()){
+        ++cnt;
+        if(cnt == 1 ) {
+            edge.start = dot;
+            start = dot;
+        }
+        else{
+            edge.end = dot;
+            m_vec_entity_edge.emplace_back(edge);
+
+            edge.start = dot;
+        }
+    }
+
+    // Finish Edge
+    Edge edge_end{edge.end, start};
+    m_vec_entity_edge.emplace_back(edge_end);
 }
 
 ColliderComponent::~ColliderComponent()
