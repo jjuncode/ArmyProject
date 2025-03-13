@@ -13,4 +13,5 @@ class PlayerObject : public Object{
 
         void SetShape() override;
         void SetScript() override;
+        void CreateVertex(Vec2 _pos,Vec2 _scale) override;
 };

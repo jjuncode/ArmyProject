@@ -28,6 +28,7 @@ class ColliderComponent : public Component {
 
     public:
         ColliderComponent() = default;
+        ~ColliderComponent();
 
         void Render() override;
 
@@ -40,5 +41,11 @@ class ColliderComponent : public Component {
         void CollisionStay();
         void CollisionExit(uint32_t coll_entity_id);
 
-        ~ColliderComponent();
+    private:
+        // ==================
+        // SAT Func
+        // ==================
+        void CreateEdge();
+
+
 };

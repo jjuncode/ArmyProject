@@ -8,8 +8,10 @@ class RectObject : public Object{
             AddScene<RectObject>();
             SetColor(sf::Color::Yellow);
             SetShape();
+            CreateVertex(_pos, _scale);
         }
 
-        void SetShape();
+        void SetShape() override;
         void SetScript() override;
+        void CreateVertex(Vec2 _pos,Vec2 _scale) override;
 };

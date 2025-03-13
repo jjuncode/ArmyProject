@@ -19,10 +19,6 @@ void Object::Init(Vec2 _pos, Vec2 _scale)
     cur_scene->AddComponent<TransformComponent>(std::move(transform));
 }
 
-void Object::CreateVertex()
-{
-}
-
 void Object::SetCollider(CollisionEntityType _type)
 { 
     auto& cur_scene = SceneMgr::GetCurScene();
@@ -38,8 +34,4 @@ void Object::SetColor(sf::Color _color)
     auto color = obj.AddComponent<ColorComponent>();
     color->SetColor(_color);
     cur_scene->AddComponent<ColorComponent>(std::move(color));
-}
-
-void Object::SetShape()
-{
 }

@@ -8,12 +8,10 @@
 class Object{
     protected:
         Entity obj;
-        std::vector<Vec2> m_vec_vertex;
 
     public:
         Object(Vec2 _pos,Vec2 _scale){
             Init(_pos, _scale);
-            CreateVertex();
         }
         
         template<typename T>
@@ -24,10 +22,13 @@ class Object{
         void SetCollider(CollisionEntityType _type);
         virtual void SetColor(sf::Color _color);
 
-        virtual void SetShape();
+        // ======================
+        // Abstract Method 
+        // ======================
+        virtual void SetShape() = 0;
         virtual void SetScript() = 0;
+        virtual void CreateVertex(Vec2 _pos,Vec2 _scale) = 0;
 
-        private:
-            virtual void Init(Vec2 _pos,Vec2 _scale);
-            virtual void CreateVertex();
+    private:
+        virtual void Init(Vec2 _pos,Vec2 _scale);
 };

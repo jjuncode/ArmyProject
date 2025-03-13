@@ -55,6 +55,11 @@ void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
     color->SetColor(sf::Color::Yellow);
 }
 
+void ColliderComponent::CreateEdge()
+{
+    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+}
+
 ColliderComponent::~ColliderComponent()
 {
    SceneMgr::GetCurScene()->DeleteCollisionEntity(m_collision_type, GetOwnerID());
