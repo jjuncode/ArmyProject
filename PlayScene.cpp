@@ -17,9 +17,9 @@ void PlayScene::Init()
     GridObject grid;
     grid.Init(gird_offset);
 
-    PlayerObject player;
     int node = gird_offset;
-    player.Init(Vec2(5*node,5*node), Vec2(gird_offset,gird_offset), sf::Color::Red);
+    PlayerObject player{Vec2(5*node,5*node), Vec2(gird_offset,gird_offset)};
+    player.SetCollider(CollisionEntityType::kPlayer);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }
@@ -40,8 +40,6 @@ void PlayScene::Update(float dt)
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();
 
-    RectObject rect;
-    
     Vec2 offset{mouse_pos.x % static_cast<int>(gird_offset) , mouse_pos.y %static_cast<int>(gird_offset) };
     mouse_pos -= offset;
     
@@ -63,7 +61,8 @@ void PlayScene::Update(float dt)
         }
 
         if ( !same ){
-            rect.Init(Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset), sf::Color::Yellow);
+            RectObject rect{Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset)};
+            rect.SetCollider(CollisionEntityType::kWall);
         }
 
     }

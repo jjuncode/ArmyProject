@@ -1,5 +1,6 @@
 #pragma once
 #include <stack>
+#include <memory>
 #include "../Component/Component.h"
 
 enum class EntityStatus{

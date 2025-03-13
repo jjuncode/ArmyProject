@@ -1,8 +1,15 @@
 #pragma once
 #include "../struct.h"
-#include "SFML/Graphics.hpp"
+#include "Object.h"
 
-class RectObject{
+class RectObject : public Object{
     public:
-        void Init(Vec2 _pos,Vec2 _scale,  sf::Color _color);
+        RectObject(Vec2 _pos,Vec2 _scale) : Object(_pos,_scale){
+            AddScene<RectObject>();
+            SetColor(sf::Color::Yellow);
+            SetShape();
+        }
+
+        void SetShape();
+        void SetScript() override;
 };
