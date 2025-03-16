@@ -7,7 +7,7 @@
 
 void PlayerScript::Update(float dt)
 {
-    uint32_t grid_offset{40};
+    int grid_offset{40};
 
     if ( InputMgr::IsTap(sf::Keyboard::Left)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
@@ -24,7 +24,9 @@ void PlayerScript::Update(float dt)
     if ( InputMgr::IsTap(sf::Keyboard::Up)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(0,-grid_offset));
+        transform->SetPos(pos-Vec2(0,grid_offset));
+
+        std::cout << "POS : " << transform->GetPos().x << ", " << transform->GetPos().y << std::endl;
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Down)){
