@@ -37,8 +37,7 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                     || SceneMgr::GetCurScene()->GetEntityStatus(right_coll->GetID()) != EntityStatus::kActive)
                     continue;
                 else{
-                    auto collision_info = CollisionLogic(left_coll.get(), right_coll.get());
-                    if (collision_info.is_collision){
+                    if (CollisionLogic(left_coll.get(), right_coll.get())){
                         // Collision 
                         left_coll->Collision(right_coll->GetOwnerID());
                         right_coll->Collision(left_coll->GetOwnerID());
@@ -66,19 +65,29 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
     }
 }
 
-CollisionInfo CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
+bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
 {
     // SAT Collision
     return SATCollision_Logic(left, right);
 }
 
-CollisionInfo CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent* right)
+bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent* right)
 {
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
     auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
 
-    const auto& left_vec_edge = left->GetEdge();
-    const auto& right_vec_edge = right->GetEdge();
+    auto left_vec_edge = left->GetEdge();
+    auto right_vec_edge = right->GetEdge();
+
+    for (auto& edge : left_vec_edge){
+        edge.start += transform->GetPos();
+        edge.end += transform->GetPos();
+    }
+
+    for (auto& edge : right_vec_edge){
+        edge.start += transform_other->GetPos();
+        edge.end += transform_other->GetPos();
+    }
 
     MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
@@ -119,14 +128,20 @@ CollisionInfo CollisionMgr::SATCollision_Logic(ColliderComponent* left, Collider
         else{
             // overlap 
             // mtv = minimum translation vector
-            mtv.vec = vec_unit;
-            Vec2 temp;
-            temp.x = self_max.x - other_min.x;
-            temp.y = self_max.y - other_min.y;
+            Vec2 temp1;
+            temp1.x = self_max.x - other_min.x;
+            temp1.y = self_max.y - other_min.y;
+
+            Vec2 temp2;
+            temp2.x = self_min.x - other_max.x;
+            temp2.y = self_min.y - other_max.y;
+
+            Vec2 temp = (Vec::LengthSquare(temp1) < Vec::LengthSquare(temp2)) ? temp1 : temp2;
 
             float length = Vec::LengthSquare(temp);
             if (mtv.length > length){
                 mtv.length = length;
+                mtv.vec = vec_unit;
             }
         }
     }
@@ -167,10 +182,16 @@ CollisionInfo CollisionMgr::SATCollision_Logic(ColliderComponent* left, Collider
         }
         else{
             // overlap 
-            Vec2 temp;
-            temp.x = self_max.x - other_min.x;
-            temp.y = self_max.y - other_min.y;
-            
+            Vec2 temp1;
+            temp1.x = self_max.x - other_min.x;
+            temp1.y = self_max.y - other_min.y;
+
+            Vec2 temp2;
+            temp2.x = self_min.x - other_max.x;
+            temp2.y = self_min.y - other_max.y;
+
+            Vec2 temp = (Vec::LengthSquare(temp1) < Vec::LengthSquare(temp2)) ? temp1 : temp2;
+
             float length = Vec::LengthSquare(temp);
             if (mtv.length > length){
                 mtv.length = length;
@@ -179,8 +200,15 @@ CollisionInfo CollisionMgr::SATCollision_Logic(ColliderComponent* left, Collider
         }
     }
 
-    transform->AddPos(mtv.vec * sqrt(mtv.length));
-    std::cout <<"MTV : " << mtv.vec.x << " " << mtv.vec.y << " " << mtv.length << std::endl;
+    auto left_pos = transform->GetPos();
+    auto right_pos = transform_other->GetPos();
 
-    return CollisionInfo(true, mtv);
+    Vec2 vec = left_pos - right_pos;
+    auto dot_result = Vec::Dot(vec, mtv.vec);
+    if ( dot_result < 0 ){
+        mtv.vec = Vec::Reverse(mtv.vec);
+    }
+
+    transform->AddPos(mtv.vec * sqrt(mtv.length));
+    return true;
 }

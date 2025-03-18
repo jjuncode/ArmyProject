@@ -34,3 +34,8 @@ Vec2 Vec::Projection(Vec2 vec_unit, Vec2 rhs)
     float dot = Dot(vec_unit, rhs);
     return Vec2(dot * vec_unit.x, dot * vec_unit.y);
 }
+
+Vec2 Vec::Reverse(const Vec2 &vec)
+{
+    return Vec2(-vec.x, -vec.y);
+}

@@ -9,6 +9,8 @@ class TransformComponent : public Component{
         std::vector<Vec2> m_vec_vertex;
         Vec2 m_pos;
         Vec2 m_scale;
+        
+        uint32_t m_mass;
 
     public:
         void Update(float dt) override;
@@ -24,6 +26,9 @@ class TransformComponent : public Component{
 
         Vec2 GetScale(){return m_scale;}
         void SetScale(const Vec2 _scale) { m_scale =_scale;}
+
+        uint32_t GetMass(){return m_mass;}
+        void SetMass(uint32_t _mass){m_mass = _mass;}
 
         // =====================
         // Vertex Func 
