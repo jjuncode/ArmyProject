@@ -9,8 +9,6 @@ class TransformComponent : public Component{
         std::vector<Vec2> m_vec_vertex;
         Vec2 m_pos;
         Vec2 m_scale;
-        
-        uint32_t m_mass;
 
     public:
         void Update(float dt) override;
@@ -19,16 +17,10 @@ class TransformComponent : public Component{
         void SetPos(const Vec2& _pos){
             m_pos = _pos;
         }
-        void AddPos(const Vec2& offset){
-            m_pos += offset;
-            VertexMove(offset);
-        }
+        void AddPos(const Vec2& offset){m_pos += offset;}
 
         Vec2 GetScale(){return m_scale;}
         void SetScale(const Vec2 _scale) { m_scale =_scale;}
-
-        uint32_t GetMass(){return m_mass;}
-        void SetMass(uint32_t _mass){m_mass = _mass;}
 
         // =====================
         // Vertex Func 
@@ -38,10 +30,4 @@ class TransformComponent : public Component{
                 m_vec_vertex.emplace_back(dot);
         }
         const auto& GetVertexs(){return m_vec_vertex;}
-
-        void VertexMove(Vec2 v){
-            for (auto& dot : m_vec_vertex){
-                dot += v;
-            }
-        }
 };

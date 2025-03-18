@@ -79,20 +79,13 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
     auto left_vec_edge = left->GetEdge();
     auto right_vec_edge = right->GetEdge();
 
-    for (auto& edge : left_vec_edge){
-        edge.start += transform->GetPos();
-        edge.end += transform->GetPos();
-    }
-
-    for (auto& edge : right_vec_edge){
-        edge.start += transform_other->GetPos();
-        edge.end += transform_other->GetPos();
-    }
-
     MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
     // self edge
     for (auto &_edge : left_vec_edge){
+        _edge.start += transform->GetPos();
+        _edge.end += transform->GetPos();
+
         Vec2 self_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
         Vec2 self_max{};
 
@@ -102,7 +95,9 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         auto vec_unit = Vec::NormalizeEdge(_edge);
 
         // self projection area
-        for (auto &vertex : transform->GetVertexs()){
+        for (auto vertex : transform->GetVertexs()){
+            vertex += transform->GetPos();
+
             auto proj_v = Vec::Projection(vec_unit, vertex);
             self_min.x = std::min(proj_v.x, self_min.x);
             self_max.x = std::max(proj_v.x, self_max.x);
@@ -112,7 +107,9 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         }
 
         // other projection area
-        for (auto &vertex : transform_other->GetVertexs()){
+        for (auto vertex : transform_other->GetVertexs()){
+            vertex += transform_other->GetPos();
+
             auto proj_v = Vec::Projection(vec_unit, vertex);
             other_min.x = std::min(proj_v.x, other_min.x);
             other_max.x = std::max(proj_v.x, other_max.x);
@@ -148,6 +145,9 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
 
     // other edge
     for (auto &_edge : right_vec_edge){
+        _edge.start += transform_other->GetPos();
+        _edge.end += transform_other->GetPos();
+
         Vec2 self_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
         Vec2 self_max{std::numeric_limits<float>::min(), std::numeric_limits<float>::min()};
 
@@ -157,7 +157,9 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         auto vec_unit = Vec::NormalizeEdge(_edge);
 
         // self projection area
-        for (auto &vertex : transform->GetVertexs()){
+        for (auto vertex : transform->GetVertexs()){
+            vertex += transform->GetPos();
+            
             auto proj_v = Vec::Projection(vec_unit, vertex);
             self_min.x = std::min(proj_v.x, self_min.x);
             self_max.x = std::max(proj_v.x, self_max.x);
@@ -167,7 +169,9 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         }
 
         // other projection area
-        for (auto &vertex : transform_other->GetVertexs()){
+        for (auto vertex : transform_other->GetVertexs()){
+            vertex += transform_other->GetPos();
+
             auto proj_v = Vec::Projection(vec_unit, vertex);
             other_min.x = std::min(proj_v.x, other_min.x);
             other_max.x = std::max(proj_v.x, other_max.x);
