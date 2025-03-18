@@ -9,6 +9,7 @@ class PlayerObject : public Object{
             SetColor(sf::Color::Red);
             SetShape();
             SetScript();
+            CreateVertex(_pos, _scale);
         }
 
         void SetShape() override;

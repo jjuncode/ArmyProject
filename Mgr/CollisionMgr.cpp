@@ -96,3 +96,86 @@ bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *ri
     }
     return true; 
 }
+
+bool CollisionMgr::SATCollision(ColliderComponent* left, ColliderComponent* right)
+{
+    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
+    auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
+
+    const auto& left_vec_edge = left->GetEdge();
+    const auto& right_vec_edge = right->GetEdge();
+
+    // self edge
+    for (auto &_edge : left_vec_edge){
+        Vec2 self_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+        Vec2 self_max{};
+
+        Vec2 other_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+        Vec2 other_max{};
+
+        auto vec_unit = Vec::NormalizeEdge(_edge);
+
+        // self projection area
+        for (auto &vertex : transform->GetVertexs()){
+            auto proj_v = Vec::Projection(vec_unit, vertex);
+            self_min.x = std::min(proj_v.x, self_min.x);
+            self_max.x = std::max(proj_v.x, self_max.x);
+
+            self_min.y = std::min(proj_v.y, self_min.y);
+            self_max.y = std::max(proj_v.y, self_max.y);
+        }
+
+        // other projection area
+        for (auto &vertex : transform_other->GetVertexs()){
+            auto proj_v = Vec::Projection(vec_unit, vertex);
+            other_min.x = std::min(proj_v.x, other_min.x);
+            other_max.x = std::max(proj_v.x, other_max.x);
+
+            other_min.y = std::min(proj_v.y, other_min.y);
+            other_max.y = std::max(proj_v.y, other_max.y);
+        }
+
+        // Overlap Check
+        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
+            return false;
+        }
+    }
+
+    // other edge
+    for (auto &_edge : right_vec_edge){
+        Vec2 self_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+        Vec2 self_max{std::numeric_limits<float>::min(), std::numeric_limits<float>::min()};
+
+        Vec2 other_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+        Vec2 other_max{std::numeric_limits<float>::min(), std::numeric_limits<float>::min()};
+
+        auto vec_unit = Vec::NormalizeEdge(_edge);
+
+        // self projection area
+        for (auto &vertex : transform->GetVertexs()){
+            auto proj_v = Vec::Projection(vec_unit, vertex);
+            self_min.x = std::min(proj_v.x, self_min.x);
+            self_max.x = std::max(proj_v.x, self_max.x);
+
+            self_min.y = std::min(proj_v.y, self_min.y);
+            self_max.y = std::max(proj_v.y, self_max.y);
+        }
+
+        // other projection area
+        for (auto &vertex : transform_other->GetVertexs()){
+            auto proj_v = Vec::Projection(vec_unit, vertex);
+            other_min.x = std::min(proj_v.x, other_min.x);
+            other_max.x = std::max(proj_v.x, other_max.x);
+
+            other_min.y = std::min(proj_v.y, other_min.y);
+            other_max.y = std::max(proj_v.y, other_max.y);
+        }
+
+        // Overlap Check
+        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
+            return false;
+        }
+    }
+
+    return true;
+}

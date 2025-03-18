@@ -56,6 +56,12 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "hash_map": "cpp"
+        "hash_map": "cpp",
+        "charconv": "cpp",
+        "codecvt": "cpp",
+        "unordered_set": "cpp",
+        "regex": "cpp",
+        "iomanip": "cpp",
+        "shared_mutex": "cpp"
     }
 }

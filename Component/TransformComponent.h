@@ -14,7 +14,9 @@ class TransformComponent : public Component{
         void Update(float dt) override;
 
         Vec2 GetPos() { return m_pos; }
-        void SetPos(const Vec2& _pos){m_pos = _pos;}
+        void SetPos(const Vec2& _pos){
+            m_pos = _pos;
+        }
 
         Vec2 GetScale(){return m_scale;}
         void SetScale(const Vec2 _scale) { m_scale =_scale;}
@@ -27,4 +29,10 @@ class TransformComponent : public Component{
                 m_vec_vertex.emplace_back(dot);
         }
         const auto& GetVertexs(){return m_vec_vertex;}
+
+        void VertexMove(Vec2 v){
+            for (auto& dot : m_vec_vertex){
+                dot += v;
+            }
+        }
 };

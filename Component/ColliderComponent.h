@@ -50,5 +50,6 @@ private:
     // ==================
     void CreateEdge();
 
-
+public:
+    const auto& GetEdge(){return m_vec_entity_edge; }
 };

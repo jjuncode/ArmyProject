@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 
 struct Vec2
 {
@@ -7,6 +8,9 @@ struct Vec2
 
     Vec2():x{},y{}{}
     Vec2(float _x, float _y ): x{_x}, y{_y}{};
+  
+    // 복사 생성자
+    Vec2(const Vec2& other): x{other.x}, y{other.y} {}
 
     Vec2 operator- (const Vec2& rhs){
         return Vec2(x-rhs.x, y-rhs.y);
@@ -21,6 +25,12 @@ struct Vec2
        y -= rhs.y;
        return *this;
     }
+    
+    Vec2& operator += (const Vec2& rhs){
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+     }
 
     bool operator != (const Vec2& rhs){
         if ((x== rhs.x) || (y==rhs.y) ) 
@@ -41,8 +51,22 @@ struct Edge{
 
     Edge(Vec2 _start, Vec2 _end ) : start{_start} , end{_end}{}
     Edge(){}
+    
+    Edge operator- (const Edge& rhs){
+        return Edge(start - rhs.start,end - rhs.end);
+    }
 };
 
-// Edge Normalize(const Edge& _edge) {
-    
-// }
+namespace Vec{
+    float EdgeDistnSquare(Edge _edge);
+
+    float LengthSquare(Vec2 _vec);
+
+    Vec2 ChangeVec(Edge _edge);
+
+    Vec2 NormalizeEdge(Edge _edge);
+
+    float Dot(const Vec2 &lhs, const Vec2 &rhs);
+
+    Vec2 Projection(Vec2 vec_unit, Vec2 rhs);
+}
