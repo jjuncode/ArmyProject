@@ -14,8 +14,7 @@ void PlayerScript::Update(float dt)
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(-dt*player_speed,0));
-        transform->VertexMove(Vec2(-dt*player_speed,0));
+        transform->AddPos(Vec2(-dt*player_speed,0));
 
         // transform->SetPos(pos+Vec2(-grid_offset,0));
         // transform->VertexMove(Vec2(-grid_offset,0));
@@ -24,8 +23,7 @@ void PlayerScript::Update(float dt)
     if ( InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(dt*player_speed,0));
-        transform->VertexMove(Vec2(dt*player_speed,0));
+        transform->AddPos(Vec2(dt*player_speed,0));
 
         // transform->SetPos(pos+Vec2(grid_offset,0));
         // transform->VertexMove(Vec2(grid_offset,0));
@@ -34,8 +32,7 @@ void PlayerScript::Update(float dt)
     if ( InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(0,-dt*player_speed));
-        transform->VertexMove(Vec2(0,-dt*player_speed));
+        transform->AddPos(Vec2(0,-dt*player_speed));
 
         // transform->SetPos(pos+Vec2(0,-grid_offset));
         // transform->VertexMove(Vec2(0,-grid_offset));
@@ -44,8 +41,7 @@ void PlayerScript::Update(float dt)
     if ( InputMgr::IsTap(sf::Keyboard::Down) || InputMgr::IsHold(sf::Keyboard::Down)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
-        transform->SetPos(pos+Vec2(0,dt*player_speed));
-        transform->VertexMove(Vec2(0,dt*player_speed));
+        transform->AddPos(Vec2(0,dt*player_speed));
 
         // transform->SetPos(pos+Vec2(0,grid_offset));
         // transform->VertexMove(Vec2(0,grid_offset));

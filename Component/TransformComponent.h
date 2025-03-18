@@ -17,6 +17,10 @@ class TransformComponent : public Component{
         void SetPos(const Vec2& _pos){
             m_pos = _pos;
         }
+        void AddPos(const Vec2& offset){
+            m_pos += offset;
+            VertexMove(offset);
+        }
 
         Vec2 GetScale(){return m_scale;}
         void SetScale(const Vec2 _scale) { m_scale =_scale;}

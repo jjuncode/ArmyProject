@@ -37,7 +37,8 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                     || SceneMgr::GetCurScene()->GetEntityStatus(right_coll->GetID()) != EntityStatus::kActive)
                     continue;
                 else{
-                    if (CollisionLogic(left_coll.get(), right_coll.get())){
+                    auto collision_info = CollisionLogic(left_coll.get(), right_coll.get());
+                    if (collision_info.is_collision){
                         // Collision 
                         left_coll->Collision(right_coll->GetOwnerID());
                         right_coll->Collision(left_coll->GetOwnerID());
@@ -65,19 +66,21 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
     }
 }
 
-bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
+CollisionInfo CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
 {
     // SAT Collision
     return SATCollision_Logic(left, right);
 }
 
-bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent* right)
+CollisionInfo CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent* right)
 {
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
     auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
 
     const auto& left_vec_edge = left->GetEdge();
     const auto& right_vec_edge = right->GetEdge();
+
+    MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
     // self edge
     for (auto &_edge : left_vec_edge){
@@ -112,6 +115,19 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         // Overlap Check
         if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
             return false;
+        }
+        else{
+            // overlap 
+            // mtv = minimum translation vector
+            mtv.vec = vec_unit;
+            Vec2 temp;
+            temp.x = self_max.x - other_min.x;
+            temp.y = self_max.y - other_min.y;
+
+            float length = Vec::LengthSquare(temp);
+            if (mtv.length > length){
+                mtv.length = length;
+            }
         }
     }
 
@@ -149,7 +165,22 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         if (self_max.x <= other_min.x || other_max.x <= self_min.x || self_max.y <= other_min.y || other_max.y <= self_min.y){
             return false;
         }
+        else{
+            // overlap 
+            Vec2 temp;
+            temp.x = self_max.x - other_min.x;
+            temp.y = self_max.y - other_min.y;
+            
+            float length = Vec::LengthSquare(temp);
+            if (mtv.length > length){
+                mtv.length = length;
+                mtv.vec = vec_unit;
+            }
+        }
     }
 
-    return true;
+    transform->AddPos(mtv.vec * sqrt(mtv.length));
+    std::cout <<"MTV : " << mtv.vec.x << " " << mtv.vec.y << " " << mtv.length << std::endl;
+
+    return CollisionInfo(true, mtv);
 }

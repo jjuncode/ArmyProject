@@ -20,6 +20,10 @@ struct Vec2
         return Vec2(x+rhs.x, y+rhs.y);
     }
 
+    Vec2 operator* (float rhs){
+        return Vec2(x*rhs, y*rhs);
+    }
+
     Vec2& operator -= (const Vec2& rhs){
        x -= rhs.x;
        y -= rhs.y;
