@@ -67,37 +67,11 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
 
 bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
 {
-    auto transform_left = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
-    auto transform_right = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
-
-    auto pos_left = transform_left->GetPos();
-    auto pos_right = transform_right->GetPos();
-
-    auto scale_left = transform_left->GetScale();
-    auto scale_right = transform_right->GetScale();
-
-    // Left AABB
-    Vec2 l_left_bot = pos_left;
-    Vec2 l_right_top = pos_left+scale_left;
-
-    // Right AABB
-    Vec2 r_left_bot = pos_right;
-    Vec2 r_right_top = pos_right + scale_right;
-
-    // AABB Collision
-    // if (l_left_bot.x > r_right_top.x || l_left_bot.y > r_right_top.y 
-    //     || l_right_top.x < r_left_bot.x || l_right_top.y < r_left_bot.y) {
-    //     return false; 
-    // }
-    // In GRID Collision Check
-    if (l_left_bot.x >= r_right_top.x || l_left_bot.y >= r_right_top.y 
-        || l_right_top.x <= r_left_bot.x || l_right_top.y <= r_left_bot.y) {
-        return false; 
-    }
-    return true; 
+    // SAT Collision
+    return SATCollision_Logic(left, right);
 }
 
-bool CollisionMgr::SATCollision(ColliderComponent* left, ColliderComponent* right)
+bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent* right)
 {
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
     auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
@@ -172,7 +146,7 @@ bool CollisionMgr::SATCollision(ColliderComponent* left, ColliderComponent* righ
         }
 
         // Overlap Check
-        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
+        if (self_max.x <= other_min.x || other_max.x <= self_min.x || self_max.y <= other_min.y || other_max.y <= self_min.y){
             return false;
         }
     }

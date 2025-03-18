@@ -12,6 +12,6 @@ class CollisionMgr{
             , const std::list<uint32_t>& right);
 
         static bool CollisionLogic(ColliderComponent* left, ColliderComponent* right);
-        static bool SATCollision(ColliderComponent* left, ColliderComponent* right);
+        static bool SATCollision_Logic(ColliderComponent* left, ColliderComponent* right);
 
 };
