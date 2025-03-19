@@ -18,12 +18,12 @@ void PlayScene::Init()
     // GridObject grid;
     // grid.Init(gird_offset);
 
-    int node = gird_offset;
-    
-    PlayerObject player{Vec2(5*node,5*node), Vec2(gird_offset,gird_offset)};
+    int size = 100;
+
+    PlayerObject player{Vec2(2*size,2*size), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer);
 
-    Polygon poly{5,Vec2(10*node,10*node), Vec2(gird_offset,gird_offset)};
+    Polygon poly{5,Vec2(4*size,4*size), Vec2(size,size)};
     poly.SetCollider(CollisionEntityType::kWall);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
