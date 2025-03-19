@@ -3,7 +3,6 @@
 #include "../Core.h"
 
 #include "TransformComponent.h"
-#include "ColorComponent.h"
 
 std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
 
@@ -41,20 +40,20 @@ void ColliderComponent::CollisionEnter()
 
 void ColliderComponent::CollisionStay()
 {
-    auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
-    color->SetColor(sf::Color::Cyan);
+    // auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
+    // color->SetColor(sf::Color::Cyan);
 }
 
 void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
 {
-    CollisionInfoID info;
-    info.left = GetOwnerID();
-    info.right = coll_entity_id;
+    // CollisionInfoID info;
+    // info.left = GetOwnerID();
+    // info.right = coll_entity_id;
 
-    m_map_collision_status[info.id] = CollisionStatus::kNone;
+    // m_map_collision_status[info.id] = CollisionStatus::kNone;
 
-    auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
-    color->SetColor(sf::Color::Yellow);
+    // auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
+    // color->SetColor(sf::Color::Yellow);
 }
 
 void ColliderComponent::CreateEdge()
@@ -92,19 +91,16 @@ ColliderComponent::~ColliderComponent()
 void ColliderComponent::Render()
 {
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
-    if (transform){
-        auto pos = transform->GetPos();
-        auto scale = transform->GetScale();
+    auto pos = transform ->GetPos();
+    for (const auto& edge : m_vec_entity_edge) {
 
-        sf::RectangleShape rect(sf::Vector2f(1, 1));
-        rect.setScale(scale.x, scale.y);
-        rect.setPosition(pos.x, pos.y);            // 위치 설정
-        rect.setFillColor(sf::Color::Transparent); // 내부 색상을 투명으로
-        rect.setOutlineThickness(0.07f);             // 테두리 두께 설정
-        rect.setOutlineColor(sf::Color::Green);    // 테두리 색상 설정
+        sf::Vertex line[] = {  
+        sf::Vertex(sf::Vector2f(edge.start.x + pos.x, edge.start.y + pos.y), sf::Color::Red),
+        sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y), sf::Color::Red)
+        };
 
         auto window = Core::GetWindowContext();
-        window->draw(rect);
+        window->draw(line, 2, sf::Lines);
     }
 }
 

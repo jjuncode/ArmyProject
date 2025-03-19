@@ -7,6 +7,8 @@
 class TransformComponent : public Component{
     private:
         std::vector<Vec2> m_vec_vertex;
+        std::vector<Edge> m_vec_edge;     
+
         Vec2 m_pos;
         Vec2 m_scale;
 
@@ -29,5 +31,12 @@ class TransformComponent : public Component{
             for (const auto& dot : _dots)
                 m_vec_vertex.emplace_back(dot);
         }
+        void SetVertex(const Vec2& _dot) { m_vec_vertex.emplace_back(_dot); }
+
         const auto& GetVertexs(){return m_vec_vertex;}
+
+        const auto& GetEdge(){return m_vec_edge;}
+
+        void CreateEdge();
+
 };

@@ -20,12 +20,10 @@ class Object{
         }
         
         void SetCollider(CollisionEntityType _type);
-        virtual void SetColor(sf::Color _color);
 
         // ======================
         // Abstract Method 
         // ======================
-        virtual void SetShape() = 0;
         virtual void SetScript() = 0;
         virtual void CreateVertex(Vec2 _pos,Vec2 _scale) = 0;
 

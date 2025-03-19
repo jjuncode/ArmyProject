@@ -27,7 +27,7 @@ class ColliderComponent : public Component {
     private:
         static std::unordered_map<uint64_t, CollisionStatus> m_map_collision_status;
         CollisionEntityType m_collision_type;
-        std::vector<Edge> m_vec_entity_edge;     // SAT collision Edge
+        std::vector<Edge> m_vec_entity_edge;     // SAT collision Edge ( AABB edge )
 
 public:
     ColliderComponent() = default;

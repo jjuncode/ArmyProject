@@ -3,29 +3,22 @@
 #include "../Core.h"
 #include "../Mgr/SceneMgr.h"
 #include "TransformComponent.h"
-#include "ColorComponent.h"
 
 void RenderComponent::Render()
 {
 	auto id_owner = GetOwnerID();	// self id
 	auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id_owner);
-	auto color = SceneMgr::GetComponentOrigin<ColorComponent>(id_owner);
 
-	sf::Color color_basic{sf::Color::Magenta};
-
-	if(transform){
+	for (const auto& edge : transform->GetEdge()) {
 		auto pos = transform ->GetPos();
-		Vec2 scale = transform ->GetScale();
 
-		m_shape->setScale(scale.x,scale.y);
-		m_shape->setPosition(pos.x,  pos.y);
-		
-		if(color)
-			m_shape->setFillColor(color->GetColor());
-		else
-			m_shape->setFillColor(color_basic);
+		sf::Vertex line[] = {
+			sf::Vertex(sf::Vector2f(edge.start.x + pos.x , edge.start.y+pos.y)),
+			sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y))
+		};
 
 		auto window = Core::GetWindowContext();
-		window->draw(*m_shape.get());
+		line->color = sf::Color::Red;
+		window->draw(line, 2, sf::Lines);
 	}
 }

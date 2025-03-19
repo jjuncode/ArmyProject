@@ -5,6 +5,7 @@
 #include "Object/GridObject.h"
 #include "Object/RectObject.h"
 #include "Object/PlayerObject.h"
+#include "Object/Polygon.h"
 
 #include "Mgr/InputMgr.h"
 #include "Mgr/SceneMgr.h"
@@ -14,12 +15,16 @@
 
 void PlayScene::Init()
 {
-    GridObject grid;
-    grid.Init(gird_offset);
+    // GridObject grid;
+    // grid.Init(gird_offset);
 
     int node = gird_offset;
+    
     PlayerObject player{Vec2(5*node,5*node), Vec2(gird_offset,gird_offset)};
     player.SetCollider(CollisionEntityType::kPlayer);
+
+    Polygon poly{5,Vec2(10*node,10*node), Vec2(gird_offset,gird_offset)};
+    poly.SetCollider(CollisionEntityType::kWall);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }
