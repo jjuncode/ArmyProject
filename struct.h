@@ -59,6 +59,10 @@ struct Edge{
     Edge operator- (const Edge& rhs){
         return Edge(start - rhs.start,end - rhs.end);
     }
+
+    Edge operator+ (const Vec2& rhs){
+        return Edge(start + rhs, end + rhs);
+    }
 };
 
 namespace Vec{
@@ -71,6 +75,7 @@ namespace Vec{
     Vec2 NormalizeEdge(Edge _edge);
 
     float Dot(const Vec2 &lhs, const Vec2 &rhs);
+    Vec2 Normal(const Vec2& vec);
 
     Vec2 Projection(Vec2 vec_unit, Vec2 rhs);
 

@@ -95,8 +95,8 @@ void ColliderComponent::Render()
     for (const auto& edge : m_vec_entity_edge) {
 
         sf::Vertex line[] = {  
-        sf::Vertex(sf::Vector2f(edge.start.x + pos.x, edge.start.y + pos.y), sf::Color::Red),
-        sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y), sf::Color::Red)
+        sf::Vertex(sf::Vector2f(edge.start.x + pos.x, edge.start.y + pos.y)),
+        sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y))
         };
 
         auto window = Core::GetWindowContext();

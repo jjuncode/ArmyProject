@@ -9,10 +9,11 @@ void Polygon::CreateVertex(Vec2 _pos, Vec2 _scale)
 {
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(obj.GetEntityID());
 
-    double angleIncrement = 2   * M_PI / sides; // Angle between vertices
+    float angleIncrement = 2   * M_PI / sides; // Angle between vertices
+    angleIncrement = -angleIncrement; // Reverse the direction to clockwise
     for (int i = 0; i < sides; ++i) {
-        double x = cos(i * angleIncrement);
-        double y = sin(i * angleIncrement);
+        float x = cos(i * angleIncrement);
+        float y = sin(i * angleIncrement);
         transform->SetVertex(Vec2(x * _scale.x , y * _scale.y));
     }
 

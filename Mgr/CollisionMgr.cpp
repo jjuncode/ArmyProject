@@ -4,6 +4,7 @@
 #include "../Component/ColliderComponent.h"
 #include "../Component/TransformComponent.h"
 
+#include <fstream>
 
 void CollisionMgr::Collision()
 {
@@ -76,8 +77,12 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
     auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
 
-    auto left_vec_edge = left->GetEdge();
-    auto right_vec_edge = right->GetEdge();
+    // auto left_vec_edge = left->GetEdge();
+    // auto right_vec_edge = right->GetEdge();
+
+    // Transform Edge 가져다 써버리기
+    auto left_vec_edge = transform->GetEdge();
+    auto right_vec_edge = transform_other->GetEdge();
 
     MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
@@ -86,56 +91,66 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         _edge.start += transform->GetPos();
         _edge.end += transform->GetPos();
 
-        Vec2 self_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-        Vec2 self_max{};
+        bool init_min_flag{true};
+        bool init_max_flag{true};
 
-        Vec2 other_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-        Vec2 other_max{};
+        Vec2 self_min{},self_max{};
+        Vec2 other_min{},other_max{};
 
         auto vec_unit = Vec::NormalizeEdge(_edge);
 
+        // Normal Vector
+        vec_unit = Vec::Normal(vec_unit);
+  
         // self projection area
         for (auto vertex : transform->GetVertexs()){
             vertex += transform->GetPos();
-
             auto proj_v = Vec::Projection(vec_unit, vertex);
-            self_min.x = std::min(proj_v.x, self_min.x);
-            self_max.x = std::max(proj_v.x, self_max.x);
+            
+            if ( init_min_flag ) {
+                self_min = proj_v;
+                self_max = proj_v;
+                init_min_flag = false;
+            }
 
+            self_min.x = std::min(proj_v.x, self_min.x);
             self_min.y = std::min(proj_v.y, self_min.y);
+            
+            self_max.x = std::max(proj_v.x, self_max.x);
             self_max.y = std::max(proj_v.y, self_max.y);
         }
 
         // other projection area
         for (auto vertex : transform_other->GetVertexs()){
             vertex += transform_other->GetPos();
-
             auto proj_v = Vec::Projection(vec_unit, vertex);
-            other_min.x = std::min(proj_v.x, other_min.x);
-            other_max.x = std::max(proj_v.x, other_max.x);
 
+            if ( init_max_flag ) {
+                other_min = proj_v;
+                other_max = proj_v;
+                init_max_flag = false;
+            }
+
+            other_min.x = std::min(proj_v.x, other_min.x);
             other_min.y = std::min(proj_v.y, other_min.y);
+            
+            other_max.x = std::max(proj_v.x, other_max.x);
             other_max.y = std::max(proj_v.y, other_max.y);
         }
 
-        // Overlap Check
         if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
             return false;
         }
         else{
-            // overlap 
-            // mtv = minimum translation vector
-            Vec2 temp1;
-            temp1.x = self_max.x - other_min.x;
-            temp1.y = self_max.y - other_min.y;
+            Vec2 temp1 = other_max - self_min;
+            Vec2 temp2 = self_max - other_min;
+            
+            float min_x = abs(std::min(temp1.x, temp2.x));
+            float min_y = abs(std::min(temp1.y, temp2.y));
 
-            Vec2 temp2;
-            temp2.x = self_min.x - other_max.x;
-            temp2.y = self_min.y - other_max.y;
+            Vec2 distn = Vec2(min_x, min_y);
 
-            Vec2 temp = (Vec::LengthSquare(temp1) < Vec::LengthSquare(temp2)) ? temp1 : temp2;
-
-            float length = Vec::LengthSquare(temp);
+            float length = Vec::LengthSquare(distn);
             if (mtv.length > length){
                 mtv.length = length;
                 mtv.vec = vec_unit;
@@ -148,62 +163,91 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         _edge.start += transform_other->GetPos();
         _edge.end += transform_other->GetPos();
 
-        Vec2 self_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-        Vec2 self_max{std::numeric_limits<float>::min(), std::numeric_limits<float>::min()};
+        bool init_min_flag{true};
+        bool init_max_flag{true};
 
-        Vec2 other_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-        Vec2 other_max{std::numeric_limits<float>::min(), std::numeric_limits<float>::min()};
+        Vec2 self_min{},self_max{};
+        Vec2 other_min{},other_max{};
 
         auto vec_unit = Vec::NormalizeEdge(_edge);
+
+        // Normal Vector
+        vec_unit = Vec::Normal(vec_unit);
 
         // self projection area
         for (auto vertex : transform->GetVertexs()){
             vertex += transform->GetPos();
-            
             auto proj_v = Vec::Projection(vec_unit, vertex);
-            self_min.x = std::min(proj_v.x, self_min.x);
-            self_max.x = std::max(proj_v.x, self_max.x);
+            
+            if ( init_min_flag ) {
+                self_min = proj_v;
+                self_max = proj_v;
+                init_min_flag = false;
+            }
 
+            self_min.x = std::min(proj_v.x, self_min.x);
             self_min.y = std::min(proj_v.y, self_min.y);
+            
+            self_max.x = std::max(proj_v.x, self_max.x);
             self_max.y = std::max(proj_v.y, self_max.y);
         }
 
         // other projection area
         for (auto vertex : transform_other->GetVertexs()){
             vertex += transform_other->GetPos();
-
             auto proj_v = Vec::Projection(vec_unit, vertex);
-            other_min.x = std::min(proj_v.x, other_min.x);
-            other_max.x = std::max(proj_v.x, other_max.x);
 
+            if ( init_max_flag ) {
+                other_min = proj_v;
+                other_max = proj_v;
+                init_max_flag = false;
+            }
+
+            other_min.x = std::min(proj_v.x, other_min.x);
             other_min.y = std::min(proj_v.y, other_min.y);
+            
+            other_max.x = std::max(proj_v.x, other_max.x);
             other_max.y = std::max(proj_v.y, other_max.y);
         }
 
-        // Overlap Check
-        if (self_max.x <= other_min.x || other_max.x <= self_min.x || self_max.y <= other_min.y || other_max.y <= self_min.y){
+        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
             return false;
         }
         else{
-            // overlap 
-            Vec2 temp1;
-            temp1.x = self_max.x - other_min.x;
-            temp1.y = self_max.y - other_min.y;
+             // Projection dot
+            //  Vec2 proj_self_min = Vec::Projection(vec_unit, self_min);
+            //  Vec2 proj_self_max = Vec::Projection(vec_unit, self_max);
+ 
+            //  Vec2 proj_other_min = Vec::Projection(vec_unit, other_min);
+            //  Vec2 proj_other_max = Vec::Projection(vec_unit, other_max);
+             
+            //  Vec2 temp1 = proj_other_max - proj_self_min;
+            //  Vec2 temp2 = proj_self_max - proj_other_min;
+ 
+            //  Vec2 temp = (Vec::LengthSquare(temp1) < Vec::LengthSquare(temp2)) ? temp1 : temp2;
+ 
+            //  float length = Vec::LengthSquare(temp);
+            //  if (mtv.length > length){
+            //      mtv.length = length;
+            //      mtv.vec = vec_unit;
+            //  }
 
-            Vec2 temp2;
-            temp2.x = self_min.x - other_max.x;
-            temp2.y = self_min.y - other_max.y;
-
-            Vec2 temp = (Vec::LengthSquare(temp1) < Vec::LengthSquare(temp2)) ? temp1 : temp2;
-
-            float length = Vec::LengthSquare(temp);
-            if (mtv.length > length){
-                mtv.length = length;
-                mtv.vec = vec_unit;
-            }
+              // Min x value 
+              Vec2 temp1 = other_max - self_min;
+              Vec2 temp2 = self_max - other_min;
+              
+              float min_x = abs(std::min(temp1.x, temp2.x));
+              float min_y = abs(std::min(temp1.y, temp2.y));
+  
+              Vec2 distn = Vec2(min_x, min_y);
+  
+              float length = Vec::LengthSquare(distn);
+              if (mtv.length > length){
+                  mtv.length = length;
+                  mtv.vec = vec_unit;
+              }
         }
     }
-
     auto left_pos = transform->GetPos();
     auto right_pos = transform_other->GetPos();
 
@@ -213,6 +257,7 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
         mtv.vec = Vec::Reverse(mtv.vec);
     }
 
+    // MTV move
     transform->AddPos(mtv.vec * sqrt(mtv.length));
     return true;
 }

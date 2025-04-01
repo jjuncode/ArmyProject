@@ -19,5 +19,4 @@ class CollisionMgr{
 
         static bool CollisionLogic(ColliderComponent* left, ColliderComponent* right);
         static bool SATCollision_Logic(ColliderComponent* left, ColliderComponent* right);
-
 };

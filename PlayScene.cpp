@@ -20,7 +20,7 @@ void PlayScene::Init()
 
     int size = 100;
 
-    PlayerObject player{Vec2(2*size,2*size), Vec2(size,size)};
+    PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer);
 
     Polygon poly{5,Vec2(4*size,4*size), Vec2(size,size)};

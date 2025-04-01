@@ -9,7 +9,7 @@ void PlayerScript::Update(float dt)
 {
     int grid_offset{40};
 
-    uint32_t player_speed{300};
+    uint32_t player_speed{500};
     uint32_t player_rotate_speed{300};
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){

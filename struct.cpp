@@ -29,6 +29,13 @@ float Vec::Dot(const Vec2 &lhs, const Vec2 &rhs)
     return lhs.x * rhs.x + lhs.y * rhs.y;
 }
 
+Vec2 Vec::Normal(const Vec2 &vec)
+{
+    // return Vec2(-vec.y, vec.x);
+    // 시계방향
+    return Vec2(vec.y , -vec.x);
+}
+
 Vec2 Vec::Projection(Vec2 vec_unit, Vec2 rhs)
 {
     float dot = Dot(vec_unit, rhs);
