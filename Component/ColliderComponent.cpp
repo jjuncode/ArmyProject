@@ -90,18 +90,18 @@ ColliderComponent::~ColliderComponent()
 
 void ColliderComponent::Render()
 {
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
-    auto pos = transform ->GetPos();
-    for (const auto& edge : m_vec_entity_edge) {
+    // auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+    // auto pos = transform ->GetPos();
+    // for (const auto& edge : m_vec_entity_edge) {
 
-        sf::Vertex line[] = {  
-        sf::Vertex(sf::Vector2f(edge.start.x + pos.x, edge.start.y + pos.y)),
-        sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y))
-        };
+    //     sf::Vertex line[] = {  
+    //     sf::Vertex(sf::Vector2f(edge.start.x + pos.x, edge.start.y + pos.y)),
+    //     sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y))
+    //     };
 
-        auto window = Core::GetWindowContext();
-        window->draw(line, 2, sf::Lines);
-    }
+    //     auto window = Core::GetWindowContext();
+    //     window->draw(line, 2, sf::Lines);
+    // }
 }
 
 void ColliderComponent::Collision(uint32_t coll_entity_id)

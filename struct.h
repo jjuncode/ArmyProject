@@ -36,6 +36,12 @@ struct Vec2
         return *this;
      }
 
+     Vec2 operator / (float rhs){
+        x /= rhs;
+        y /= rhs;
+        return *this;
+     }
+
     bool operator != (const Vec2& rhs){
         if ((x== rhs.x) || (y==rhs.y) ) 
             return false;
@@ -62,6 +68,10 @@ struct Edge{
 
     Edge operator+ (const Vec2& rhs){
         return Edge(start + rhs, end + rhs);
+    }
+
+    Edge operator - (const Vec2& rhs){
+        return Edge(start - rhs, end - rhs);
     }
 };
 

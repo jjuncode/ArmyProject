@@ -6,6 +6,7 @@
 #include "Object/RectObject.h"
 #include "Object/PlayerObject.h"
 #include "Object/Polygon.h"
+#include "Object/Camera.h"
 
 #include "Mgr/InputMgr.h"
 #include "Mgr/SceneMgr.h"
@@ -23,7 +24,11 @@ void PlayScene::Init()
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer);
 
-    Polygon poly{5,Vec2(4*size,4*size), Vec2(size,size)};
+    Camera player_camera{player.GetEntityID()};
+    player_camera.SetMainCamera();
+
+
+    Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
     poly.SetCollider(CollisionEntityType::kWall);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);

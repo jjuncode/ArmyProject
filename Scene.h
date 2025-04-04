@@ -18,6 +18,8 @@ protected:
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
 
 private:
+	uint32_t m_main_camear_id{};	// main camera id
+
 	// Entity Components Map
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
 
@@ -156,4 +158,16 @@ public:
 	} 
 
 	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;
+
+	
+	// ================================
+	// Camera Method 
+	// ================================
+	void SetMainCamera(uint32_t _id) noexcept{
+		m_main_camear_id = _id;
+	}
+	uint32_t GetMainCamera() noexcept{
+		return m_main_camear_id;
+	}
+
 };

@@ -9,9 +9,12 @@ void RenderComponent::Render()
 	auto id_owner = GetOwnerID();	// self id
 	auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id_owner);
 
+	auto camera_id = SceneMgr::GetMainCamera();
+	auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(camera_id);
+
 	for (auto edge : transform->GetEdge()) {
 		auto pos = transform ->GetPos();
-		auto render_edge = edge + pos;
+		auto render_edge = edge + pos - camera_transform->GetPos();
 
 		sf::Vertex line[] = {
 			sf::Vertex(sf::Vector2f(render_edge.start.x, render_edge.start.y), sf::Color::Green),

@@ -52,4 +52,11 @@ class SceneMgr{
         static const auto& GetComponentsID(const uint32_t& _owner_id){
             return m_cur_scene->GetComponentsID(_owner_id);
         }
+
+        static void SetMainCamera(uint32_t _id) noexcept{
+            m_cur_scene->SetMainCamera(_id);
+        }
+        static uint32_t GetMainCamera() noexcept{
+            return m_cur_scene->GetMainCamera();
+        }
 };

@@ -13,6 +13,10 @@ class Object{
         Object(Vec2 _pos,Vec2 _scale){
             Init(_pos, _scale);
         }
+
+        Object(){
+            Init(Vec2(0,0), Vec2(0,0));
+        }
         
         template<typename T>
         void AddScene(){
@@ -20,6 +24,10 @@ class Object{
         }
         
         void SetCollider(CollisionEntityType _type);
+
+        uint32_t GetEntityID() const noexcept{
+            return obj.GetEntityID();
+        }
 
         // ======================
         // Abstract Method 
