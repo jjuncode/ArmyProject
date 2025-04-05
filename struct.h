@@ -36,6 +36,12 @@ struct Vec2
         return *this;
      }
 
+     Vec2& operator *= (const float rhs){
+        x*= rhs;
+        y*= rhs;
+        return *this;
+     }
+
      Vec2 operator / (float rhs){
         x /= rhs;
         y /= rhs;
