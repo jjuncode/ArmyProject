@@ -29,6 +29,16 @@ void CameraScript::Update(float dt)
             m_zoom_value = m_zoom_min;
         }
     }
+
+    if ( InputMgr::IsTap(sf::Keyboard::Num0)){
+        m_zoom_value = 1.0f;
+    }
+}
+
+Vec2 CameraScript::GetMainCameraPos()
+{
+    auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(m_target);
+    return camera_transform->GetPos();
 }
 
 void CameraScript::FollowTargetPos()

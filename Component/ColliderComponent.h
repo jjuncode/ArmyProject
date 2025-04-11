@@ -23,11 +23,16 @@ union CollisionInfoID{
     uint64_t id;
 };
 
+struct OBB{
+    Vec2 width;
+    Vec2 height;
+};
+
 class ColliderComponent : public Component {
     private:
         static std::unordered_map<uint64_t, CollisionStatus> m_map_collision_status;
         CollisionEntityType m_collision_type;
-        std::vector<Edge> m_vec_entity_edge;     // SAT collision Edge ( AABB edge )
+        OBB m_obb; // OBB collision
 
 public:
     ColliderComponent() = default;
@@ -37,19 +42,14 @@ public:
 
     void Collision(uint32_t coll_id); // Collision rhs ID
     void Init(CollisionEntityType _type);
+    void SetOBB(Vec2 _size){
+        m_obb.width = Vec2(_size.x,0);
+        m_obb.height = Vec2(0,-_size.y);
+    }
 
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
 
     void CollisionEnter();
     void CollisionStay();
     void CollisionExit(uint32_t coll_entity_id);
-
-private:
-    // ==================
-    // SAT Func
-    // ==================
-    void CreateEdge();
-
-public:
-    const auto& GetEdge(){return m_vec_entity_edge; }
 };

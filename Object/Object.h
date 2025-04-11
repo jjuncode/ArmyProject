@@ -23,7 +23,7 @@ class Object{
             SceneMgr::AddEntity<T>(obj);
         }
         
-        void SetCollider(CollisionEntityType _type);
+        void SetCollider(CollisionEntityType _type, Vec2 _size);
 
         uint32_t GetEntityID() const noexcept{
             return obj.GetEntityID();

@@ -3,6 +3,7 @@
 #include "../Core.h"
 
 #include "TransformComponent.h"
+#include "CameraScript.h"
 
 std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
 
@@ -15,8 +16,6 @@ void ColliderComponent::Init(CollisionEntityType _type)
     auto id = GetOwnerID();
 
     cur_scene->AddCollisionEntity(_type, GetOwnerID());
-
-    CreateEdge();
 }
 
 CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
@@ -56,33 +55,6 @@ void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
     // color->SetColor(sf::Color::Yellow);
 }
 
-void ColliderComponent::CreateEdge()
-{
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
-
-    Vec2 start;
-    Edge edge;
-    
-    int cnt{};
-    for ( const auto& dot : transform->GetVertexs()){
-        ++cnt;
-        if(cnt == 1 ) {
-            edge.start = dot;
-            start = dot;
-        }
-        else{
-            edge.end = dot;
-            m_vec_entity_edge.emplace_back(edge);
-
-            edge.start = dot;
-        }
-    }
-
-    // Finish Edge
-    Edge edge_end{edge.end, start};
-    m_vec_entity_edge.emplace_back(edge_end);
-}
-
 ColliderComponent::~ColliderComponent()
 {
    SceneMgr::GetCurScene()->DeleteCollisionEntity(m_collision_type, GetOwnerID());
@@ -90,18 +62,50 @@ ColliderComponent::~ColliderComponent()
 
 void ColliderComponent::Render()
 {
-    // auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
-    // auto pos = transform ->GetPos();
-    // for (const auto& edge : m_vec_entity_edge) {
+    // OBB Render
+    auto id_owner = GetOwnerID();	// self id
+	auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id_owner);
 
-    //     sf::Vertex line[] = {  
-    //     sf::Vertex(sf::Vector2f(edge.start.x + pos.x, edge.start.y + pos.y)),
-    //     sf::Vertex(sf::Vector2f(edge.end.x + pos.x , edge.end.y + pos.y))
-    //     };
+	auto camera_id = SceneMgr::GetMainCamera();
+	auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(camera_id);
+	auto camera_script = SceneMgr::GetComponentOrigin<CameraScript>(camera_id);
 
-    //     auto window = Core::GetWindowContext();
-    //     window->draw(line, 2, sf::Lines);
-    // }
+    auto pos = transform->GetPos();
+
+    // Camera Zoom in/out
+    auto scale_value = camera_script->GetZoomValue();
+
+    // pos scaling
+    pos *= scale_value;
+    auto resolution = Core::GetWindowSize();
+    auto camera_pos = (camera_transform->GetPos() * scale_value) - (resolution / 2);
+
+    auto render_pos = pos - camera_pos;
+
+    auto half_width = m_obb.width / 2;
+    auto half_height = m_obb.height / 2;
+
+    Vec2 left_top = (render_pos-half_width  + half_height ) * scale_value;
+    Vec2 right_bottom = (render_pos + half_width - half_height) * scale_value;
+    Vec2 right_top = (render_pos + half_width + half_height) * scale_value;
+    Vec2 left_bottom = (render_pos - half_width - half_height) * scale_value;
+
+    sf::Vertex line[] = {
+        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y), sf::Color::Green),
+
+        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y), sf::Color::Green),
+
+        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y), sf::Color::Green),
+
+        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), sf::Color::Green)
+    };
+  
+    auto window = Core::GetWindowContext();
+    window->draw(line, 8, sf::Lines);
 }
 
 void ColliderComponent::Collision(uint32_t coll_entity_id)

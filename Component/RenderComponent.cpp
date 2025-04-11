@@ -37,8 +37,8 @@ void RenderComponent::Render()
 		auto render_edge = edge + pos - camera_pos;
 
 		sf::Vertex line[] = {
-			sf::Vertex(sf::Vector2f(render_edge.start.x, render_edge.start.y), sf::Color::Green),
-			sf::Vertex(sf::Vector2f(render_edge.end.x, render_edge.end.y), sf::Color::Green)
+			sf::Vertex(sf::Vector2f(render_edge.start.x, render_edge.start.y), sf::Color::White),
+			sf::Vertex(sf::Vector2f(render_edge.end.x, render_edge.end.y), sf::Color::White)
 		};
 
 		auto window = Core::GetWindowContext();

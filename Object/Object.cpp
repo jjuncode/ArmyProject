@@ -18,10 +18,11 @@ void Object::Init(Vec2 _pos, Vec2 _scale)
     cur_scene->AddComponent<RenderComponent>(std::move(render));
 }
 
-void Object::SetCollider(CollisionEntityType _type)
+void Object::SetCollider(CollisionEntityType _type, Vec2 _size)
 { 
     auto& cur_scene = SceneMgr::GetCurScene();
     auto collider = obj.AddComponent<ColliderComponent>();
     collider->Init(_type);
+    collider->SetOBB(_size);
     cur_scene->AddComponent<ColliderComponent>(std::move(collider));
 }

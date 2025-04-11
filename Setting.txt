@@ -13,8 +13,8 @@ services:
     environment:
       VNC_GEOMETRY: 1440x900
     ports:
-      - 127.0.0.1:5900:5900
-      - 127.0.0.1:6000:6000
+      - 127.0.0.1:5901:5900
+      - 127.0.0.1:6001:6000
   novnc:
     image: geek1011/easy-novnc
     restart: always
@@ -24,16 +24,21 @@ services:
 EOF
 docker compose up -d
 
+// 포트오류
+// ✅ 결론
+// 5901:5900 → 💯 옳은 방식 (외부는 5901, 내부는 5900)
+// 5900:5900 → 가능하지만 포트 충돌 위험 있음
+// 5901:5901 → ❌ 컨테이너 안에서 VNC가 5901에서 안 뜨면 작동 안 함
+
 Display Set ) 
-export DISPLAY=:0
+export DISPLAY=:1
 export DISPLAY=127.0.0.1:0
-
-Port ) ports:
-      - 127.0.0.1:5800:5800
-
 
 if Error occur ) // Container Restart 
 docker compose down
 docker compose up -d
 
 ssh -X // it's Fucking Good
+
+// GUI안뜨는 오류나면 얘로 실행
+./main

@@ -43,9 +43,7 @@ struct Vec2
      }
 
      Vec2 operator / (float rhs){
-        x /= rhs;
-        y /= rhs;
-        return *this;
+        return Vec2 ( x/rhs, y/rhs);
      }
 
     bool operator != (const Vec2& rhs){

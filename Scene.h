@@ -16,9 +16,9 @@ class Scene
 protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
+	uint32_t m_main_camear_id{};	// main camera id
 
 private:
-	uint32_t m_main_camear_id{};	// main camera id
 
 	// Entity Components Map
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	

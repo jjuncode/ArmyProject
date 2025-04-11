@@ -55,7 +55,7 @@ void Scene::DeleteCollisionEntity(CollisionEntityType _type, const uint32_t &ent
         list.erase(it);
     }
 
-    std::cout << "DELETE ENTITY ID : " << entity_id << std::endl;
+    std::cout << "DELETE Collision ENTITY ID : " << entity_id << std::endl;
 }
 
 void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept

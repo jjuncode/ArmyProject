@@ -1,8 +1,8 @@
 #include "PlayScene.h"
 #include "pch.h"
+#include "Core.h"
 
 #include "Object/Entity.h"
-#include "Object/GridObject.h"
 #include "Object/RectObject.h"
 #include "Object/PlayerObject.h"
 #include "Object/Polygon.h"
@@ -13,6 +13,7 @@
 #include "Mgr/CollisionMgr.h"
 
 #include "Component/TransformComponent.h"
+#include "Component/CameraScript.h"
 
 void PlayScene::Init()
 {
@@ -22,14 +23,13 @@ void PlayScene::Init()
     int size = 100;
 
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
-    player.SetCollider(CollisionEntityType::kPlayer);
+    player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
 
     Camera player_camera{player.GetEntityID()};
     player_camera.SetMainCamera();
 
-
     Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
-    poly.SetCollider(CollisionEntityType::kWall);
+    poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }
@@ -50,10 +50,19 @@ void PlayScene::Update(float dt)
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();
 
+    auto camera_script = SceneMgr::GetComponentOrigin<CameraScript>(m_main_camear_id);
+    auto camera_pos = camera_script->GetMainCameraPos();
+
+    // current pos
+    auto window = Core::GetWindowSize();
+    auto cur_left_top = camera_pos - window/2;
+
+    mouse_pos += cur_left_top;
+    
     Vec2 offset{static_cast<float>(static_cast<int>(mouse_pos.x) % static_cast<int>(gird_offset)),
         static_cast<float>(static_cast<int>(mouse_pos.y) % static_cast<int>(gird_offset))};
     mouse_pos -= offset;
-    
+
     // 0~40 -> 0 , 40~ 80 -> 40 ... 
     if (mouse_state == MouseState::kLeftTap || mouse_state == MouseState::kLeftHold){
 
@@ -73,7 +82,7 @@ void PlayScene::Update(float dt)
 
         if ( !same ){
             RectObject rect{Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset)};
-            rect.SetCollider(CollisionEntityType::kWall);
+            rect.SetCollider(CollisionEntityType::kWall, Vec2(gird_offset,gird_offset));
         }
 
     }

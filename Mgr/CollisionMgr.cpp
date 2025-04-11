@@ -77,12 +77,12 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
     auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
     auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
 
-    // auto left_vec_edge = left->GetEdge();
-    // auto right_vec_edge = right->GetEdge();
+    auto left_vec_edge = left->GetEdge();
+    auto right_vec_edge = right->GetEdge();
 
     // Transform Edge 가져다 써버리기
-    auto left_vec_edge = transform->GetEdge();
-    auto right_vec_edge = transform_other->GetEdge();
+    // auto left_vec_edge = transform->GetEdge();
+    // auto right_vec_edge = transform_other->GetEdge();
 
     MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
@@ -214,24 +214,6 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
             return false;
         }
         else{
-             // Projection dot
-            //  Vec2 proj_self_min = Vec::Projection(vec_unit, self_min);
-            //  Vec2 proj_self_max = Vec::Projection(vec_unit, self_max);
- 
-            //  Vec2 proj_other_min = Vec::Projection(vec_unit, other_min);
-            //  Vec2 proj_other_max = Vec::Projection(vec_unit, other_max);
-             
-            //  Vec2 temp1 = proj_other_max - proj_self_min;
-            //  Vec2 temp2 = proj_self_max - proj_other_min;
- 
-            //  Vec2 temp = (Vec::LengthSquare(temp1) < Vec::LengthSquare(temp2)) ? temp1 : temp2;
- 
-            //  float length = Vec::LengthSquare(temp);
-            //  if (mtv.length > length){
-            //      mtv.length = length;
-            //      mtv.vec = vec_unit;
-            //  }
-
               // Min x value 
               Vec2 temp1 = other_max - self_min;
               Vec2 temp2 = self_max - other_min;
@@ -260,4 +242,9 @@ bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent
     // MTV move
     transform->AddPos(mtv.vec * sqrt(mtv.length));
     return true;
+}
+
+bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
+{
+    return false;
 }
