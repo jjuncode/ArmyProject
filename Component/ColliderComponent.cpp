@@ -85,10 +85,15 @@ void ColliderComponent::Render()
     auto half_width = m_obb.width / 2;
     auto half_height = m_obb.height / 2;
 
-    Vec2 left_top = (render_pos-half_width  + half_height ) * scale_value;
-    Vec2 right_bottom = (render_pos + half_width - half_height) * scale_value;
-    Vec2 right_top = (render_pos + half_width + half_height) * scale_value;
-    Vec2 left_bottom = (render_pos - half_width - half_height) * scale_value;
+    Vec2 left_top = (Vec2(0,0)-half_width  + half_height ) * scale_value;
+    Vec2 right_bottom = ( half_width - half_height) * scale_value;
+    Vec2 right_top = ( half_width + half_height) * scale_value;
+    Vec2 left_bottom = (Vec2(0,0)-half_width - half_height) * scale_value;
+
+    left_top += render_pos;
+    right_bottom += render_pos;
+    right_top += render_pos;
+    left_bottom += render_pos;
 
     sf::Vertex line[] = {
         sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), sf::Color::Green),
