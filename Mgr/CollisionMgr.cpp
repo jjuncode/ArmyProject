@@ -68,344 +68,66 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
 
 bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
 {
-    // SAT Collision
-    return SATCollision_Logic(left, right);
-}
-
-bool CollisionMgr::SATCollision_Logic(ColliderComponent* left, ColliderComponent* right)
-{
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
-    auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
-
-    // Transform Edge 가져다 써버리기
-    auto left_vec_edge = transform->GetEdge();
-    auto right_vec_edge = transform_other->GetEdge();
-
-    MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
-
-    // self edge
-    for (auto &_edge : left_vec_edge){
-        _edge.start += transform->GetPos();
-        _edge.end += transform->GetPos();
-
-        bool init_min_flag{true};
-        bool init_max_flag{true};
-
-        Vec2 self_min{},self_max{};
-        Vec2 other_min{},other_max{};
-
-        auto vec_unit = Vec::NormalizeEdge(_edge);
-
-        // Normal Vector
-        vec_unit = Vec::Normal(vec_unit);
-  
-        // self projection area
-        for (auto vertex : transform->GetVertexs()){
-            vertex += transform->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-            
-            if ( init_min_flag ) {
-                self_min = proj_v;
-                self_max = proj_v;
-                init_min_flag = false;
-            }
-
-            self_min.x = std::min(proj_v.x, self_min.x);
-            self_min.y = std::min(proj_v.y, self_min.y);
-            
-            self_max.x = std::max(proj_v.x, self_max.x);
-            self_max.y = std::max(proj_v.y, self_max.y);
-        }
-
-        // other projection area
-        for (auto vertex : transform_other->GetVertexs()){
-            vertex += transform_other->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-
-            if ( init_max_flag ) {
-                other_min = proj_v;
-                other_max = proj_v;
-                init_max_flag = false;
-            }
-
-            other_min.x = std::min(proj_v.x, other_min.x);
-            other_min.y = std::min(proj_v.y, other_min.y);
-            
-            other_max.x = std::max(proj_v.x, other_max.x);
-            other_max.y = std::max(proj_v.y, other_max.y);
-        }
-
-        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
-            return false;
-        }
-        else{
-            Vec2 temp1 = other_max - self_min;
-            Vec2 temp2 = self_max - other_min;
-            
-            float min_x = abs(std::min(temp1.x, temp2.x));
-            float min_y = abs(std::min(temp1.y, temp2.y));
-
-            Vec2 distn = Vec2(min_x, min_y);
-
-            float length = Vec::LengthSquare(distn);
-            if (mtv.length > length){
-                mtv.length = length;
-                mtv.vec = vec_unit;
-            }
-        }
-    }
-
-    // other edge
-    for (auto &_edge : right_vec_edge){
-        _edge.start += transform_other->GetPos();
-        _edge.end += transform_other->GetPos();
-
-        bool init_min_flag{true};
-        bool init_max_flag{true};
-
-        Vec2 self_min{},self_max{};
-        Vec2 other_min{},other_max{};
-
-        auto vec_unit = Vec::NormalizeEdge(_edge);
-
-        // Normal Vector
-        vec_unit = Vec::Normal(vec_unit);
-
-        // self projection area
-        for (auto vertex : transform->GetVertexs()){
-            vertex += transform->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-            
-            if ( init_min_flag ) {
-                self_min = proj_v;
-                self_max = proj_v;
-                init_min_flag = false;
-            }
-
-            self_min.x = std::min(proj_v.x, self_min.x);
-            self_min.y = std::min(proj_v.y, self_min.y);
-            
-            self_max.x = std::max(proj_v.x, self_max.x);
-            self_max.y = std::max(proj_v.y, self_max.y);
-        }
-
-        // other projection area
-        for (auto vertex : transform_other->GetVertexs()){
-            vertex += transform_other->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-
-            if ( init_max_flag ) {
-                other_min = proj_v;
-                other_max = proj_v;
-                init_max_flag = false;
-            }
-
-            other_min.x = std::min(proj_v.x, other_min.x);
-            other_min.y = std::min(proj_v.y, other_min.y);
-            
-            other_max.x = std::max(proj_v.x, other_max.x);
-            other_max.y = std::max(proj_v.y, other_max.y);
-        }
-
-        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
-            return false;
-        }
-        else{
-              // Min x value 
-              Vec2 temp1 = other_max - self_min;
-              Vec2 temp2 = self_max - other_min;
-              
-              float min_x = abs(std::min(temp1.x, temp2.x));
-              float min_y = abs(std::min(temp1.y, temp2.y));
-  
-              Vec2 distn = Vec2(min_x, min_y);
-  
-              float length = Vec::LengthSquare(distn);
-              if (mtv.length > length){
-                  mtv.length = length;
-                  mtv.vec = vec_unit;
-              }
-        }
-    }
-    auto left_pos = transform->GetPos();
-    auto right_pos = transform_other->GetPos();
-
-    Vec2 vec = left_pos - right_pos;
-    auto dot_result = Vec::Dot(vec, mtv.vec);
-    if ( dot_result < 0 ){
-        mtv.vec = Vec::Reverse(mtv.vec);
-    }
-
-    // MTV move
-    transform->AddPos(mtv.vec * sqrt(mtv.length));
-    return true;
+    // OBB Collision
+    return OBBCollision_Logic(left, right);
 }
 
 bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
 {
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
-    auto transform_other = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
+    auto transform_left = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
+    auto transform_right = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
 
-    // Transform Edge 가져다 써버리기
-    auto left_vec_edge = transform->GetEdge();
-    auto right_vec_edge = transform_other->GetEdge();
+    auto left_obb = left->GetOBB();
+    auto right_obb = right->GetOBB();
 
     MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
-    // self edge
-    for (auto &_edge : left_vec_edge){
-        _edge.start += transform->GetPos();
-        _edge.end += transform->GetPos();
+    std::vector<Vec2> vec_check{left_obb.width_half, left_obb.height_half
+                                , right_obb.width_half, right_obb.height_half};
 
-        bool init_min_flag{true};
-        bool init_max_flag{true};
-
-        Vec2 self_min{},self_max{};
-        Vec2 other_min{},other_max{};
-
-        auto vec_unit = Vec::NormalizeEdge(_edge);
-
-        // Normal Vector
+    for(const auto& v : vec_check){
+        // standard vector
+        auto vec_unit = Vec::Normalize(v);
         vec_unit = Vec::Normal(vec_unit);
-  
-        // self projection area
-        for (auto vertex : transform->GetVertexs()){
-            vertex += transform->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-            
-            if ( init_min_flag ) {
-                self_min = proj_v;
-                self_max = proj_v;
-                init_min_flag = false;
-            }
+        
+        // center Proj vec
+        Vec2 center_vec = transform_left->GetPos() - transform_right->GetPos();
+        Vec2 center_vec_proj= Vec::Projection(vec_unit,center_vec);   // right is fixed
 
-            self_min.x = std::min(proj_v.x, self_min.x);
-            self_min.y = std::min(proj_v.y, self_min.y);
-            
-            self_max.x = std::max(proj_v.x, self_max.x);
-            self_max.y = std::max(proj_v.y, self_max.y);
-        }
+        // Get Corner Proj Vec
+        // left projection
+        auto left_proj_width = Vec::Projection(vec_unit, left_obb.width_half);
+        auto left_proj_height = Vec::Projection(vec_unit, left_obb.height_half);
 
-        // other projection area
-        for (auto vertex : transform_other->GetVertexs()){
-            vertex += transform_other->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
+        // right projection
+        auto right_proj_width = Vec::Projection(vec_unit, right_obb.width_half);
+        auto right_proj_height = Vec::Projection(vec_unit, right_obb.height_half);
 
-            if ( init_max_flag ) {
-                other_min = proj_v;
-                other_max = proj_v;
-                init_max_flag = false;
-            }
+        Vec2 corner_vec_proj_left = left_proj_width + left_proj_height;
+        Vec2 corner_vec_proj_right = right_proj_width + right_proj_height;
 
-            other_min.x = std::min(proj_v.x, other_min.x);
-            other_min.y = std::min(proj_v.y, other_min.y);
-            
-            other_max.x = std::max(proj_v.x, other_max.x);
-            other_max.y = std::max(proj_v.y, other_max.y);
-        }
+        Vec2 sum_corner = corner_vec_proj_left + corner_vec_proj_right;
 
-        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
+        auto length = sqrt(Vec::LengthSquare(center_vec_proj)) - sqrt(Vec::LengthSquare(sum_corner));
+
+        // Not Collision
+        if ( length >= 0){
             return false;
         }
-        else{
-            Vec2 temp1 = other_max - self_min;
-            Vec2 temp2 = self_max - other_min;
-            
-            float min_x = abs(std::min(temp1.x, temp2.x));
-            float min_y = abs(std::min(temp1.y, temp2.y));
+        
+        // Collision 
+        if (mtv.length > abs(length)){
+            mtv.length = abs(length);
 
-            Vec2 distn = Vec2(min_x, min_y);
-
-            float length = Vec::LengthSquare(distn);
-            if (mtv.length > length){
-                mtv.length = length;
+            // Set MTV correct direction
+            auto result = Vec::Dot(vec_unit, center_vec_proj);
+            if ( result < 0 )
+                mtv.vec = Vec::Reverse(vec_unit);
+            else
                 mtv.vec = vec_unit;
-            }
         }
     }
 
-    // other edge
-    for (auto &_edge : right_vec_edge){
-        _edge.start += transform_other->GetPos();
-        _edge.end += transform_other->GetPos();
-
-        bool init_min_flag{true};
-        bool init_max_flag{true};
-
-        Vec2 self_min{},self_max{};
-        Vec2 other_min{},other_max{};
-
-        auto vec_unit = Vec::NormalizeEdge(_edge);
-
-        // Normal Vector
-        vec_unit = Vec::Normal(vec_unit);
-
-        // self projection area
-        for (auto vertex : transform->GetVertexs()){
-            vertex += transform->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-            
-            if ( init_min_flag ) {
-                self_min = proj_v;
-                self_max = proj_v;
-                init_min_flag = false;
-            }
-
-            self_min.x = std::min(proj_v.x, self_min.x);
-            self_min.y = std::min(proj_v.y, self_min.y);
-            
-            self_max.x = std::max(proj_v.x, self_max.x);
-            self_max.y = std::max(proj_v.y, self_max.y);
-        }
-
-        // other projection area
-        for (auto vertex : transform_other->GetVertexs()){
-            vertex += transform_other->GetPos();
-            auto proj_v = Vec::Projection(vec_unit, vertex);
-
-            if ( init_max_flag ) {
-                other_min = proj_v;
-                other_max = proj_v;
-                init_max_flag = false;
-            }
-
-            other_min.x = std::min(proj_v.x, other_min.x);
-            other_min.y = std::min(proj_v.y, other_min.y);
-            
-            other_max.x = std::max(proj_v.x, other_max.x);
-            other_max.y = std::max(proj_v.y, other_max.y);
-        }
-
-        if (self_max.x < other_min.x || other_max.x < self_min.x || self_max.y < other_min.y || other_max.y < self_min.y){
-            return false;
-        }
-        else{
-              // Min x value 
-              Vec2 temp1 = other_max - self_min;
-              Vec2 temp2 = self_max - other_min;
-              
-              float min_x = abs(std::min(temp1.x, temp2.x));
-              float min_y = abs(std::min(temp1.y, temp2.y));
-  
-              Vec2 distn = Vec2(min_x, min_y);
-  
-              float length = Vec::LengthSquare(distn);
-              if (mtv.length > length){
-                  mtv.length = length;
-                  mtv.vec = vec_unit;
-              }
-        }
-    }
-    auto left_pos = transform->GetPos();
-    auto right_pos = transform_other->GetPos();
-
-    Vec2 vec = left_pos - right_pos;
-    auto dot_result = Vec::Dot(vec, mtv.vec);
-    if ( dot_result < 0 ){
-        mtv.vec = Vec::Reverse(mtv.vec);
-    }
-
-    // MTV move
-    transform->AddPos(mtv.vec * sqrt(mtv.length));
+    transform_left->AddPos(mtv.vec * mtv.length);
     return true;
 }

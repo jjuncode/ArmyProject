@@ -10,7 +10,7 @@ void PlayerScript::Update(float dt)
     int grid_offset{40};
 
     uint32_t player_speed{500};
-    uint32_t player_rotate_speed{300};
+    uint32_t player_rotate_speed{10};
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
@@ -34,5 +34,10 @@ void PlayerScript::Update(float dt)
         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
         auto pos = transform->GetPos();
         transform->AddPos(Vec2(0,dt*player_speed));
+    }
+
+    if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
+        auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+        transform->AddRotate(dt*player_rotate_speed);
     }
 }

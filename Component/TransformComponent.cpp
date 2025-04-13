@@ -5,8 +5,24 @@ void TransformComponent::Update(float dt)
 {
 }
 
-void TransformComponent::CreateEdge()
+void TransformComponent::AddRotate(float offset)
+{  
+    for (auto& dot : m_vec_vertex){
+        auto pos_standard = dot - m_pos;
+
+        // Rotate
+        float x = pos_standard.x * cos(offset) - pos_standard.y * sin(offset);
+        float y = pos_standard.x * sin(offset) + pos_standard.y * cos(offset);
+
+        // Set Position
+        dot.x = x + m_pos.x;
+        dot.y = y + m_pos.y;
+    }
+}
+
+const std::vector<Edge> TransformComponent::CreateEdge()
 {
+    std::vector<Edge> vec_edge;
 	Vec2 start;
 	Edge edge;
 
@@ -19,7 +35,7 @@ void TransformComponent::CreateEdge()
         }
         else{
             edge.end = dot;
-            m_vec_edge.emplace_back(edge);
+            vec_edge.emplace_back(edge);
 
             edge.start = dot;
         }
@@ -27,5 +43,7 @@ void TransformComponent::CreateEdge()
 
     // Finish Edge
     Edge edge_end{edge.end, start};
-    m_vec_edge.emplace_back(edge_end);
+    vec_edge.emplace_back(edge_end);
+
+    return vec_edge;
 }

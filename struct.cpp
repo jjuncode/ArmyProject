@@ -24,6 +24,14 @@ Vec2 Vec::NormalizeEdge(Edge _edge)
     return Vec2(vec.x / sqrt(distn), vec.y / sqrt(distn));
 }
 
+Vec2 Vec::Normalize(const Vec2 &vec)
+{
+    float length = LengthSquare(vec);
+    if (length == 0) 
+        return Vec2(0, 0);
+    return Vec2(vec.x / sqrt(length), vec.y / sqrt(length));
+}
+
 float Vec::Dot(const Vec2 &lhs, const Vec2 &rhs)
 {
     return lhs.x * rhs.x + lhs.y * rhs.y;

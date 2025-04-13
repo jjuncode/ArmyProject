@@ -23,5 +23,4 @@ void PlayerObject::CreateVertex(Vec2 _pos, Vec2 _scale)
     Vec2 right_bot = _pos + Vec2(_scale.x/2, -_scale.y/2);
 
     transform->SetVertexs({left_bot,left_top,right_top,right_bot});
-    transform->CreateEdge(); 
 }

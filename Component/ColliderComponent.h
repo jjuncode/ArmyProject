@@ -24,8 +24,8 @@ union CollisionInfoID{
 };
 
 struct OBB{
-    Vec2 width;
-    Vec2 height;
+    Vec2 width_half; // half width
+    Vec2 height_half;// half height
 };
 
 class ColliderComponent : public Component {
@@ -43,9 +43,11 @@ public:
     void Collision(uint32_t coll_id); // Collision rhs ID
     void Init(CollisionEntityType _type);
     void SetOBB(Vec2 _size){
-        m_obb.width = Vec2(_size.x,0);
-        m_obb.height = Vec2(0,-_size.y);
+        m_obb.width_half = Vec2(_size.x/2,0);
+        m_obb.height_half = Vec2(0,-_size.y/2);
     }
+
+    const OBB& GetOBB() { return m_obb; };
 
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
 

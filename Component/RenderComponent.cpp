@@ -16,7 +16,9 @@ void RenderComponent::Render()
 	auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(camera_id);
 	auto camera_script = SceneMgr::GetComponentOrigin<CameraScript>(camera_id);
 
-	for (auto edge : transform->GetEdge()) {
+	auto&& vec_edge = transform->CreateEdge();
+
+	for (auto edge : vec_edge) {
 		auto pos = transform ->GetPos();
 		
 		// Camera Zoom in/out

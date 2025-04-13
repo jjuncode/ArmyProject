@@ -82,13 +82,10 @@ void ColliderComponent::Render()
 
     auto render_pos = pos - camera_pos;
 
-    auto half_width = m_obb.width / 2;
-    auto half_height = m_obb.height / 2;
-
-    Vec2 left_top = (Vec2(0,0)-half_width  + half_height ) * scale_value;
-    Vec2 right_bottom = ( half_width - half_height) * scale_value;
-    Vec2 right_top = ( half_width + half_height) * scale_value;
-    Vec2 left_bottom = (Vec2(0,0)-half_width - half_height) * scale_value;
+    Vec2 left_top = (Vec2(0,0)-m_obb.width_half  + m_obb.height_half ) * scale_value;
+    Vec2 right_bottom = ( m_obb.width_half - m_obb.height_half) * scale_value;
+    Vec2 right_top = ( m_obb.width_half + m_obb.height_half) * scale_value;
+    Vec2 left_bottom = (Vec2(0,0)-m_obb.width_half - m_obb.height_half) * scale_value;
 
     left_top += render_pos;
     right_bottom += render_pos;

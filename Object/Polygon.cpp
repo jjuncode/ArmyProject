@@ -16,6 +16,4 @@ void Polygon::CreateVertex(Vec2 _pos, Vec2 _scale)
         float y = sin(i * angleIncrement);
         transform->SetVertex(Vec2(x * _scale.x , y * _scale.y));
     }
-
-    transform->CreateEdge();
 }

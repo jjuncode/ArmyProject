@@ -87,6 +87,7 @@ namespace Vec{
     Vec2 ChangeVec(Edge _edge);
 
     Vec2 NormalizeEdge(Edge _edge);
+    Vec2 Normalize(const Vec2 &vec);
 
     float Dot(const Vec2 &lhs, const Vec2 &rhs);
     Vec2 Normal(const Vec2& vec);
