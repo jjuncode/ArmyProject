@@ -47,9 +47,4 @@ void CameraScript::FollowTargetPos()
     auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
     
     camera_transform->SetPos(target_transform->GetPos());
-
-     // auto resolution = Core::GetWindowSize();
-    // auto camera_pos = camera_transform->GetPos() - resolution/2;
-    // camera_transform->SetPos(camera_pos);
-
 }

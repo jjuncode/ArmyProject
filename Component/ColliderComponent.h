@@ -44,7 +44,7 @@ public:
     void Init(CollisionEntityType _type);
     void SetOBB(Vec2 _size){
         m_obb.width_half = Vec2(_size.x/2,0);
-        m_obb.height_half = Vec2(0,-_size.y/2);
+        m_obb.height_half = Vec2(0,_size.y/2);
     }
 
     const OBB& GetOBB() { return m_obb; };

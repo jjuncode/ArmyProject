@@ -8,15 +8,9 @@ void TransformComponent::Update(float dt)
 void TransformComponent::AddRotate(float offset)
 {  
     for (auto& dot : m_vec_vertex){
-        auto pos_standard = dot - m_pos;
-
         // Rotate
-        float x = pos_standard.x * cos(offset) - pos_standard.y * sin(offset);
-        float y = pos_standard.x * sin(offset) + pos_standard.y * cos(offset);
-
-        // Set Position
-        dot.x = x + m_pos.x;
-        dot.y = y + m_pos.y;
+        dot.x = dot.x * cos(offset) - dot.y * sin(offset);
+        dot.y = dot.x * sin(offset) + dot.y * cos(offset);
     }
 }
 
