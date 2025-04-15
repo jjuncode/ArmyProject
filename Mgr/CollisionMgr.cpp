@@ -103,12 +103,11 @@ bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent
         auto right_proj_width = Vec::Projection(vec_unit, right_obb.width_half);
         auto right_proj_height = Vec::Projection(vec_unit, right_obb.height_half);
 
-        Vec2 corner_vec_proj_left = left_proj_width + left_proj_height;
-        Vec2 corner_vec_proj_right = right_proj_width + right_proj_height;
+        float corner_proj_left = Vec::Length(left_proj_width) +  Vec::Length(left_proj_height);
+        float corner_proj_right =  Vec::Length(right_proj_width) +  Vec::Length(right_proj_height);
+        float sum_corner = corner_proj_left + corner_proj_right;
 
-        Vec2 sum_corner = corner_vec_proj_left + corner_vec_proj_right;
-
-        auto length = sqrt(Vec::LengthSquare(center_vec_proj)) - sqrt(Vec::LengthSquare(sum_corner));
+        auto length = sqrt(Vec::LengthSquare(center_vec_proj)) - sum_corner;
 
         // Not Collision
         if ( length >= 0){

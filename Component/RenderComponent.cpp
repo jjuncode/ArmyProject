@@ -23,7 +23,7 @@ void RenderComponent::Render()
 	auto vec_edge = transform->CreateEdge();
 	
 	auto scale_value = camera_script->GetZoomValue();
-	auto camera_pos = (camera_transform->GetPos() * scale_value) - resolution / 2;
+	auto camera_pos = (camera_transform->GetPos() * scale_value) - (resolution / 2);
 	
 	for (auto edge : vec_edge) {
 		// Camera Zoom in/out

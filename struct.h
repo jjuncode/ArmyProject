@@ -83,6 +83,7 @@ namespace Vec{
     float EdgeDistnSquare(Edge _edge);
 
     float LengthSquare(Vec2 _vec);
+    float Length(Vec2 _vec);
 
     Vec2 ChangeVec(Edge _edge);
 

@@ -12,6 +12,11 @@ float Vec::LengthSquare(Vec2 _vec)
     return (_vec.x * _vec.x + _vec.y * _vec.y);
 }
 
+float Vec::Length(Vec2 _vec)
+{
+    return sqrt(LengthSquare(_vec));
+}
+
 Vec2 Vec::ChangeVec(Edge _edge)
 {
     return Vec2(_edge.end.x - _edge.start.x, _edge.end.y - _edge.start.y);

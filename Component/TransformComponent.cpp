@@ -1,5 +1,7 @@
 #include "TransformComponent.h"
 #include "../pch.h"
+#include "ColliderComponent.h"
+#include "../Mgr/SceneMgr.h"
 
 void TransformComponent::Update(float dt)
 {
@@ -11,6 +13,12 @@ void TransformComponent::AddRotate(float offset)
         // Rotate
         dot.x = dot.x * cos(offset) - dot.y * sin(offset);
         dot.y = dot.x * sin(offset) + dot.y * cos(offset);
+    }
+
+    auto collider = SceneMgr::GetComponentOrigin<ColliderComponent>(GetOwnerID());
+    if (collider ){
+        collider->RotateOBB(offset);
+        auto obb = collider->GetOBB();
     }
 }
 

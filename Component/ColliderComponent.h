@@ -26,6 +26,15 @@ union CollisionInfoID{
 struct OBB{
     Vec2 width_half; // half width
     Vec2 height_half;// half height
+
+    void Rotate(float angle){
+        // Rotate
+        width_half.x = width_half.x * cos(angle) - width_half.y * sin(angle);
+        width_half.y = width_half.x * sin(angle) + width_half.y * cos(angle);
+    
+        height_half.x = height_half.x * cos(angle) - height_half.y * sin(angle);
+        height_half.y = height_half.x * sin(angle) + height_half.y * cos(angle);
+    }
 };
 
 class ColliderComponent : public Component {
@@ -48,7 +57,8 @@ public:
     }
 
     const OBB& GetOBB() { return m_obb; };
-
+    void RotateOBB(float angle){m_obb.Rotate(angle);}
+    
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
 
     void CollisionEnter();
