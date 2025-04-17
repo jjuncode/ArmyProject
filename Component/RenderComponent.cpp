@@ -15,22 +15,23 @@ void RenderComponent::Render()
 	auto id_owner = GetOwnerID();	// self id
 	auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id_owner);
 	auto pos = transform ->GetPos();
-
+	
 	auto camera_id = SceneMgr::GetMainCamera();
 	auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(camera_id);
 	auto camera_script = SceneMgr::GetComponentOrigin<CameraScript>(camera_id);
-
+	
 	auto vec_edge = transform->CreateEdge();
 	
 	auto scale_value = camera_script->GetZoomValue();
 	auto camera_pos = (camera_transform->GetPos() * scale_value) - (resolution / 2);
 	
+	pos *= scale_value;
+
 	for (auto edge : vec_edge) {
 		// Camera Zoom in/out
 		// pos scaling
-		pos *= scale_value;
-		edge.start*= scale_value;
-		edge.end*= scale_value;
+		edge.start *= scale_value;
+		edge.end *= scale_value;
 		
 		auto render_edge = edge + pos - camera_pos;
 

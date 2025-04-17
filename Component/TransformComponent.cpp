@@ -11,8 +11,11 @@ void TransformComponent::AddRotate(float offset)
 {  
     for (auto& dot : m_vec_vertex){
         // Rotate
-        dot.x = dot.x * cos(offset) - dot.y * sin(offset);
-        dot.y = dot.x * sin(offset) + dot.y * cos(offset);
+        auto x = dot.x * cos(offset) - dot.y * sin(offset);
+        auto y = dot.x * sin(offset) + dot.y * cos(offset);
+    
+        dot.x = x;
+        dot.y = y;
     }
 
     auto collider = SceneMgr::GetComponentOrigin<ColliderComponent>(GetOwnerID());
