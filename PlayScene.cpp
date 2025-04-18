@@ -14,6 +14,7 @@
 
 #include "Component/TransformComponent.h"
 #include "Component/CameraScript.h"
+#include "Component/PhysicComponent.h"
 
 void PlayScene::Init()
 {
@@ -24,12 +25,13 @@ void PlayScene::Init()
 
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
+    player.AddComponent<PhysicComponent>();
 
     Camera player_camera{player.GetEntityID()};
     player_camera.SetMainCamera();
 
     Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
-    poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
+//    poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }

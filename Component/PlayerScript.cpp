@@ -24,11 +24,11 @@ void PlayerScript::Update(float dt)
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
-        transform->AddPos(Vec2(0,-dt*player_speed));
+        transform->AddPos(Vec2(0,dt*player_speed));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Down) || InputMgr::IsHold(sf::Keyboard::Down)){
-        transform->AddPos(Vec2(0,dt*player_speed));
+        transform->AddPos(Vec2(0,-dt*player_speed));
     }
 
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){

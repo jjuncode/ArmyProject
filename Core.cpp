@@ -18,7 +18,7 @@ void Core::Init(int x, int y)
 
     // 뷰 생성 ( 좌하단 0,0설정 ) 
     static sf::View view{window.getDefaultView()};
-    // view.setSize(m_window_size.x, -m_window_size.y); 
+    view.setSize(m_window_size.x, -m_window_size.y); 
     // view.setCenter(m_window_size.x/2, m_window_size.y/2);
     window.setView(view);
 

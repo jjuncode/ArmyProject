@@ -29,6 +29,15 @@ class Object{
             return obj.GetEntityID();
         }
 
+        // Component Template
+        template <typename T, typename... V>
+        void AddComponent(V &&...params)
+        {
+            auto &cur_scene = SceneMgr::GetCurScene();
+            auto comp = obj.AddComponent<T>(std::forward<V>(params)...);
+            cur_scene->AddComponent<T>(std::move(comp));
+        }
+
         // ======================
         // Abstract Method 
         // ======================
