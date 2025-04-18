@@ -33,26 +33,18 @@ CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
     return iter->second;
 }
 
-void ColliderComponent::CollisionEnter()
+void ColliderComponent::CollisionEnter(CollisionInfoID _info)
+{
+    auto script = SceneMgr::GetComponentOrigin<ScriptComponent>(_info.left);
+    
+}
+
+void ColliderComponent::CollisionStay(CollisionInfoID _info)
 {
 }
 
-void ColliderComponent::CollisionStay()
+void ColliderComponent::CollisionExit(CollisionInfoID _info)
 {
-    // auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
-    // color->SetColor(sf::Color::Cyan);
-}
-
-void ColliderComponent::CollisionExit(uint32_t coll_entity_id)
-{
-    // CollisionInfoID info;
-    // info.left = GetOwnerID();
-    // info.right = coll_entity_id;
-
-    // m_map_collision_status[info.id] = CollisionStatus::kNone;
-
-    // auto color = SceneMgr::GetComponentOrigin<ColorComponent>(GetOwnerID());
-    // color->SetColor(sf::Color::Yellow);
 }
 
 ColliderComponent::~ColliderComponent()
@@ -121,16 +113,16 @@ void ColliderComponent::Collision(uint32_t coll_entity_id)
     if ( iter == m_map_collision_status.end() || iter->second == CollisionStatus::kNone ) {
         // Collision Enter 
         m_map_collision_status[info.id] = CollisionStatus::kEnter;
-        CollisionEnter();
+        CollisionEnter(info);
     }
     else{
         auto collision_status = iter->second;
         if ( collision_status == CollisionStatus::kEnter){
             iter->second = CollisionStatus::kStay;
-            CollisionStay();
+            CollisionStay(info);
         }
         else if ( collision_status == CollisionStatus::kStay){
-            CollisionStay();
+            CollisionStay(info);
         }
     }
 

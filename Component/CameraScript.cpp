@@ -8,7 +8,7 @@
 
 #include "../Core.h"
 
-void CameraScript::Update(float dt)
+void CameraScript::Execute(float dt)
 {
     FollowTargetPos();
 

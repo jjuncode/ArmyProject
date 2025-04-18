@@ -1,7 +1,11 @@
 #pragma once
-#include "Component.h"
+#include "ScriptComponent.h"
 
-class PlayerScript : public Component {
+class PlayerScript : public ScriptComponent {
     public:
-        void Update(float dt ) override;
+        void Execute(float dt) override; // script execute
+        
+        void ExecuteCollEnter(uint32_t other_entity_id, float dt) override;
+        void ExecuteCollStay(uint32_t other_entity_id, float dt) override;
+        void ExecuteCollExit(uint32_t other_entity_id, float dt) override;
 };

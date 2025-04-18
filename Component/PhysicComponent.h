@@ -16,4 +16,6 @@ class PhysicComponent : public Component{
         void SetAccel(Vec2 rhs){m_accel = rhs;}
         Vec2 GetVelocity(){return m_velocity;}
         Vec2 GetAccel(){return m_accel;}
+
+        void OnGround();
 };

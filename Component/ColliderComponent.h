@@ -66,7 +66,7 @@ public:
     
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
 
-    void CollisionEnter();
-    void CollisionStay();
-    void CollisionExit(uint32_t coll_entity_id);
+    void CollisionEnter(CollisionInfoID _info);
+    void CollisionStay(CollisionInfoID _info);
+    void CollisionExit(CollisionInfoID _info);
 };

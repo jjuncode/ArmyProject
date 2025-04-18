@@ -1,8 +1,8 @@
 #pragma once
-#include "Component.h"
+#include "ScriptComponent.h"
 #include "../struct.h"
 
-class CameraScript : public Component {
+class CameraScript : public ScriptComponent {
     private:
         uint32_t m_target;
         float m_zoom_value{1.0f}; // Zoom value
@@ -11,7 +11,7 @@ class CameraScript : public Component {
         float m_zoom_min{0.5f}; // Minimum zoom level
 
     public:
-        void Update(float dt ) override;
+        void Execute(float dt) override; // script execute
         void SetTarget(const uint32_t _target) { m_target = _target; }
         uint32_t GetTarget() { return m_target; }
         

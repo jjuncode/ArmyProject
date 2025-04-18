@@ -3,6 +3,7 @@
 
 #include "../Component/ColliderComponent.h"
 #include "../Component/TransformComponent.h"
+#include "../Component/ScriptComponent.h"
 
 #include <fstream>
 
@@ -51,12 +52,16 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                         auto left_status = left_coll->GetCollisionStatus(right_entity_id);
                         auto right_status = right_coll->GetCollisionStatus(left_entity_id);
                         
+                        CollisionInfoID info;
+                        info.left = left_entity_id;
+                        info.right = right_entity_id;
+
                         if ( left_status == CollisionStatus::kStay){
-                            left_coll->CollisionExit(right_entity_id);
+                            left_coll->CollisionExit(info);
                         }
 
                         if ( right_status == CollisionStatus::kStay ) {
-                            right_coll->CollisionExit(left_entity_id);
+                            right_coll->CollisionExit(info);
                         }
 
                     }

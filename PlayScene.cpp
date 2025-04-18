@@ -31,7 +31,7 @@ void PlayScene::Init()
     player_camera.SetMainCamera();
 
     Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
-//    poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
+    poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }

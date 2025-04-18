@@ -5,7 +5,7 @@
 #include "../Mgr/InputMgr.h"
 #include "../Mgr/SceneMgr.h"
 
-void PlayerScript::Update(float dt)
+void PlayerScript::Execute(float dt)
 {
     int grid_offset{40};
 
@@ -34,4 +34,16 @@ void PlayerScript::Update(float dt)
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
         transform->AddRotate(dt*player_rotate_speed);
     }
+}
+
+void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, float dt)
+{
+}
+
+void PlayerScript::ExecuteCollStay(uint32_t other_entity_id, float dt)
+{
+}
+
+void PlayerScript::ExecuteCollExit(uint32_t other_entity_id, float dt)
+{
 }
