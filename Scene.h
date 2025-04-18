@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Component/Component.h"
+#include "Script/Script.h"
 #include "Object/Entity.h"
 
 enum class CollisionEntityType {
@@ -15,6 +16,8 @@ class Scene
 {
 protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
+	std::vector<std::shared_ptr<Script>> m_vec_script;	// script component vector
+
 	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
 	uint32_t m_main_camear_id{};	// main camera id
 
@@ -39,8 +42,9 @@ public:
 	// Loop function
 	// =====================
 	virtual void Init();
-	virtual void Update(float dt);		// 임시로 오브젝트를 업데이트 돌리기 
-	virtual void Render();				// 임시로 오브젝트를 업데이트 돌리기
+	virtual void Update(float dt);		
+	virtual void Execute(float dt);	// script execute
+	virtual void Render();				
 
 	virtual void Exit();
 
@@ -159,6 +163,9 @@ public:
 
 	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;
 
+	// ==============================
+	// Script Method
+	// ==============================
 	
 	// ================================
 	// Camera Method 

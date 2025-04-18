@@ -3,7 +3,7 @@
 #include "../Core.h"
 
 #include "TransformComponent.h"
-#include "CameraScript.h"
+#include "../Script/CameraScript.h"
 
 std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
 
@@ -35,8 +35,6 @@ CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
 
 void ColliderComponent::CollisionEnter(CollisionInfoID _info)
 {
-    auto script = SceneMgr::GetComponentOrigin<ScriptComponent>(_info.left);
-    
 }
 
 void ColliderComponent::CollisionStay(CollisionInfoID _info)

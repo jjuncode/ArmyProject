@@ -3,9 +3,6 @@
 
 #include "../Component/ColliderComponent.h"
 #include "../Component/TransformComponent.h"
-#include "../Component/ScriptComponent.h"
-
-#include <fstream>
 
 void CollisionMgr::Collision()
 {

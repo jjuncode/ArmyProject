@@ -10,6 +10,10 @@ void Scene::Update(float dt)
 {
 }
 
+void Scene::Execute(float dt)
+{
+}
+
 void Scene::Render()
 {
 	auto window = Core::GetWindowContext();

@@ -13,8 +13,9 @@
 #include "Mgr/CollisionMgr.h"
 
 #include "Component/TransformComponent.h"
-#include "Component/CameraScript.h"
 #include "Component/PhysicComponent.h"
+
+#include "Script/CameraScript.h"
 
 void PlayScene::Init()
 {
@@ -49,6 +50,11 @@ void PlayScene::Update(float dt)
     // Collision Check
    CollisionMgr::Collision();
 
+   // Sciprt Execute
+    for (const auto& script : m_vec_script){
+    }
+
+    // Extra Things
     auto mouse_state = InputMgr::GetMouseState();
     auto mouse_pos = InputMgr::GetMousePos();
 

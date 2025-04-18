@@ -1,14 +1,14 @@
 #include "PlayerObject.h"
 #include "../Mgr/SceneMgr.h"
 #include "../Component/RenderComponent.h"
-#include "../Component/PlayerScript.h"
 #include "../Component/TransformComponent.h"
+#include "../Script/PlayerScript.h"
 
 void PlayerObject::SetScript()
 {
-    auto& cur_scene = SceneMgr::GetCurScene();
-    auto script = obj.AddComponent<PlayerScript>();
-    cur_scene ->AddComponent<PlayerScript>(std::move(script));
+    // auto& cur_scene = SceneMgr::GetCurScene();
+    // auto script = obj.AddComponent<PlayerScript>();
+    // cur_scene ->AddComponent<PlayerScript>(std::move(script));
 }
 
 void PlayerObject::CreateVertex(Vec2 _pos, Vec2 _scale)

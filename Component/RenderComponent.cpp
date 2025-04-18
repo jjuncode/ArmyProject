@@ -5,7 +5,7 @@
 #include "../Mgr/SceneMgr.h"
 
 #include "TransformComponent.h"
-#include "CameraScript.h"
+#include "../Script/CameraScript.h"
 
 void RenderComponent::Render()
 {
