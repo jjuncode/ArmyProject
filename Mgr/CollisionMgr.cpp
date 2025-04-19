@@ -27,8 +27,8 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
 {
     for ( const auto& left_id : left ) {
         for ( const auto& right_id : right ){
-            auto left_coll = SceneMgr::GetComponentOrigin<ColliderComponent>(left_id);
-            auto right_coll = SceneMgr::GetComponentOrigin<ColliderComponent>(right_id);
+            auto left_coll = SceneMgr::GetComponent<ColliderComponent>(left_id);
+            auto right_coll = SceneMgr::GetComponent<ColliderComponent>(right_id);
             
             // Only Activate Entity
             if ( left_coll && right_coll ) {
@@ -76,8 +76,8 @@ bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *ri
 
 bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
 {
-    auto transform_left = SceneMgr::GetComponentOrigin<TransformComponent>(left->GetOwnerID());
-    auto transform_right = SceneMgr::GetComponentOrigin<TransformComponent>(right->GetOwnerID());
+    auto transform_left = SceneMgr::GetComponent<TransformComponent>(left->GetOwnerID());
+    auto transform_right = SceneMgr::GetComponent<TransformComponent>(right->GetOwnerID());
 
     auto left_obb = left->GetOBB();
     auto right_obb = right->GetOBB();

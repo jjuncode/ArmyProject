@@ -18,7 +18,7 @@ void TransformComponent::AddRotate(float offset)
         dot.y = y;
     }
 
-    auto collider = SceneMgr::GetComponentOrigin<ColliderComponent>(GetOwnerID());
+    auto collider = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     if (collider ){
         collider->RotateOBB(offset);
         auto obb = collider->GetOBB();

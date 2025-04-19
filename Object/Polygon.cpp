@@ -7,7 +7,7 @@ void Polygon::SetScript()
 
 void Polygon::CreateVertex(Vec2 _pos, Vec2 _scale)
 {
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(obj.GetEntityID());
+    auto transform = SceneMgr::GetComponent<TransformComponent>(obj.GetEntityID());
 
     float angleIncrement = 2   * M_PI / sides; // Angle between vertices
     angleIncrement = -angleIncrement; // Reverse the direction to clockwise

@@ -54,10 +54,10 @@ void ColliderComponent::Render()
 {
     // OBB Render
     auto id_owner = GetOwnerID();	// self id
-	auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id_owner);
+	auto transform = SceneMgr::GetComponent<TransformComponent>(id_owner);
 
 	auto camera_id = SceneMgr::GetMainCamera();
-	auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(camera_id);
+	auto camera_transform = SceneMgr::GetComponent<TransformComponent>(camera_id);
 	auto camera_script = SceneMgr::GetScript<CameraScript>(camera_id);
 
     auto pos = transform->GetPos();

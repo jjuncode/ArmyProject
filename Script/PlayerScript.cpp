@@ -12,7 +12,7 @@ void PlayerScript::Execute(float dt)
     uint32_t player_speed{500};
     uint32_t player_rotate_speed{10};
 
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+    auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
     auto pos = transform->GetPos();
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){

@@ -9,7 +9,7 @@ float PhysicComponent::m_air_friction{0.8};
 
 void PhysicComponent::Update(float dt)
 {
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+    auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
     auto pos = transform->GetPos();
     // Gravity
     m_accel.y -= m_gravity;
@@ -30,7 +30,7 @@ void PhysicComponent::Update(float dt)
 
 void PhysicComponent::OnGround()
 {
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(GetOwnerID());
+    auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
     auto pos = transform->GetPos();
     transform->SetPos(Vec2( pos.x, 0));
     m_velocity.y = 0;

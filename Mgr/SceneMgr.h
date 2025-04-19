@@ -30,14 +30,14 @@ class SceneMgr{
         // Component Method
         // =========================
         template <typename T>
-        static std::shared_ptr<T> GetComponentOrigin(const uint32_t &_owner_id)
+        static std::shared_ptr<T> GetComponent(const uint32_t &_owner_id)
         {
-            return m_cur_scene->GetComponentOrigin<T>(_owner_id);
+            return m_cur_scene->GetComponent<T>(_owner_id);
         };
         
-        static std::shared_ptr<Component>& GetComponent(const uint32_t _id){
-            return m_cur_scene -> GetComponent(_id);
-        }
+        // static std::shared_ptr<Component>& GetComponent(const uint32_t _id){
+        //     return m_cur_scene -> GetComponent(_id);
+        // }
         
         static const auto& GetComponentsID(const uint32_t& _owner_id){
             return m_cur_scene->GetComponentsID(_owner_id);
@@ -51,11 +51,8 @@ class SceneMgr{
         // Script Method
         // =========================
         template<typename T>
-        static std::shared_ptr<T> GetScript(const uint32_t &_script_id){
-            auto ptr = m_cur_scene->GetScript(_script_id);
-            if ( ptr )
-                return std::dynamic_pointer_cast<T>(ptr);
-            return nullptr;
+        static std::shared_ptr<T> GetScript(const uint32_t &_owner_id){
+            return m_cur_scene->GetScript<T>(_owner_id);
         };
         
         static void DeleteScript(std::shared_ptr<Script>&& _script) noexcept{
@@ -75,6 +72,9 @@ class SceneMgr{
             m_cur_scene->AddEntity<T>(_entity);
         }
 
+        // =========================
+        // Camera Method
+        // =========================
         static void SetMainCamera(uint32_t _id) noexcept{
             m_cur_scene->SetMainCamera(_id);
         }

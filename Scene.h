@@ -19,7 +19,7 @@ protected:
 	std::vector<std::shared_ptr<Script>> m_vec_script;	// script component vector
 
 	std::vector<EntityStatus> m_vec_entity_status;	// entity 상태 vector
-	uint32_t m_main_camear_id{};	// main camera id
+	uint32_t m_main_camear_id{};					// main camera id
 
 private:
 	// Entity Components Map
@@ -115,7 +115,7 @@ private:
 	template <typename T>
 	auto &AccessComponentMap()
 	{
-		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_component{};
+		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_component{};	// 각 자료형별 Component Map ( 순차적으로 되도록 Entity_id 로 저장 )
 		return map_component;
 	}
 
@@ -140,16 +140,16 @@ public:
 		}
 
 		auto& map = AccessComponentMap<T>();
-		map[_comp->GetOwnerID()] = _comp;
-		m_map_entity_components_id[_comp->GetOwnerID()].emplace_back(idx);
+		map[owner_id] = _comp;
+		m_map_entity_components_id[owner_id].emplace_back(idx);
 	}	
 
-	std::shared_ptr<Component>& GetComponent(const uint32_t _id){
-		return m_vec_component[_id];
-	}
+	// std::shared_ptr<Component>& GetComponent(const uint32_t _id){
+	// 	return m_vec_component[_id];
+	// }
 	
 	template<typename T>
-	std::shared_ptr<T> GetComponentOrigin(const uint32_t& _owner_id){
+	std::shared_ptr<T> GetComponent(const uint32_t& _owner_id){
 		auto& map_component = AccessComponentMap<T>();
 
 		auto iter {map_component.find(_owner_id)};
@@ -175,10 +175,19 @@ public:
 	// Script Method
 	// ==============================
 	private:
-public:
+	template <typename T>
+	auto &AccessScriptMap()
+	{
+		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_script{};
+		return map_script;
+	}
+
+	public:
+
 	template<typename T>
 	void AddScript(const std::shared_ptr<T>& _script){
 		auto idx{_script->GetID()}; 
+		auto owner_id{_script->GetOwnerID()};
 
 		// size setting 
 		if (m_vec_script.capacity() <= idx)
@@ -193,12 +202,37 @@ public:
 			// 아니면 그냥 insert
 			m_vec_script.emplace_back(_script);
 		}
+
+		auto& map = AccessScriptMap<T>();
+		map[owner_id] = _script;
 	}	
 
-	std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
-		return m_vec_script[_script_id];
-	}
+	// std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
+	// 	return m_vec_script[_script_id];
+	// }
 	
+	template<typename T>
+	std::shared_ptr<T> GetScript(const uint32_t& _owner_id){
+		auto& map_script = AccessScriptMap<T>();
+
+		auto iter {map_script.find(_owner_id)};
+		if ( iter != map_script.end()){
+			// Find
+			
+			if ( !iter->second.expired()){
+				auto script = iter->second.lock(); // 죽었는가 
+				auto id = script->GetID();
+				if (m_vec_entity_status[_owner_id] == EntityStatus::kActive)
+					return script;
+				else if (m_vec_entity_status[_owner_id] == EntityStatus::kDead)
+					return nullptr;
+			}
+		}
+
+		return nullptr;
+	} 
+
+
 	void DeleteScript(std::shared_ptr<Script>&& _script) noexcept;
 
 	// ================================

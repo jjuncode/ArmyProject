@@ -11,7 +11,7 @@ void RectObject::CreateVertex(Vec2 _pos,Vec2 _scale)
 {
     // Rectangle
     // 4 dot
-    auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(obj.GetEntityID());
+    auto transform = SceneMgr::GetComponent<TransformComponent>(obj.GetEntityID());
 
     Vec2 left_bot = _pos - Vec2(_scale.x/2, _scale.y/2);
     Vec2 left_top = _pos + Vec2(-_scale.x/2, _scale.y/2);
