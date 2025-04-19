@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "../Scene.h"
+#include "../Script/Script.h"
 
 class SceneMgr{
     private:
@@ -25,20 +26,45 @@ class SceneMgr{
             return m_cur_scene;
         }
 
+        // =========================
+        // Component Method
+        // =========================
         template <typename T>
         static std::shared_ptr<T> GetComponentOrigin(const uint32_t &_owner_id)
         {
             return m_cur_scene->GetComponentOrigin<T>(_owner_id);
         };
-
+        
         static std::shared_ptr<Component>& GetComponent(const uint32_t _id){
             return m_cur_scene -> GetComponent(_id);
         }
-
+        
+        static const auto& GetComponentsID(const uint32_t& _owner_id){
+            return m_cur_scene->GetComponentsID(_owner_id);
+        }
+        
         static void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept{
             m_cur_scene ->DeleteComponent(std::move(_comp));
         }
+        
+        // =========================
+        // Script Method
+        // =========================
+        template<typename T>
+        static std::shared_ptr<T> GetScript(const uint32_t &_script_id){
+            auto ptr = m_cur_scene->GetScript(_script_id);
+            if ( ptr )
+                return std::dynamic_pointer_cast<T>(ptr);
+            return nullptr;
+        };
+        
+        static void DeleteScript(std::shared_ptr<Script>&& _script) noexcept{
+            m_cur_scene ->DeleteScript(std::move(_script));
+        }
 
+        // =========================
+        // Entity Method
+        // =========================
         template<typename T>
         static const std::vector<uint32_t>& GetEntityVector(){
             return m_cur_scene->GetEntityVector<T>();
@@ -47,10 +73,6 @@ class SceneMgr{
         template<typename T>
         static void AddEntity(const Entity& _entity){
             m_cur_scene->AddEntity<T>(_entity);
-        }
-
-        static const auto& GetComponentsID(const uint32_t& _owner_id){
-            return m_cur_scene->GetComponentsID(_owner_id);
         }
 
         static void SetMainCamera(uint32_t _id) noexcept{

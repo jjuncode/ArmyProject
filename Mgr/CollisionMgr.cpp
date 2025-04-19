@@ -32,8 +32,8 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
             
             // Only Activate Entity
             if ( left_coll && right_coll ) {
-                if (SceneMgr::GetCurScene()->GetEntityStatus(left_coll->GetID()) != EntityStatus::kActive 
-                    || SceneMgr::GetCurScene()->GetEntityStatus(right_coll->GetID()) != EntityStatus::kActive)
+                if (SceneMgr::GetCurScene()->GetEntityStatus(left_coll->GetOwnerID()) != EntityStatus::kActive 
+                    || SceneMgr::GetCurScene()->GetEntityStatus(right_coll->GetOwnerID()) != EntityStatus::kActive)
                     continue;
                 else{
                     if (CollisionLogic(left_coll.get(), right_coll.get())){

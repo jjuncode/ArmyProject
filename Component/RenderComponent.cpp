@@ -18,7 +18,7 @@ void RenderComponent::Render()
 	
 	auto camera_id = SceneMgr::GetMainCamera();
 	auto camera_transform = SceneMgr::GetComponentOrigin<TransformComponent>(camera_id);
-	auto camera_script = SceneMgr::GetComponentOrigin<CameraScript>(camera_id);
+	auto camera_script = SceneMgr::GetScript<CameraScript>(camera_id);
 	
 	auto vec_edge = transform->CreateEdge();
 	

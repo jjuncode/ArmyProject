@@ -19,10 +19,10 @@ void Scene::Render()
 	auto window = Core::GetWindowContext();
 	window->clear();
 
-	for (const auto& obj : m_vec_component) {
-        if ( obj ) 
-            if (m_vec_status[obj->GetID()] == EntityStatus::kActive)
-                obj->Render();
+	for (const auto& comp : m_vec_component) {
+        if ( comp ) 
+            if (m_vec_entity_status[comp->GetOwnerID()] == EntityStatus::kActive)
+                comp->Render();
 	}
 
 	window->display();
@@ -65,7 +65,7 @@ void Scene::DeleteCollisionEntity(CollisionEntityType _type, const uint32_t &ent
 void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 {
 	// Component dead in Loop
-	m_vec_status[_comp->GetID()] = EntityStatus::kDead;
+	m_vec_entity_status[_comp->GetOwnerID()] = EntityStatus::kDead;
     
     // ID reset
 	_comp->Delete();
@@ -74,3 +74,14 @@ void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 	_comp.reset();
 }
 
+void Scene::DeleteScript(std::shared_ptr<Script> &&_script) noexcept
+{
+    // Component dead in Loop
+	m_vec_entity_status[_script->GetOwnerID()] = EntityStatus::kDead;
+    
+    // ID reset
+	_script->Delete();
+    
+	// Really Delete
+	_script.reset();
+}

@@ -61,4 +61,14 @@ public:
 
 		return component;
 	}
+
+	// Script Template 
+	template<typename T, typename... V>
+	std::unique_ptr<T> SetScript(V&&... params)
+	{
+		std::unique_ptr<T> script{std::make_unique<T>(std::forward<V>(params)...)};
+		script->SetOwner(m_id);
+		
+		return script;
+	}
 };

@@ -18,11 +18,10 @@ protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
 	std::vector<std::shared_ptr<Script>> m_vec_script;	// script component vector
 
-	std::vector<EntityStatus> m_vec_status;	// entity 상태 vector
+	std::vector<EntityStatus> m_vec_entity_status;	// entity 상태 vector
 	uint32_t m_main_camear_id{};	// main camera id
 
 private:
-
 	// Entity Components Map
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
 
@@ -65,7 +64,6 @@ public:
 	void AddCollisionEntity(CollisionEntityType _type, uint32_t entity_id){
 		auto& list = m_map_collision_entity[_type];
 		list.emplace_back(entity_id);
-		// std::sort(list.begin(), list.end());
 	}
 
 	void DeleteCollisionEntity(CollisionEntityType _type, const uint32_t& entity_id) noexcept;
@@ -84,6 +82,22 @@ public:
 	void AddEntity(const Entity& _entity){
 		auto& vec = GetEntityVector<T>();
 		vec.emplace_back(_entity.GetEntityID());	// entity의 자신 id를 return하도록
+
+		auto entity_id = _entity.GetEntityID();
+
+		// Entity Activate
+		if (m_vec_entity_status.capacity() <= entity_id)
+			m_vec_entity_status.reserve( entity_id + 1 * 2);
+
+		if ( entity_id < m_vec_entity_status.size()){
+			// 만약 넣으려는 요소가 앞쪽이라면
+			// 기존것은 삭제되고 새로 대체된다.
+			m_vec_entity_status[entity_id] = EntityStatus::kActive;
+		}
+		else{
+			// 아니면 그냥 insert
+			m_vec_entity_status.emplace_back(EntityStatus::kActive);
+		}
 	}
 
 	const auto& GetComponentsID(const uint32_t _owner_id){
@@ -91,7 +105,7 @@ public:
 	}
 
 	EntityStatus GetEntityStatus(uint32_t entity_id ){
-		return m_vec_status[entity_id];
+		return m_vec_entity_status[entity_id];
 	}
 
 	// ================================
@@ -109,26 +123,20 @@ public:
 	template<typename T>
 	void AddComponent(const std::shared_ptr<T>& _comp){
 		auto idx{_comp->GetID()}; 
+		auto owner_id{_comp->GetOwnerID()};
 
 		// size setting 
 		if (m_vec_component.capacity() <= idx)
 			m_vec_component.reserve(idx + 1 * 2);
 
-		if (m_vec_status.capacity() <= idx)
-			m_vec_status.reserve(idx + 1 * 2);
-
 		if (idx + 1 <= m_vec_component.size()){
 			// 만약 넣으려는 요소가 앞쪽이라면
 			// 기존것은 삭제되고 새로 대체된다.
 			m_vec_component[idx] = _comp;
-
-			// 기본으로 활성화
-			m_vec_status[idx] = EntityStatus::kActive;
 		}
 		else{
 			// 아니면 그냥 insert
 			m_vec_component.emplace_back(_comp);
-			m_vec_status.emplace_back(EntityStatus::kActive);
 		}
 
 		auto& map = AccessComponentMap<T>();
@@ -151,9 +159,9 @@ public:
 			if ( !iter->second.expired()){
 				auto comp = iter->second.lock(); // 죽었는가 
 				auto id = comp->GetID();
-				if (m_vec_status[id] == EntityStatus::kActive)
+				if (m_vec_entity_status[_owner_id] == EntityStatus::kActive)
 					return comp;
-				else if (m_vec_status[id] == EntityStatus::kDead)
+				else if (m_vec_entity_status[_owner_id] == EntityStatus::kDead)
 					return nullptr;
 			}
 		}
@@ -166,7 +174,33 @@ public:
 	// ==============================
 	// Script Method
 	// ==============================
+	private:
+public:
+	template<typename T>
+	void AddScript(const std::shared_ptr<T>& _script){
+		auto idx{_script->GetID()}; 
+
+		// size setting 
+		if (m_vec_script.capacity() <= idx)
+			m_vec_script.reserve(idx + 1 * 2);
+
+		if (idx + 1 <= m_vec_script.size()){
+			// 만약 넣으려는 요소가 앞쪽이라면
+			// 기존것은 삭제되고 새로 대체된다.
+			m_vec_script[idx] = _script;
+		}
+		else{
+			// 아니면 그냥 insert
+			m_vec_script.emplace_back(_script);
+		}
+	}	
+
+	std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
+		return m_vec_script[_script_id];
+	}
 	
+	void DeleteScript(std::shared_ptr<Script>&& _script) noexcept;
+
 	// ================================
 	// Camera Method 
 	// ================================
