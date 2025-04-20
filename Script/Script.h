@@ -32,6 +32,11 @@ public:
 
     void Delete(){remain_id.push(m_id);}
 
+    static bool IsValid(int _id) 
+    {
+        return _id != -1;
+    }
+
     public:
         virtual void Execute(float dt); // script execute
 

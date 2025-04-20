@@ -17,13 +17,16 @@ class Scene
 protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
 	std::vector<std::shared_ptr<Script>> m_vec_script;	// script component vector
-
+	
 	std::vector<EntityStatus> m_vec_entity_status;	// entity 상태 vector
 	uint32_t m_main_camear_id{};					// main camera id
-
-private:
+	
+	private:
 	// Entity Components Map
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
+	
+	// Entity Scripts Vec
+	std::vector<int> m_vec_script_id;	// script id vector ( idx == entity id )
 
 	// Collision Entity Map
 	std::unordered_map<CollisionEntityType, std::list<uint32_t>> m_map_collision_entity;  
@@ -205,11 +208,22 @@ public:
 
 		auto& map = AccessScriptMap<T>();
 		map[owner_id] = _script;
-	}	
 
-	// std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
-	// 	return m_vec_script[_script_id];
-	// }
+
+		// size setting 
+		if (m_vec_script_id.capacity() <= owner_id)
+			m_vec_script_id.reserve(owner_id + 1 * 2);
+
+		// Fill Empty Space
+		while (m_vec_script_id.size() <= owner_id)
+			m_vec_script_id.emplace_back(-1);
+
+		m_vec_script_id[owner_id] = (idx);
+	}
+
+	std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
+		return m_vec_script[_script_id];
+	}
 	
 	template<typename T>
 	std::shared_ptr<T> GetScript(const uint32_t& _owner_id){
@@ -232,6 +246,11 @@ public:
 		return nullptr;
 	} 
 
+	int GetScriptID(const uint32_t& _owner_id){
+		if ( m_vec_script_id.size() <= _owner_id)
+			return -1;
+		return m_vec_script_id[_owner_id];
+	}
 
 	void DeleteScript(std::shared_ptr<Script>&& _script) noexcept;
 

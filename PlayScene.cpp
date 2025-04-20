@@ -56,7 +56,7 @@ void PlayScene::Update(float dt)
     }
 
     // Collision Check
-    CollisionMgr::Collision();
+    CollisionMgr::Collision(dt);
 
     // Extra Things
     // auto mouse_state = InputMgr::GetMouseState();

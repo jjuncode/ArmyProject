@@ -1,6 +1,7 @@
 #include "PlayerScript.h"
 
 #include "../Component/TransformComponent.h"
+#include "../Component/ColliderComponent.h"
 
 #include "../Mgr/InputMgr.h"
 #include "../Mgr/SceneMgr.h"
@@ -38,12 +39,21 @@ void PlayerScript::Execute(float dt)
 
 void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, float dt)
 {
+    auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
+    coll->SetOBBColor(sf::Color::Red);
+
+    std::cout <<"ENTER"<< std::endl;
 }
 
 void PlayerScript::ExecuteCollStay(uint32_t other_entity_id, float dt)
 {
+    std::cout <<"STAY"<< std::endl;
+
 }
 
 void PlayerScript::ExecuteCollExit(uint32_t other_entity_id, float dt)
 {
+    auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
+    coll->SetOBBColor(sf::Color::Green);
+    std::cout <<"EXIT"<< std::endl;
 }

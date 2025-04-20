@@ -33,16 +33,47 @@ CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
     return iter->second;
 }
 
-void ColliderComponent::CollisionEnter(CollisionInfoID _info)
+void ColliderComponent::SetCollisionStatus(uint32_t coll_entity_id, CollisionStatus status)
 {
+    CollisionInfoID info;
+    info.left = GetOwnerID();
+    info.right = coll_entity_id;
+
+    auto iter = m_map_collision_status.find(info.id);
+
+    if ( iter == m_map_collision_status.end()){
+        m_map_collision_status[info.id] = status;
+    }
+    else{
+        iter->second = status;
+    }
 }
 
-void ColliderComponent::CollisionStay(CollisionInfoID _info)
+void ColliderComponent::CollisionEnter(uint32_t other_entity_id, float dt)
 {
+    auto script_id = SceneMgr::GetScriptID(other_entity_id);
+    if ( Script::IsValid(script_id) ) {
+        auto script = SceneMgr::GetScript(script_id);
+        script->ExecuteCollEnter(other_entity_id, dt);
+    }
 }
 
-void ColliderComponent::CollisionExit(CollisionInfoID _info)
+void ColliderComponent::CollisionStay(uint32_t other_entity_id, float dt)
 {
+    auto script_id = SceneMgr::GetScriptID(other_entity_id);
+    if ( Script::IsValid(script_id) ) {
+        auto script = SceneMgr::GetScript(script_id);
+        script->ExecuteCollStay(other_entity_id, dt);
+    }
+}
+
+void ColliderComponent::CollisionExit(uint32_t other_entity_id, float dt)
+{
+    auto script_id = SceneMgr::GetScriptID(other_entity_id);
+    if ( Script::IsValid(script_id) ) {
+        auto script = SceneMgr::GetScript(script_id);
+        script->ExecuteCollExit(other_entity_id, dt);
+    }
 }
 
 ColliderComponent::~ColliderComponent()
@@ -83,24 +114,24 @@ void ColliderComponent::Render()
     left_bottom += render_pos;
 
     sf::Vertex line[] = {
-        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), sf::Color::Green),
-        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), m_obb.m_color),
+        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y),        m_obb.m_color),
 
-        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y), sf::Color::Green),
-        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y),        m_obb.m_color),
+        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y),      m_obb.m_color),
 
-        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y), sf::Color::Green),
-        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y),      m_obb.m_color),
+        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y),m_obb.m_color),
 
-        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y), sf::Color::Green),
-        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), sf::Color::Green)
+        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y),m_obb.m_color),
+        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y),  m_obb.m_color)
     };
   
     auto window = Core::GetWindowContext();
     window->draw(line, 8, sf::Lines);
 }
 
-void ColliderComponent::Collision(uint32_t coll_entity_id)
+void ColliderComponent::Collision(uint32_t coll_entity_id, float dt)
 {
     CollisionInfoID info;
     info.left = GetOwnerID();
@@ -111,16 +142,16 @@ void ColliderComponent::Collision(uint32_t coll_entity_id)
     if ( iter == m_map_collision_status.end() || iter->second == CollisionStatus::kNone ) {
         // Collision Enter 
         m_map_collision_status[info.id] = CollisionStatus::kEnter;
-        CollisionEnter(info);
+        CollisionEnter(coll_entity_id, dt);
     }
     else{
         auto collision_status = iter->second;
         if ( collision_status == CollisionStatus::kEnter){
             iter->second = CollisionStatus::kStay;
-            CollisionStay(info);
+            CollisionStay(coll_entity_id, dt);
         }
         else if ( collision_status == CollisionStatus::kStay){
-            CollisionStay(info);
+            CollisionStay(coll_entity_id, dt);
         }
     }
 

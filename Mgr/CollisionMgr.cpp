@@ -4,7 +4,7 @@
 #include "../Component/ColliderComponent.h"
 #include "../Component/TransformComponent.h"
 
-void CollisionMgr::Collision()
+void CollisionMgr::Collision(float dt)
 {
     const auto& cur_scene = SceneMgr::GetCurScene();
 
@@ -17,13 +17,13 @@ void CollisionMgr::Collision()
                 const auto& vec_entity_left = cur_scene->GetCollisionEntity(i);
                 const auto& vec_entity_right = cur_scene->GetCollisionEntity(j);
                  
-                CollisionCheck(vec_entity_left, vec_entity_right);
+                CollisionCheck(vec_entity_left, vec_entity_right, dt);
             }
         }
     }
 }
 
-void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::list<uint32_t> &right)
+void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::list<uint32_t> &right, float dt)
 {
     for ( const auto& left_id : left ) {
         for ( const auto& right_id : right ){
@@ -38,8 +38,8 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                 else{
                     if (CollisionLogic(left_coll.get(), right_coll.get())){
                         // Collision 
-                        left_coll->Collision(right_coll->GetOwnerID());
-                        right_coll->Collision(left_coll->GetOwnerID());
+                        left_coll->Collision(right_coll->GetOwnerID(), dt);
+                        right_coll->Collision(left_coll->GetOwnerID(), dt);
                     }
                     else{
                         // Not Collision
@@ -54,12 +54,18 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                         info.right = right_entity_id;
 
                         if ( left_status == CollisionStatus::kStay){
-                            left_coll->CollisionExit(info);
+                            left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kExit);
+                            left_coll->CollisionExit(right_entity_id, dt);
                         }
+                        else if ( left_status == CollisionStatus::kExit)
+                            left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kNone);
 
                         if ( right_status == CollisionStatus::kStay ) {
-                            right_coll->CollisionExit(info);
+                            right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kExit);
+                            right_coll->CollisionExit(left_entity_id, dt);
                         }
+                        else if ( right_status == CollisionStatus::kExit)
+                            right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kNone);
 
                     }
                 }

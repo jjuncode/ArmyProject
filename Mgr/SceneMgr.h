@@ -50,13 +50,23 @@ class SceneMgr{
         // =========================
         // Script Method
         // =========================
+        // Get Script by Entity ID + Class Name 
         template<typename T>
         static std::shared_ptr<T> GetScript(const uint32_t &_owner_id){
             return m_cur_scene->GetScript<T>(_owner_id);
         };
-        
+
+        // Get Script by Script ID
+        static std::shared_ptr<Script> &GetScript(const uint32_t _script_id){
+            return m_cur_scene->GetScript(_script_id);
+        }
+
         static void DeleteScript(std::shared_ptr<Script>&& _script) noexcept{
             m_cur_scene ->DeleteScript(std::move(_script));
+        }
+
+        static int GetScriptID(const uint32_t& _owner_id){
+            return m_cur_scene->GetScriptID(_owner_id);
         }
 
         // =========================
@@ -79,6 +89,6 @@ class SceneMgr{
             m_cur_scene->SetMainCamera(_id);
         }
         static uint32_t GetMainCamera() noexcept{
-            return m_cur_scene->GetMainCamera();
+            return m_cur_scene->GetMainCamera();    // entity id 
         }
 };
