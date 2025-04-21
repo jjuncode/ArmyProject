@@ -36,10 +36,11 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                     || SceneMgr::GetCurScene()->GetEntityStatus(right_coll->GetOwnerID()) != EntityStatus::kActive)
                     continue;
                 else{
-                    if (CollisionLogic(left_coll.get(), right_coll.get())){
+                    auto coll_info = CollisionLogic(left_coll.get(), right_coll.get());
+                    if (coll_info.first){
                         // Collision 
-                        left_coll->Collision(right_coll->GetOwnerID(), dt);
-                        right_coll->Collision(left_coll->GetOwnerID(), dt);
+                        left_coll->Collision(right_coll->GetOwnerID(), coll_info.second,dt);
+                        right_coll->Collision(left_coll->GetOwnerID(), coll_info.second,dt);
                     }
                     else{
                         // Not Collision
@@ -55,14 +56,14 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
 
                         if ( left_status == CollisionStatus::kStay){
                             left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kExit);
-                            left_coll->CollisionExit(right_entity_id, dt);
+                            left_coll->CollisionExit(right_entity_id, coll_info.second,dt);
                         }
                         else if ( left_status == CollisionStatus::kExit)
                             left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kNone);
 
                         if ( right_status == CollisionStatus::kStay ) {
                             right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kExit);
-                            right_coll->CollisionExit(left_entity_id, dt);
+                            right_coll->CollisionExit(left_entity_id,coll_info.second, dt);
                         }
                         else if ( right_status == CollisionStatus::kExit)
                             right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kNone);
@@ -74,13 +75,13 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
     }
 }
 
-bool CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
+std::pair<bool, MTV>  CollisionMgr::CollisionLogic(ColliderComponent *left, ColliderComponent *right)
 {
     // OBB Collision
     return OBBCollision_Logic(left, right);
 }
 
-bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
+std::pair<bool, MTV>  CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
 {
     auto transform_left = SceneMgr::GetComponent<TransformComponent>(left->GetOwnerID());
     auto transform_right = SceneMgr::GetComponent<TransformComponent>(right->GetOwnerID());
@@ -119,7 +120,7 @@ bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent
 
         // Not Collision
         if ( length >= 0){
-            return false;
+            return std::make_pair(false,MTV());
         }
         
         // Collision 
@@ -136,5 +137,5 @@ bool CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent
     }
 
     transform_left->AddPos(mtv.vec * mtv.length);
-    return true;
+    return std::make_pair(true, mtv);
 }

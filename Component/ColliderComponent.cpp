@@ -49,30 +49,30 @@ void ColliderComponent::SetCollisionStatus(uint32_t coll_entity_id, CollisionSta
     }
 }
 
-void ColliderComponent::CollisionEnter(uint32_t other_entity_id, float dt)
+void ColliderComponent::CollisionEnter(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto script_id = SceneMgr::GetScriptID(other_entity_id);
+    auto script_id = SceneMgr::GetScriptID(GetOwnerID());
     if ( Script::IsValid(script_id) ) {
         auto script = SceneMgr::GetScript(script_id);
-        script->ExecuteCollEnter(other_entity_id, dt);
+        script->ExecuteCollEnter(other_entity_id, _mtv,dt);
     }
 }
 
-void ColliderComponent::CollisionStay(uint32_t other_entity_id, float dt)
+void ColliderComponent::CollisionStay(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto script_id = SceneMgr::GetScriptID(other_entity_id);
+    auto script_id = SceneMgr::GetScriptID(GetOwnerID());
     if ( Script::IsValid(script_id) ) {
         auto script = SceneMgr::GetScript(script_id);
-        script->ExecuteCollStay(other_entity_id, dt);
+        script->ExecuteCollStay(other_entity_id,  _mtv,dt);
     }
 }
 
-void ColliderComponent::CollisionExit(uint32_t other_entity_id, float dt)
+void ColliderComponent::CollisionExit(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto script_id = SceneMgr::GetScriptID(other_entity_id);
+    auto script_id = SceneMgr::GetScriptID(GetOwnerID());
     if ( Script::IsValid(script_id) ) {
         auto script = SceneMgr::GetScript(script_id);
-        script->ExecuteCollExit(other_entity_id, dt);
+        script->ExecuteCollExit(other_entity_id, _mtv, dt);
     }
 }
 
@@ -131,10 +131,10 @@ void ColliderComponent::Render()
     window->draw(line, 8, sf::Lines);
 }
 
-void ColliderComponent::Collision(uint32_t coll_entity_id, float dt)
+void ColliderComponent::Collision(uint32_t coll_entity_id, MTV _mtv, float dt)
 {
     CollisionInfoID info;
-    info.left = GetOwnerID();
+    info.left = GetOwnerID();   // self id
     info.right = coll_entity_id;
 
     auto iter = m_map_collision_status.find(info.id);
@@ -142,16 +142,16 @@ void ColliderComponent::Collision(uint32_t coll_entity_id, float dt)
     if ( iter == m_map_collision_status.end() || iter->second == CollisionStatus::kNone ) {
         // Collision Enter 
         m_map_collision_status[info.id] = CollisionStatus::kEnter;
-        CollisionEnter(coll_entity_id, dt);
+        CollisionEnter(coll_entity_id, _mtv,dt);
     }
     else{
         auto collision_status = iter->second;
         if ( collision_status == CollisionStatus::kEnter){
             iter->second = CollisionStatus::kStay;
-            CollisionStay(coll_entity_id, dt);
+            CollisionStay(coll_entity_id,_mtv, dt);
         }
         else if ( collision_status == CollisionStatus::kStay){
-            CollisionStay(coll_entity_id, dt);
+            CollisionStay(coll_entity_id,_mtv, dt);
         }
     }
 

@@ -2,6 +2,7 @@
 
 #include "../Component/TransformComponent.h"
 #include "../Component/ColliderComponent.h"
+#include "../Component/RigidbodyComponent.h"
 
 #include "../Mgr/InputMgr.h"
 #include "../Mgr/SceneMgr.h"
@@ -10,7 +11,7 @@ void PlayerScript::Execute(float dt)
 {
     int grid_offset{40};
 
-    uint32_t player_speed{500};
+    uint32_t player_speed{1000};
     uint32_t player_rotate_speed{10};
 
     auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
@@ -26,6 +27,11 @@ void PlayerScript::Execute(float dt)
 
     if ( InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
         transform->AddPos(Vec2(0,dt*player_speed));
+        auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
+        auto gravity = rigidbody->GetGravity();
+
+        auto velo = rigidbody->GetVelocity();
+        rigidbody->SetVelocity(Vec2(velo.x, 0));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Down) || InputMgr::IsHold(sf::Keyboard::Down)){
@@ -35,25 +41,26 @@ void PlayerScript::Execute(float dt)
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
         transform->AddRotate(dt*player_rotate_speed);
     }
+
+    if ( InputMgr::IsTap(sf::Keyboard::Space)){
+        auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
+        rigidbody->AddForce(Vec2(0, 500'000));
+        std::cout<<"JUMP"<<std::endl;
+    }
 }
 
-void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, float dt)
+void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, MTV _mtv,float dt)
 {
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
-
-    std::cout <<"ENTER"<< std::endl;
 }
 
-void PlayerScript::ExecuteCollStay(uint32_t other_entity_id, float dt)
+void PlayerScript::ExecuteCollStay(uint32_t other_entity_id, MTV _mtv,float dt)
 {
-    std::cout <<"STAY"<< std::endl;
-
 }
 
-void PlayerScript::ExecuteCollExit(uint32_t other_entity_id, float dt)
+void PlayerScript::ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt)
 {
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Green);
-    std::cout <<"EXIT"<< std::endl;
 }

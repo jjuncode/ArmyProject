@@ -1,8 +1,12 @@
 #include "Polygon.h"
 #include "../Component/TransformComponent.h"
+#include "../Script/WallScript.h"
 
 void Polygon::SetScript()
 {
+    auto& cur_scene = SceneMgr::GetCurScene();
+    auto script = obj.SetScript<WallScript>();
+    cur_scene ->AddScript<WallScript>(std::move(script));
 }
 
 void Polygon::CreateVertex(Vec2 _pos, Vec2 _scale)

@@ -56,7 +56,7 @@ public:
 
     void Render() override;
 
-    void Collision(uint32_t coll_id, float dt); // Collision rhs ID
+    void Collision(uint32_t coll_id, MTV _mtv, float dt); // Collision rhs ID
     void Init(CollisionEntityType _type);
     void SetOBB(Vec2 _size){
         m_obb.width_half = Vec2(_size.x/2,0);
@@ -71,9 +71,9 @@ public:
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
     void SetCollisionStatus(uint32_t coll_entity_id, CollisionStatus status);
 
-    void CollisionEnter(uint32_t other_entity_id, float dt);
-    void CollisionStay(uint32_t other_entity_id , float dt);
-    void CollisionExit(uint32_t other_entity_id , float dt);
+    void CollisionEnter(uint32_t other_entity_id,MTV _mtv, float dt);
+    void CollisionStay(uint32_t other_entity_id ,MTV _mtv, float dt);
+    void CollisionExit(uint32_t other_entity_id ,MTV _mtv, float dt);
 
     void SetOBBColor(sf::Color color){m_obb.m_color = color;};
 };

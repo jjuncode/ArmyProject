@@ -1,6 +1,7 @@
 #pragma once
 #include <stack>
 #include <stdint.h>
+#include "../struct.h"
 
 class Script {
     private:
@@ -40,7 +41,7 @@ public:
     public:
         virtual void Execute(float dt); // script execute
 
-        virtual void ExecuteCollEnter(uint32_t other_entity_id, float dt);
-        virtual void ExecuteCollStay(uint32_t other_entity_id, float dt);
-        virtual void ExecuteCollExit(uint32_t other_entity_id, float dt);
+        virtual void ExecuteCollEnter(uint32_t other_entity_id,MTV _mtv, float dt);
+        virtual void ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt);
+        virtual void ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt);
 };

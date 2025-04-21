@@ -13,7 +13,7 @@
 #include "Mgr/CollisionMgr.h"
 
 #include "Component/TransformComponent.h"
-#include "Component/PhysicComponent.h"
+#include "Component/RigidbodyComponent.h"
 
 #include "Script/CameraScript.h"
 
@@ -26,7 +26,7 @@ void PlayScene::Init()
 
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
-    player.AddComponent<PhysicComponent>();
+    player.AddComponent<Rigidbody>();
 
     Camera player_camera{player.GetEntityID()};
     player_camera.SetMainCamera();

@@ -24,6 +24,10 @@ struct Vec2
         return Vec2(x*rhs, y*rhs);
     }
 
+    Vec2 operator* (const Vec2& rhs){
+        return Vec2(x*rhs.x, y*rhs.y);
+    }
+
     Vec2& operator -= (const Vec2& rhs){
        x -= rhs.x;
        y -= rhs.y;
@@ -39,6 +43,12 @@ struct Vec2
      Vec2& operator *= (const float rhs){
         x*= rhs;
         y*= rhs;
+        return *this;
+     }
+
+     Vec2& operator *= (const Vec2& rhs){
+        x*= rhs.x;
+        y*= rhs.y;
         return *this;
      }
 
@@ -97,3 +107,8 @@ namespace Vec{
 
     Vec2 Reverse(const Vec2& vec);
 }
+
+struct MTV{
+    Vec2 vec;
+    float length;
+};
