@@ -90,6 +90,9 @@ std::pair<bool, MTV>  CollisionMgr::OBBCollision_Logic(ColliderComponent *left, 
     auto transform_left = SceneMgr::GetComponent<TransformComponent>(left->GetOwnerID());
     auto transform_right = SceneMgr::GetComponent<TransformComponent>(right->GetOwnerID());
 
+    std::cout << "POS LEFT : " << transform_left->GetPos().x << " " << transform_left->GetPos().y << std::endl;
+    std::cout << "POS RIGHT : " << transform_right->GetPos().x << " " << transform_right->GetPos().y << std::endl;
+
     auto left_obb = left->GetOBB();
     auto right_obb = right->GetOBB();
 

@@ -139,7 +139,7 @@ void ColliderComponent::Collision(uint32_t coll_entity_id, MTV _mtv, float dt)
 
     auto iter = m_map_collision_status.find(info.id);
 
-    if ( iter == m_map_collision_status.end() || iter->second == CollisionStatus::kNone ) {
+    if ( iter == m_map_collision_status.end() || iter->second == CollisionStatus::kNone  || iter->second == CollisionStatus::kExit){ 
         // Collision Enter 
         m_map_collision_status[info.id] = CollisionStatus::kEnter;
         CollisionEnter(coll_entity_id, _mtv,dt);
@@ -154,6 +154,4 @@ void ColliderComponent::Collision(uint32_t coll_entity_id, MTV _mtv, float dt)
             CollisionStay(coll_entity_id,_mtv, dt);
         }
     }
-
-
 }

@@ -47,7 +47,7 @@ void WallScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
 {
     auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
     auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
-    
+
     auto velo = rigidbody_other->GetVelocity();
 
     // if collision by upside
@@ -57,6 +57,7 @@ void WallScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
 
 
     transform_other->AddPos(_mtv.vec * _mtv.length);
+    std::cout <<"POS : " << transform_other->GetPos().x << " " << transform_other->GetPos().y << std::endl;
 }
 
 void WallScript::ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt)
