@@ -11,6 +11,8 @@ class CameraScript : public Script {
         float m_zoom_min{0.5f}; // Minimum zoom level
 
     public:
+        CameraScript(uint32_t _target) : m_target(_target) {}
+
         void Execute(float dt) override; // script execute
         void SetTarget(const uint32_t _target) { m_target = _target; }
         uint32_t GetTarget() { return m_target; }

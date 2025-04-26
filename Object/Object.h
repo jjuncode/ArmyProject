@@ -38,19 +38,19 @@ class Object{
             cur_scene->AddComponent<T>(std::move(comp));
         }
 
-        // // Script Template
-        // template <typename T, typename... V>
-        // void SetScript(V &&...params)
-        // {
-        //     auto &cur_scene = SceneMgr::GetCurScene();
-        //     auto script = obj.SetScript<T>(std::forward<V>(params)...);
-        //     cur_scene->AddScript<T>(std::move(script));
-        // }
+        // Script Template
+        template <typename T, typename... V>
+        void SetScript(V &&...params)
+        {
+            auto &cur_scene = SceneMgr::GetCurScene();
+            auto script = obj.SetScript<T>(std::forward<V>(params)...);
+            cur_scene->AddScript<T>(std::move(script));
+        }
 
         // ======================
         // Abstract Method 
         // ======================
-        virtual void SetScript() = 0;
+//         virtual void SetScript() = 0;
         virtual void CreateVertex(Vec2 _pos,Vec2 _scale) = 0;
 
     private:

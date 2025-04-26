@@ -16,6 +16,8 @@
 #include "Component/RigidbodyComponent.h"
 
 #include "Script/CameraScript.h"
+#include "Script/PlayerScript.h"
+#include "Script/WallScript.h"
 
 void PlayScene::Init()
 {
@@ -26,13 +28,18 @@ void PlayScene::Init()
 
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
-    player.AddComponent<Rigidbody>();
+    player.AddComponent<Rigidbody>(1.f,1.f);
+    player.SetScript<PlayerScript>();
 
     Camera player_camera{player.GetEntityID()};
+    player_camera.SetScript<CameraScript>(player.GetEntityID());
     player_camera.SetMainCamera();
+
 
     Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
     poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
+    poly.SetScript<WallScript>();
+    poly.AddComponent<Rigidbody>(1.f, 0.5f);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }

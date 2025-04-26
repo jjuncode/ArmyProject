@@ -9,6 +9,5 @@ class RectObject : public Object{
             CreateVertex(_pos, _scale);
         }
 
-        void SetScript() override;
         void CreateVertex(Vec2 _pos,Vec2 _scale) override;
 };

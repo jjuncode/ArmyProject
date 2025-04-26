@@ -50,16 +50,16 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                         auto left_status = left_coll->GetCollisionStatus(right_entity_id);
                         auto right_status = right_coll->GetCollisionStatus(left_entity_id);
                         
-                        CollisionInfoID info;
-                        info.left = left_entity_id;
-                        info.right = right_entity_id;
-
                         if ( left_status == CollisionStatus::kStay){
                             left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kExit);
                             left_coll->CollisionExit(right_entity_id, coll_info.second,dt);
                         }
                         else if ( left_status == CollisionStatus::kExit)
                             left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kNone);
+                        else if ( left_status == CollisionStatus::kEnter ) {
+                            left_coll->SetCollisionStatus(right_entity_id, CollisionStatus::kExit);
+                            left_coll->CollisionExit(right_entity_id, coll_info.second,dt);
+                        }
 
                         if ( right_status == CollisionStatus::kStay ) {
                             right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kExit);
@@ -67,6 +67,10 @@ void CollisionMgr::CollisionCheck(const std::list<uint32_t> &left, const std::li
                         }
                         else if ( right_status == CollisionStatus::kExit)
                             right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kNone);
+                        else if ( right_status == CollisionStatus::kEnter ) {
+                            right_coll->SetCollisionStatus(left_entity_id, CollisionStatus::kExit);
+                            right_coll->CollisionExit(left_entity_id, coll_info.second,dt);
+                        }
 
                     }
                 }
@@ -136,6 +140,5 @@ std::pair<bool, MTV>  CollisionMgr::OBBCollision_Logic(ColliderComponent *left, 
         }
     }
 
-    transform_left->AddPos(mtv.vec * mtv.length);
     return std::make_pair(true, mtv);
 }

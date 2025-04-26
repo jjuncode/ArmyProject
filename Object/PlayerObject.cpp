@@ -4,13 +4,6 @@
 #include "../Component/TransformComponent.h"
 #include "../Script/PlayerScript.h"
 
-void PlayerObject::SetScript()
-{
-    auto& cur_scene = SceneMgr::GetCurScene();
-    auto script = obj.SetScript<PlayerScript>();
-    cur_scene ->AddScript<PlayerScript>(std::move(script));
-}
-
 void PlayerObject::CreateVertex(Vec2 _pos, Vec2 _scale)
 {
     // Rectangle
