@@ -28,7 +28,7 @@ void PlayScene::Init()
 
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
-    player.AddComponent<Rigidbody>(1.f,1.f);
+    player.AddComponent<Rigidbody>(1.f,0.5f);
     player.SetScript<PlayerScript>();
 
     Camera player_camera{player.GetEntityID()};
@@ -39,7 +39,7 @@ void PlayScene::Init()
     Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
     poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
     poly.SetScript<WallScript>();
-    poly.AddComponent<Rigidbody>(1.f, 0.5f);
+    poly.AddComponent<Rigidbody>(1.f, 0.1f);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
 }

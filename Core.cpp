@@ -59,7 +59,7 @@ void Core::Loop()
 		// 고정된 시간 간격으로 게임 업데이트
 		while (time_acc >= time_frame) {
 			// 게임 로직 업데이트
-			SceneMgr::Update(dt.count());
+			SceneMgr::Update(time_frame);
             InputMgr::UpdateKeyState();
 			time_acc -= time_frame;
 

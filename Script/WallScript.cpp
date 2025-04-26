@@ -13,8 +13,8 @@ void WallScript::Execute(float dt)
 
 void WallScript::ExecuteCollEnter(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
+    auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
     auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
     auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
 
@@ -27,37 +27,38 @@ void WallScript::ExecuteCollEnter(uint32_t other_entity_id,MTV _mtv, float dt)
     float fric_other = rigidbody_other->GetFric();
     float fric_self = rigidbody_self->GetFric();
     float fric = (fric_other + fric_self) / 2;
-
+   
     auto force = direction * Vec::Length(velo) * fric;
 
-    // if collision by upside
-    if (velo.y < 0) {
+     // side force is little bit less than up force
+     if ( direction.x != 0 ){
+        force.x *= 0.1f;
+    }
+
+    // collision by upside
+    if ( velo.y < 0 && _mtv.vec.y >0 ){
         rigidbody_other->SetVelocity(Vec2(velo.x, 0));
     }
 
-    if ( Vec::Length(force) > 1.f)
-        rigidbody_other->ApplyImpulse(force);
+    rigidbody_other->ApplyImpulse(force);
 
     transform_other->AddPos(_mtv.vec * _mtv.length);
-
-    std::cout <<"POS : " << transform_other->GetPos().x << " " << transform_other->GetPos().y << std::endl;
 }
 
 void WallScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
 {
     auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
     auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
+    auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
 
     auto velo = rigidbody_other->GetVelocity();
 
-    // if collision by upside
-    if ( velo.y < 0){
+    // collision by upside
+    if ( velo.y < 0 && _mtv.vec.y > 0 ){
         rigidbody_other->SetVelocity(Vec2(velo.x,0));
     }
-
-
+    
     transform_other->AddPos(_mtv.vec * _mtv.length);
-    std::cout <<"POS : " << transform_other->GetPos().x << " " << transform_other->GetPos().y << std::endl;
 }
 
 void WallScript::ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt)

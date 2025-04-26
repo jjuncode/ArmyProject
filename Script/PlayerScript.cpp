@@ -11,8 +11,8 @@ void PlayerScript::Execute(float dt)
 {
     int grid_offset{40};
 
-    uint32_t player_speed{1000};
-    uint32_t player_rotate_speed{10};
+    uint32_t player_speed{500};
+    uint32_t player_rotate_speed{1};
 
     auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
     auto pos = transform->GetPos();
@@ -44,7 +44,7 @@ void PlayerScript::Execute(float dt)
 
     if ( InputMgr::IsTap(sf::Keyboard::Space)){
         auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
-        rigidbody->ApplyImpulse(Vec2(0, 1500));
+        rigidbody->ApplyImpulse(Vec2(0, 500));
         std::cout<<"JUMP"<<std::endl;
     }
 }
