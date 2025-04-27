@@ -36,12 +36,20 @@ void PlayScene::Init()
     player_camera.SetMainCamera();
 
 
-    Polygon poly{12,Vec2(4*size,4*size), Vec2(size,size)};
+    Polygon poly{12,Vec2(2*size,2*size), Vec2(size,size)};
     poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
     poly.SetScript<WallScript>();
-    poly.AddComponent<Rigidbody>(1.f, 0.1f);
+    poly.AddComponent<Rigidbody>(1.f, 0.9f, 0.9f);
+
+    
+    Polygon poly2{12,Vec2(4.5f*size,4.5f*size), Vec2(size,size)};
+    poly2.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
+    poly2.SetScript<WallScript>();
+    poly2.AddComponent<Rigidbody>(1.f, 0.9f, 0.9f);
+
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
+    SetCollisionLayer(CollisionEntityType::kWall, CollisionEntityType::kWall, true);
 }
 
 void PlayScene::Update(float dt)

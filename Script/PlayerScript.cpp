@@ -18,11 +18,13 @@ void PlayerScript::Execute(float dt)
     auto pos = transform->GetPos();
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
-        transform->AddPos(Vec2(-dt*player_speed,0));
+        auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
+        rigidbody->ApplyImpulse(Vec2(-dt*player_speed,0));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
-        transform->AddPos(Vec2(dt*player_speed,0));
+        auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
+        rigidbody->ApplyImpulse(Vec2(dt*player_speed,0));
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
@@ -32,10 +34,6 @@ void PlayerScript::Execute(float dt)
 
         auto velo = rigidbody->GetVelocity();
         rigidbody->SetVelocity(Vec2(velo.x, 0));
-    }
-
-    if ( InputMgr::IsTap(sf::Keyboard::Down) || InputMgr::IsHold(sf::Keyboard::Down)){
-        transform->AddPos(Vec2(0,-dt*player_speed));
     }
 
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){

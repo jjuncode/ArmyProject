@@ -27,10 +27,10 @@ void Rigidbody::Update(float dt)
 	// on ground 
 	if ( pos.y <= 0 ){
 		m_velocity.x *= m_fric;
-		if (Vec::Length(m_velocity) <= 100.f){
-			// stop
-			m_velocity = Vec2(0, 0);
-		}
+		// if (Vec::Length(m_velocity) <= 100.f){
+		// 	// stop
+		// 	m_velocity = Vec2(0, 0);
+		// }
 
 		transform->SetPos(Vec2(pos.x, 0));
 		if ( m_velocity.y < 0 )
@@ -40,4 +40,29 @@ void Rigidbody::Update(float dt)
 	transform->AddPos(m_velocity * dt);
 	m_force = Vec2(0,0);
 
+} 
+
+void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _mtv, float dt)
+{
+    auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
+    auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
+  
+    auto transform_self = SceneMgr::GetComponent<TransformComponent>(self_entity_id);
+	auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(self_entity_id);
+
+	Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
+	float elastic =  (rigidbody_self->GetElastic() * rigidbody_other->GetElastic() )/ 2 ;
+
+	// 충돌 방향으로의 속도 성분
+	float velo_extract = Vec::Dot(relative_velo, _mtv.vec);
+
+    // Get Impulse
+	float j = -(1 + elastic) * velo_extract / (1.0f / rigidbody_self->GetMass() + 1.0f / rigidbody_other->GetMass());
+    Vec2 impulse = _mtv.vec * j;
+
+	// apply impulse
+    rigidbody_self->ApplyImpulse( impulse / rigidbody_self->GetMass());
+	rigidbody_other->ApplyImpulse(Vec::Reverse(impulse) / rigidbody_other->GetMass());
+ 
+    transform_other->AddPos(_mtv.vec * _mtv.length);
 }
