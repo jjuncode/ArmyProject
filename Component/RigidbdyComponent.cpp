@@ -19,6 +19,21 @@ void Rigidbody::Update(float dt)
 	// v = v0 + a * t
 	m_velocity += m_accel * dt;
 
+	// Apply Friction
+	// if (!(m_velocity == Vec2(0, 0))) {
+	// 	Vec2 fric_direction = Vec::Normalize(Vec::Reverse(m_velocity));
+	// 	float fric_force = m_fric * m_mass;
+	
+	// 	Vec2 friction = fric_direction * fric_force;
+
+	// 	if (Vec::Length(friction) > Vec::Length(m_velocity)) {
+	// 		m_velocity = Vec2(0, 0);
+	// 	} else {
+	// 		m_velocity += friction * dt;
+	// 	}
+	// }
+	
+
 	// 최대 속도 제한
 	if (Vec::Length(m_velocity) > Vec::Length(m_velocity_max)) {
 		m_velocity = Vec::Normalize(m_velocity) * Vec::Length(m_velocity_max);
@@ -47,11 +62,6 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
     auto transform_self = SceneMgr::GetComponent<TransformComponent>(self_entity_id);
 	auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(self_entity_id);
 
-	// Apply Friction
-	auto fric = (rigidbody_self->GetFric() + rigidbody_other->GetFric()) /2 ;
-	rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() *fric);
-	rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() *fric);
-
 	// Get Elasticity
 	Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
 	float elastic =  (rigidbody_self->GetElastic() + rigidbody_other->GetElastic() )/ 2 ;
@@ -59,19 +69,23 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 	// 충돌 방향으로의 속도 성분
 	float velo_extract = Vec::Dot(relative_velo, _mtv.vec);
 
+	// Apply Friction
+	float fric = (rigidbody_self ->GetFric() + rigidbody_other->GetFric()) / 2;
+	rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
+	rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() * fric);
+
     // Get Impulse
 	float j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
     Vec2 impulse = _mtv.vec * j;
 
 	// Apply impulse
-    rigidbody_self->ApplyImpulse( impulse / rigidbody_self->GetMass());
-	rigidbody_other->ApplyImpulse(Vec::Reverse(impulse) / rigidbody_other->GetMass());
- 
+	rigidbody_self->ApplyImpulse(impulse);
+	rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
+
+	// Set Move Ratio
 	// Compare Mass
 	auto mass_self = rigidbody_self->GetMass();
 	auto mass_other = rigidbody_other->GetMass();
-
-	// Set Move Ratio
 	float move_ratio{mass_self / (mass_self + mass_other)};
 
 	// Set MTV direction

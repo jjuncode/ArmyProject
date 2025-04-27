@@ -41,8 +41,11 @@ void PlayerScript::Execute(float dt)
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Space)){
+        transform->AddPos(Vec2(0,1));
         auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
-        rigidbody->ApplyImpulse(Vec2(0, 500));
+
+        rigidbody->ApplyImpulse (Vec::Reverse(rigidbody->GetGravity()) ) ;
+        rigidbody->ApplyImpulse(Vec2(0, 100));
         std::cout<<"JUMP"<<std::endl;
     }
 }

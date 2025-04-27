@@ -4,7 +4,7 @@
 
 class Rigidbody : public Component {
     public:
-        Rigidbody(float _mass = 1.f, float _fric = 0.5f, float _e = 0.5f)
+        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.9f)
             : m_gravity{0,-1000.f}
             , m_mass{_mass}
             , m_fric{_fric}
