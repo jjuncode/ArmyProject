@@ -27,9 +27,6 @@ void Rigidbody::Update(float dt)
 	// on ground 
 	if ( pos.y <= 0 ){
 		m_velocity.x *= m_fric;
-		// if (Vec::Length(m_velocity) <= 100.f){
-		// 	// stop
-		// 	m_velocity = Vec2(0, 0);
 		// }
 
 		transform->SetPos(Vec2(pos.x, 0));
@@ -50,19 +47,43 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
     auto transform_self = SceneMgr::GetComponent<TransformComponent>(self_entity_id);
 	auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(self_entity_id);
 
+	// Apply Friction
+	auto fric = (rigidbody_self->GetFric() + rigidbody_other->GetFric()) /2 ;
+	rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() *fric);
+	rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() *fric);
+
+	// Get Elasticity
 	Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
-	float elastic =  (rigidbody_self->GetElastic() * rigidbody_other->GetElastic() )/ 2 ;
+	float elastic =  (rigidbody_self->GetElastic() + rigidbody_other->GetElastic() )/ 2 ;
 
 	// 충돌 방향으로의 속도 성분
 	float velo_extract = Vec::Dot(relative_velo, _mtv.vec);
 
     // Get Impulse
-	float j = -(1 + elastic) * velo_extract / (1.0f / rigidbody_self->GetMass() + 1.0f / rigidbody_other->GetMass());
+	float j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
     Vec2 impulse = _mtv.vec * j;
 
-	// apply impulse
+	// Apply impulse
     rigidbody_self->ApplyImpulse( impulse / rigidbody_self->GetMass());
 	rigidbody_other->ApplyImpulse(Vec::Reverse(impulse) / rigidbody_other->GetMass());
  
-    transform_other->AddPos(_mtv.vec * _mtv.length);
+	// Compare Mass
+	auto mass_self = rigidbody_self->GetMass();
+	auto mass_other = rigidbody_other->GetMass();
+
+	// Set Move Ratio
+	float move_ratio{mass_self / (mass_self + mass_other)};
+
+	// Set MTV direction
+	Vec2 direction{};
+	auto pos_subtraction = transform_self->GetPos() - transform_other->GetPos();
+	if ( Vec::Dot(pos_subtraction, _mtv.vec) < 0){
+		direction = Vec::Reverse(_mtv.vec);
+	}
+	else{
+		direction = _mtv.vec;
+	}
+
+	transform_self->AddPos( direction * _mtv.length * move_ratio);
+    transform_other->AddPos( Vec::Reverse(direction) * _mtv.length * ( 1- move_ratio));
 }
