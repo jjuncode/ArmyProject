@@ -1,5 +1,6 @@
 #include "RigidbodyComponent.h"
 #include "TransformComponent.h"
+#include "ColliderComponent.h"
 
 #include "../Mgr/SceneMgr.h"
 
@@ -33,6 +34,11 @@ void Rigidbody::Update(float dt)
 	// 	}
 	// }
 	
+	// Apply Angular
+	transform->AddRotate(m_velo_angular * dt);
+
+	float angular_damp = 0.1f;	// 감쇠 비율 10%
+	m_velo_angular *= (1 - angular_damp);
 
 	// 최대 속도 제한
 	if (Vec::Length(m_velocity) > Vec::Length(m_velocity_max)) {
@@ -62,42 +68,120 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
     auto transform_self = SceneMgr::GetComponent<TransformComponent>(self_entity_id);
 	auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(self_entity_id);
 
-	// Get Elasticity
-	Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
-	float elastic =  (rigidbody_self->GetElastic() + rigidbody_other->GetElastic() )/ 2 ;
+	if (rigidbody_other && rigidbody_self){
+		// Set Move Ratio
+		// Compare Mass
+		auto mass_self = rigidbody_self->GetMass();
+		auto mass_other = rigidbody_other->GetMass();
+		float move_ratio{mass_self / (mass_self + mass_other)};
 
-	// 충돌 방향으로의 속도 성분
-	float velo_extract = Vec::Dot(relative_velo, _mtv.vec);
+		// Set MTV direction
+		Vec2 direction{};
+		auto pos_subtraction = transform_self->GetPos() - transform_other->GetPos();
+		if (Vec::Dot(pos_subtraction, _mtv.vec) < 0){
+			direction = Vec::Reverse(_mtv.vec);
+		}
+		else{
+			direction = _mtv.vec;
+		}
 
-	// Apply Friction
-	float fric = (rigidbody_self ->GetFric() + rigidbody_other->GetFric()) / 2;
-	rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
-	rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() * fric);
+		transform_self->AddPos(direction * _mtv.length * move_ratio);
+		transform_other->AddPos(Vec::Reverse(direction) * _mtv.length * (1 - move_ratio));
 
-    // Get Impulse
-	float j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
-    Vec2 impulse = _mtv.vec * j;
+		// Get Elasticity
+		Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
+		float elastic = (rigidbody_self->GetElastic() + rigidbody_other->GetElastic()) / 2;
 
-	// Apply impulse
-	rigidbody_self->ApplyImpulse(impulse);
-	rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
+		// 충돌 방향으로의 속도 성분
+		float velo_extract = Vec::Dot(relative_velo, _mtv.vec);
 
-	// Set Move Ratio
-	// Compare Mass
-	auto mass_self = rigidbody_self->GetMass();
-	auto mass_other = rigidbody_other->GetMass();
-	float move_ratio{mass_self / (mass_self + mass_other)};
+		// Apply Friction
+		float fric = (rigidbody_self->GetFric() + rigidbody_other->GetFric()) / 2;
+		rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
+		rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() * fric);
 
-	// Set MTV direction
-	Vec2 direction{};
-	auto pos_subtraction = transform_self->GetPos() - transform_other->GetPos();
-	if ( Vec::Dot(pos_subtraction, _mtv.vec) < 0){
-		direction = Vec::Reverse(_mtv.vec);
+		// Get Impulse
+		float j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
+		Vec2 impulse = _mtv.vec * j;
+
+		// Apply impulse
+		rigidbody_self->ApplyImpulse(impulse);
+		rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
+
+		// Get Contact point
+		Vec2 contact_point = GetCollisionDot(self_entity_id, other_entity_id);
+
+		auto pos_self = transform_self->GetPos();
+		auto pos_other = transform_other->GetPos();
+	
+		Vec2 angular_direction_self = contact_point - pos_self; // centerOfMass는 보통 Transform 위치
+		Vec2 angular_direction_other = contact_point - pos_other;
+
+		float torque_self = Vec::Cross(angular_direction_self, impulse);	 
+		float torque_other = Vec::Cross(angular_direction_other, impulse);
+		
+		rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
+		rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());
 	}
-	else{
-		direction = _mtv.vec;
+}
+
+Vec2 GetCollisionDot(uint32_t self_entity_id, uint32_t other_entity_id)
+{
+	auto coll_self = SceneMgr::GetComponent<ColliderComponent>(self_entity_id);
+	auto coll_other = SceneMgr::GetComponent<ColliderComponent>(other_entity_id);
+
+	if (coll_self && coll_other) {
+		auto obb_self = coll_self->GetOBB();
+		auto obb_other = coll_other->GetOBB();
+
+		Vec2 self_pos = SceneMgr::GetComponent<TransformComponent>(self_entity_id)->GetPos();
+		Vec2 other_pos = SceneMgr::GetComponent<TransformComponent>(other_entity_id)->GetPos();
+
+		auto self_left_bot = self_pos - obb_self.width_half - obb_self.height_half;
+		auto self_left_top = self_pos - obb_self.width_half + obb_self.height_half;
+		auto self_right_bot = self_pos + obb_self.width_half - obb_self.height_half;
+		auto self_right_top = self_pos + obb_self.width_half + obb_self.height_half;
+
+		auto other_left_bot = other_pos - obb_other.width_half - obb_other.height_half;
+		auto other_left_top = other_pos - obb_other.width_half + obb_other.height_half;
+		auto other_right_bot = other_pos + obb_other.width_half - obb_other.height_half;
+		auto other_right_top = other_pos + obb_other.width_half + obb_other.height_half;
+
+		std::vector<Vec2> self_vertexs{ self_left_bot, self_left_top, self_right_top, self_right_bot };
+		std::vector<Vec2> other_vertexs{ other_left_bot, other_left_top, other_right_top, other_right_bot };
+
+		float distn_min = std::numeric_limits<float>::max();
+		Vec2 contact_point{};
+		float sum_distn_center{};
+		
+		for (const auto& v : self_vertexs){
+			auto length = Vec::LengthSquare(other_pos - v);
+			if ( length < distn_min){
+				distn_min = length;
+				contact_point = v;
+			}
+		}
+
+		sum_distn_center = Vec::LengthSquare(contact_point - other_pos) 
+						+ Vec::LengthSquare(contact_point - self_pos);
+
+		Vec2 temp;
+		distn_min = std::numeric_limits<float>::max();
+		for (const auto& v : other_vertexs){
+			auto length = Vec::LengthSquare(self_pos - v);
+			if ( length < distn_min){
+				distn_min = length;
+				temp = v;
+			}
+		}
+		
+		if ( sum_distn_center < Vec::LengthSquare(temp - other_pos) 
+			+ Vec::LengthSquare(temp - self_pos)){
+			return contact_point;
+		}
+
+		return temp;
 	}
 
-	transform_self->AddPos( direction * _mtv.length * move_ratio);
-    transform_other->AddPos( Vec::Reverse(direction) * _mtv.length * ( 1- move_ratio));
+	return Vec2(0, 0);
 }

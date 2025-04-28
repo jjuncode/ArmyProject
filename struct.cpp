@@ -42,6 +42,11 @@ float Vec::Dot(const Vec2 &lhs, const Vec2 &rhs)
     return lhs.x * rhs.x + lhs.y * rhs.y;
 }
 
+float Vec::Cross(const Vec2 &lhs, const Vec2 &rhs)
+{
+    return lhs.x * rhs.y - lhs.y * rhs.x;
+}
+
 Vec2 Vec::Normal(const Vec2 &vec)
 {
     // return Vec2(-vec.y, vec.x);

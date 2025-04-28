@@ -107,9 +107,10 @@ namespace Vec{
     Vec2 Normalize(const Vec2 &vec);
 
     float Dot(const Vec2 &lhs, const Vec2 &rhs);
-    Vec2 Normal(const Vec2& vec);
-
+    float Cross(const Vec2 &lhs, const Vec2 &rhs);
     Vec2 Projection(Vec2 vec_unit, Vec2 rhs);
+
+    Vec2 Normal(const Vec2& vec);
 
     Vec2 Reverse(const Vec2& vec);
 }

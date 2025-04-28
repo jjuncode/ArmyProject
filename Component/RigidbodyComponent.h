@@ -21,13 +21,15 @@ class Rigidbody : public Component {
 
         float m_mass;                // 질량
         float m_fric;               // 마찰력
-        float m_elastic;
+        float m_elastic;            // 탄성계수
+        float m_velo_angular;       // 각속도 
 
 public:
     void Update(float dt) override;
 
     void AddForce(const Vec2& force) { m_force += force; }
     void ApplyImpulse(Vec2 impulse) {m_velocity += impulse / m_mass;}
+    void ApplyAngular(float _rhs) { m_velo_angular += _rhs; }
 
     Vec2 GetGravity() { return m_gravity; }
     
@@ -45,3 +47,6 @@ public:
 };
 
 void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
+
+// 충돌 지점 찾기
+Vec2 GetCollisionDot(uint32_t self_entity_id, uint32_t other_entity_id);

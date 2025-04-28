@@ -45,7 +45,7 @@ void PlayerScript::Execute(float dt)
         auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
 
         rigidbody->ApplyImpulse (Vec::Reverse(rigidbody->GetGravity()) ) ;
-        rigidbody->ApplyImpulse(Vec2(0, 100));
+        rigidbody->ApplyImpulse(Vec2(0, 70));
         std::cout<<"JUMP"<<std::endl;
     }
 }
