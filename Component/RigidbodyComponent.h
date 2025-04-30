@@ -29,12 +29,15 @@ public:
 
     void AddForce(const Vec2& force) { m_force += force; }
     void ApplyImpulse(Vec2 impulse) {m_velocity += impulse / m_mass;}
-    void ApplyAngular(float _rhs) { m_velo_angular += _rhs; }
+    void ApplyAngular(float _rhs) { m_velo_angular += _rhs/m_mass; }
 
     Vec2 GetGravity() { return m_gravity; }
     
     Vec2 GetVelocity() { return m_velocity; }
     void SetVelocity(const Vec2& velocity) { m_velocity = velocity; }
+
+    float GetAngularVelocity() { return m_velo_angular; }
+    void SetAngularVelocity(float _rhs) { m_velo_angular = _rhs; }
 
     void SetFric(float fric) { m_fric = fric; }
     float GetFric() { return m_fric; }
@@ -49,4 +52,10 @@ public:
 void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
 
 // 충돌 지점 찾기
-Vec2 GetCollisionDot(uint32_t self_entity_id, uint32_t other_entity_id);
+struct ContactInfo{
+    bool coll_by_side{false};
+    Vec2 contact_point_self{};
+    Vec2 contact_point_other{};
+};
+
+ContactInfo GetCollisionPart(uint32_t self_entity_id, uint32_t other_entity_id);

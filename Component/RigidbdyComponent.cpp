@@ -37,7 +37,7 @@ void Rigidbody::Update(float dt)
 	// Apply Angular
 	transform->AddRotate(m_velo_angular * dt);
 
-	float angular_damp = 0.1f;	// 감쇠 비율 10%
+	float angular_damp = 0.2f;	// 감쇠 비율 20%
 	m_velo_angular *= (1 - angular_damp);
 
 	// 최대 속도 제한
@@ -109,26 +109,39 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 		rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
 
 		// Get Contact point
-		Vec2 contact_point = GetCollisionDot(self_entity_id, other_entity_id);
+		auto contact_info = GetCollisionPart(self_entity_id, other_entity_id);
 
 		auto pos_self = transform_self->GetPos();
 		auto pos_other = transform_other->GetPos();
-	
-		Vec2 angular_direction_self = contact_point - pos_self; // centerOfMass는 보통 Transform 위치
-		Vec2 angular_direction_other = contact_point - pos_other;
 
-		float torque_self = Vec::Cross(angular_direction_self, impulse);	 
-		float torque_other = Vec::Cross(angular_direction_other, impulse);
-		
+		Vec2 angular_direction_self{};
+		Vec2 angular_direction_other{};
+
+		if (!contact_info.coll_by_side){
+			// coll by Dot 
+			angular_direction_self = contact_info.contact_point_self - pos_self; 	// Dot 충돌이므로 다 self로 해도 상관없다.
+			angular_direction_other = contact_info.contact_point_self - pos_other; // Dot 충돌이므로 다 self로 해도 상관없다.
+		}
+		else{
+			// coll by side
+			angular_direction_self = contact_info.contact_point_self - pos_self; 	
+			angular_direction_other = contact_info.contact_point_other - pos_other; 
+		}
+
+		float torque_self = Vec::Cross(angular_direction_self, impulse / 100.f);
+		float torque_other = Vec::Cross(angular_direction_other, impulse / 100.f);
+
 		rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
 		rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());
 	}
 }
 
-Vec2 GetCollisionDot(uint32_t self_entity_id, uint32_t other_entity_id)
+ContactInfo GetCollisionPart(uint32_t self_entity_id, uint32_t other_entity_id)
 {
 	auto coll_self = SceneMgr::GetComponent<ColliderComponent>(self_entity_id);
 	auto coll_other = SceneMgr::GetComponent<ColliderComponent>(other_entity_id);
+
+	ContactInfo contact_info{};
 
 	if (coll_self && coll_other) {
 		auto obb_self = coll_self->GetOBB();
@@ -175,13 +188,42 @@ Vec2 GetCollisionDot(uint32_t self_entity_id, uint32_t other_entity_id)
 			}
 		}
 		
-		if ( sum_distn_center < Vec::LengthSquare(temp - other_pos) 
-			+ Vec::LengthSquare(temp - self_pos)){
-			return contact_point;
+		// if collision part is edge
+		auto vec_edge_self = Edge::CreateEdge(self_vertexs);
+		auto vec_edge_other = Edge::CreateEdge(other_vertexs);
+		// vec_edge_self에 합침
+		vec_edge_self.insert(vec_edge_self.end(), vec_edge_other.begin(), vec_edge_other.end());
+		Vec2 contact_edge {contact_point-temp};
+		
+		bool coll_by_side{true};
+
+		for ( auto edge : vec_edge_self){
+			auto result = Vec::Dot(edge.end-edge.start,contact_edge);
+			if ( (result > 0)  && (Vec::Normalize(edge.end-edge.start) != Vec::Normalize(contact_edge))) {
+				// 예각이다.
+				coll_by_side = false;
+				break;
+			}
+		}
+		if ( coll_by_side ) {
+			contact_info.coll_by_side = true;
+			contact_info.contact_point_self = contact_point;
+			contact_info.contact_point_other = temp;
+			return contact_info;
 		}
 
-		return temp;
+		contact_info.coll_by_side = false;
+		
+		if ( sum_distn_center < Vec::LengthSquare(temp - other_pos) 
+			+ Vec::LengthSquare(temp - self_pos)){
+			contact_info.contact_point_self = contact_point;
+			return contact_info;
+		}
+
+		contact_info.contact_point_self = temp;
+		return contact_info;
 	}
 
-	return Vec2(0, 0);
+	contact_info.contact_point_self = Vec2(0, 0);
+	return contact_info;
 }

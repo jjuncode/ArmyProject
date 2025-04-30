@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include <vector>
 
 struct Vec2
 {
@@ -93,6 +94,8 @@ struct Edge{
     Edge operator - (const Vec2& rhs){
         return Edge(start - rhs, end - rhs);
     }
+
+    static std::vector<Edge> CreateEdge(std::vector<Vec2> vec_vertex);
 };
 
 namespace Vec{

@@ -64,3 +64,31 @@ Vec2 Vec::Reverse(const Vec2 &vec)
 {
     return Vec2(-vec.x, -vec.y);
 }
+
+std::vector<Edge> Edge::CreateEdge(std::vector<Vec2> vec_vertex)
+{
+    std::vector<Edge> vec_edge;
+	Vec2 start;
+	Edge edge;
+
+    int cnt{};
+    for (const auto &dot : vec_vertex){
+        ++cnt;
+        if (cnt == 1){
+            edge.start = dot;
+            start = dot;
+        }
+        else{
+            edge.end = dot;
+            vec_edge.emplace_back(edge);
+
+            edge.start = dot;
+        }
+    }
+
+    // Finish Edge
+    Edge edge_end{edge.end, start};
+    vec_edge.emplace_back(edge_end);
+
+    return vec_edge;
+}
