@@ -61,6 +61,7 @@ void Core::Loop()
 			// 게임 로직 업데이트
 			SceneMgr::Update(time_frame);
             InputMgr::UpdateKeyState();
+            InputMgr::UpdateMouseState();
 			time_acc -= time_frame;
 
 		}

@@ -20,20 +20,6 @@ void Rigidbody::Update(float dt)
 	// v = v0 + a * t
 	m_velocity += m_accel * dt;
 
-	// Apply Friction
-	// if (!(m_velocity == Vec2(0, 0))) {
-	// 	Vec2 fric_direction = Vec::Normalize(Vec::Reverse(m_velocity));
-	// 	float fric_force = m_fric * m_mass;
-	
-	// 	Vec2 friction = fric_direction * fric_force;
-
-	// 	if (Vec::Length(friction) > Vec::Length(m_velocity)) {
-	// 		m_velocity = Vec2(0, 0);
-	// 	} else {
-	// 		m_velocity += friction * dt;
-	// 	}
-	// }
-	
 	// Apply Angular
 	transform->AddRotate(m_velo_angular * dt);
 
@@ -48,7 +34,7 @@ void Rigidbody::Update(float dt)
 	// on ground 
 	if ( pos.y <= 0 ){
 		m_velocity.x *= m_fric;
-		// }
+		m_velo_angular *= 0.5f;
 
 		transform->SetPos(Vec2(pos.x, 0));
 		if ( m_velocity.y < 0 )
@@ -57,7 +43,6 @@ void Rigidbody::Update(float dt)
 
 	transform->AddPos(m_velocity * dt);
 	m_force = Vec2(0,0);
-
 } 
 
 void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _mtv, float dt)
@@ -108,11 +93,15 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 		rigidbody_self->ApplyImpulse(impulse);
 		rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
 
+		rigidbody_self->SetAngularVelocity(rigidbody_self->GetAngularVelocity() * fric);
+		rigidbody_other->SetAngularVelocity(rigidbody_other->GetAngularVelocity() * fric);
+
 		// Get Contact point
 		auto contact_info = GetCollisionPart(self_entity_id, other_entity_id);
 
 		auto pos_self = transform_self->GetPos();
 		auto pos_other = transform_other->GetPos();
+		auto pos_center = (pos_self + pos_other) / 2;
 
 		Vec2 angular_direction_self{};
 		Vec2 angular_direction_other{};
@@ -124,12 +113,26 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 		}
 		else{
 			// coll by side
-			angular_direction_self = contact_info.contact_point_self - pos_self; 	
-			angular_direction_other = contact_info.contact_point_other - pos_other; 
+			auto distn_self = Vec::LengthSquare(contact_info.contact_point_self - pos_center);
+			auto distn_other = Vec::LengthSquare(contact_info.contact_point_other - pos_center);
+
+			Vec2 torque_dot{};
+			if ( distn_self < distn_other){
+				torque_dot = contact_info.contact_point_self;
+			}
+			else if ( distn_self > distn_other){
+				torque_dot = contact_info.contact_point_other;
+			}
+			else{
+				torque_dot = (contact_info.contact_point_self + contact_info.contact_point_other )/ 2 ;
+			}
+
+			angular_direction_self = pos_self- torque_dot; 	
+			angular_direction_other = torque_dot - pos_other; 
 		}
 
-		float torque_self = Vec::Cross(angular_direction_self, impulse / 100.f);
-		float torque_other = Vec::Cross(angular_direction_other, impulse / 100.f);
+		float torque_self = Vec::Cross(angular_direction_self, impulse * direction / 100.f);
+		float torque_other = Vec::Cross(angular_direction_other, impulse * Vec::Reverse(direction) / 100.f);
 
 		rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
 		rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());

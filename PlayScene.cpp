@@ -28,7 +28,7 @@ void PlayScene::Init()
 
     PlayerObject player{Vec2(50,50), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
-    player.AddComponent<Rigidbody>(50.f,0.9f, 0.85f);
+    player.AddComponent<Rigidbody>(25.f,0.9f, 0.85f);
     player.SetScript<PlayerScript>();
 
     Camera player_camera{player.GetEntityID()};
@@ -36,16 +36,16 @@ void PlayScene::Init()
     player_camera.SetMainCamera();
 
 
-    Polygon poly{4,Vec2(2*size,2*size), Vec2(size,size)};
-    poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
-    poly.SetScript<WallScript>();
-    poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
+    // Polygon poly{4,Vec2(2*size,2*size), Vec2(size,size)};
+    // poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
+    // poly.SetScript<WallScript>();
+    // poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
 
     
-    Polygon poly2{4,Vec2(4.5f*size,4.5f*size), Vec2(size,size)};
-    poly2.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
-    poly2.SetScript<WallScript>();
-    poly2.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
+    // Polygon poly2{4,Vec2(4.5f*size,4.5f*size), Vec2(size,size)};
+    // poly2.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
+    // poly2.SetScript<WallScript>();
+    // poly2.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
 
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
@@ -74,61 +74,24 @@ void PlayScene::Update(float dt)
     CollisionMgr::Collision(dt);
 
     // Extra Things
-    // auto mouse_state = InputMgr::GetMouseState();
-    // auto mouse_pos = InputMgr::GetMousePos();
+    auto mouse_state = InputMgr::GetMouseState();
+    auto mouse_pos = InputMgr::GetMousePos();
 
-    // auto camera_script = SceneMgr::GetComponentOrigin<CameraScript>(m_main_camear_id);
-    // auto camera_pos = camera_script->GetMainCameraPos();
+    auto camera_script = SceneMgr::GetScript<CameraScript>(m_main_camear_id);
+    auto camera_pos = camera_script->GetMainCameraPos();
+    auto zoom_value = camera_script->GetZoomValue();
 
     // // current pos
-    // auto window = Core::GetWindowSize();
-    // auto cur_left_top = camera_pos - window/2;
-
-    // mouse_pos += cur_left_top;
-    
-    // Vec2 offset{static_cast<float>(static_cast<int>(mouse_pos.x) % static_cast<int>(gird_offset)),
-    //     static_cast<float>(static_cast<int>(mouse_pos.y) % static_cast<int>(gird_offset))};
-    // mouse_pos -= offset;
-
-    // // 0~40 -> 0 , 40~ 80 -> 40 ... 
-    // if (mouse_state == MouseState::kLeftTap || mouse_state == MouseState::kLeftHold){
-
-    //     bool same{false};
-        
-    //     auto vec_id = SceneMgr::GetEntityVector<RectObject>();
-    //     for(const auto& id: vec_id){
-    //         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id);
-    //         if ( transform ) {
-    //             auto pos = transform->GetPos();
-    //             if (mouse_pos == pos){
-    //                 same = true;
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     if ( !same ){
-    //         RectObject rect{Vec2(mouse_pos.x, mouse_pos.y), Vec2(gird_offset,gird_offset)};
-    //         rect.SetCollider(CollisionEntityType::kWall, Vec2(gird_offset,gird_offset));
-    //     }
-
-    // }
-    // else if (mouse_state == MouseState::kRightTap || mouse_state == MouseState::kRightHold){
-    //     auto vec_id = SceneMgr::GetEntityVector<RectObject>();
-    //     for(const auto& id: vec_id){
-    //         auto transform = SceneMgr::GetComponentOrigin<TransformComponent>(id);
-    //         if ( transform ) {
-    //             auto pos = transform->GetPos();
-    //             if (mouse_pos == pos){
-    //                 auto vec_id = SceneMgr::GetComponentsID(transform->GetOwnerID());
-    //                 for (const auto& id : vec_id){
-    //                     auto& comp = SceneMgr::GetComponent(id);
-    //                     SceneMgr::DeleteComponent(std::move(comp));
-    //                 }
-    //                 std::cout << "DELETE" << std::endl;
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
+    auto window = Core::GetWindowSize();
+    camera_pos += Vec2(-window.x , window.y)/2 * (1/zoom_value);
+    mouse_pos *= 1/zoom_value;
+    mouse_pos.y *= -1;
+    mouse_pos += camera_pos;
+    if (mouse_state == MouseState::kLeftTap){
+        int size = 100;
+        Polygon poly{4, Vec2(mouse_pos.x, mouse_pos.y), Vec2(size, size)};
+        poly.SetCollider(CollisionEntityType::kWall, Vec2(size, size));
+        poly.SetScript<WallScript>();
+        poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
+    }
 }

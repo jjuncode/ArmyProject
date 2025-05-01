@@ -25,6 +25,18 @@ void InputMgr::UpdateKeyState()
     }
 }
 
+void InputMgr::UpdateMouseState()
+{
+    if ( mouse_state == MouseState::kLeftTap ){
+        mouse_state = MouseState::kLeftHold;
+    }
+    else if ( mouse_state == MouseState::kRightTap ){
+        mouse_state = MouseState::kRightHold;
+    }
+    else if ( mouse_state == MouseState::kLeftUp || mouse_state == MouseState::kRightUp)
+        mouse_state = MouseState::kNone;
+}
+
 void InputMgr::UpdateMouseState(sf::Event event)
 {
     auto window = Core::GetWindowContext();
