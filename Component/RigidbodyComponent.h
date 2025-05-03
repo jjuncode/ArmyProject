@@ -63,7 +63,7 @@ public:
     bool IsFixed() { return m_fixed; }
 };
 
-void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
+void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
 
 // 충돌 지점 찾기
 struct ContactInfo{

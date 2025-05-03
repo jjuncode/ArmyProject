@@ -45,7 +45,7 @@ void Rigidbody::Update(float dt)
 	m_force = Vec2(0,0);
 } 
 
-void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _mtv, float dt)
+void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id, MTV _mtv, float dt)
 {
     auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
     auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
@@ -73,11 +73,8 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 		if (rigidbody_self->IsFixed()){
 			move_ratio = 0;
 		}
-		else if (rigidbody_other->IsFixed()){
-			move_ratio = 1;
-		}
+
 		transform_self->AddPos(direction * _mtv.length * move_ratio);
-		transform_other->AddPos(Vec::Reverse(direction) * _mtv.length * (1 - move_ratio));
 
 		// Get Elasticity
 		Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
@@ -99,12 +96,10 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 		auto pos_center = (pos_self + pos_other) / 2;
 
 		Vec2 angular_direction_self{};
-		Vec2 angular_direction_other{};
 
 		if (!contact_info.coll_by_side){
 			// coll by Dot 
 			angular_direction_self = contact_info.contact_point_self - pos_self; 	// Dot 충돌이므로 다 self로 해도 상관없다.
-			angular_direction_other = contact_info.contact_point_self - pos_other; // Dot 충돌이므로 다 self로 해도 상관없다.
 		}
 		else{
 			// coll by side
@@ -123,13 +118,10 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 			}
 
 			angular_direction_self = torque_dot - pos_self; 	
-			angular_direction_other = torque_dot - pos_other;
 		}
 
 		// Get Torque
 		float torque_self = Vec::Cross(angular_direction_self, impulse / 100.f);
-		float torque_other = Vec::Cross(angular_direction_other, Vec::Reverse(impulse) / 100.f);
-
 
 		if ( !rigidbody_self->IsFixed() ){
 			// Apply Fric & impulse & Torque
@@ -137,13 +129,6 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 			rigidbody_self->ApplyImpulse(impulse);
 			rigidbody_self->SetAngularVelocity(rigidbody_self->GetAngularVelocity() * fric);
 			rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
-		}
-		if ( !rigidbody_other->IsFixed() ){
-			// Apply Fric & impulse & Torque
-			rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() * fric);
-			rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
-			rigidbody_other->SetAngularVelocity(rigidbody_other->GetAngularVelocity() * fric);
-			rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());
 		}
 	}
 }

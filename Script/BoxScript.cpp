@@ -20,7 +20,7 @@ void BoxScript::ExecuteCollEnter(uint32_t other_entity_id,MTV _mtv, float dt)
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
     
-    ProcessImpulseColl(GetOwnerID(), other_entity_id, _mtv, dt);
+    ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
 }
 
 void BoxScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
@@ -28,7 +28,7 @@ void BoxScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
     
-    ProcessImpulseColl(GetOwnerID(), other_entity_id, _mtv, dt);
+    ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
 }
 
 void BoxScript::ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt)
