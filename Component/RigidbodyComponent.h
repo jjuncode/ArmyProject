@@ -4,12 +4,22 @@
 
 class Rigidbody : public Component {
     public:
-        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.9f)
+        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.5f)
             : m_gravity{0,-1000.f}
             , m_mass{_mass}
             , m_fric{_fric}
             , m_elastic{_e}
             , m_velocity_max{100000.f, 100000.f}
+            , m_fixed{false}
+            {};
+
+            Rigidbody(bool _fixed)
+            : m_gravity{0,0}
+            ,m_mass{1}
+            ,m_fric{0.9f}
+            ,m_elastic{0.9f}
+            ,m_velocity_max{100000.f, 100000.f}
+            ,m_fixed{_fixed}
             {};
 
     private:
@@ -23,6 +33,8 @@ class Rigidbody : public Component {
         float m_fric;               // 마찰력
         float m_elastic;            // 탄성계수
         float m_velo_angular;       // 각속도 
+
+        bool m_fixed;
 
 public:
     void Update(float dt) override;
@@ -47,6 +59,8 @@ public:
 
     void SetMass(float mass) { m_mass = mass; }
     float GetMass() { return m_mass; }
+
+    bool IsFixed() { return m_fixed; }
 };
 
 void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);

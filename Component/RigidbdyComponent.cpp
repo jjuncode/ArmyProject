@@ -70,6 +70,12 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 			direction = _mtv.vec;
 		}
 
+		if (rigidbody_self->IsFixed()){
+			move_ratio = 0;
+		}
+		else if (rigidbody_other->IsFixed()){
+			move_ratio = 1;
+		}
 		transform_self->AddPos(direction * _mtv.length * move_ratio);
 		transform_other->AddPos(Vec::Reverse(direction) * _mtv.length * (1 - move_ratio));
 
@@ -77,24 +83,13 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 		Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
 		float elastic = (rigidbody_self->GetElastic() + rigidbody_other->GetElastic()) / 2;
 
-		// 충돌 방향으로의 속도 성분
-		float velo_extract = Vec::Dot(relative_velo, _mtv.vec);
-
-		// Apply Friction
+		// Get Friction
 		float fric = (rigidbody_self->GetFric() + rigidbody_other->GetFric()) / 2;
-		rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
-		rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() * fric);
-
+		
 		// Get Impulse
+		float velo_extract = Vec::Dot(relative_velo, direction);
 		float j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
-		Vec2 impulse = _mtv.vec * j;
-
-		// Apply impulse
-		rigidbody_self->ApplyImpulse(impulse);
-		rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
-
-		rigidbody_self->SetAngularVelocity(rigidbody_self->GetAngularVelocity() * fric);
-		rigidbody_other->SetAngularVelocity(rigidbody_other->GetAngularVelocity() * fric);
+		Vec2 impulse = direction * abs(j);
 
 		// Get Contact point
 		auto contact_info = GetCollisionPart(self_entity_id, other_entity_id);
@@ -120,7 +115,7 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 			if ( distn_self < distn_other){
 				torque_dot = contact_info.contact_point_self;
 			}
-			else if ( distn_self > distn_other){
+			else if ( distn_self > distn_other){ 
 				torque_dot = contact_info.contact_point_other;
 			}
 			else{
@@ -131,11 +126,25 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 			angular_direction_other = torque_dot - pos_other;
 		}
 
+		// Get Torque
 		float torque_self = Vec::Cross(angular_direction_self, impulse / 100.f);
 		float torque_other = Vec::Cross(angular_direction_other, Vec::Reverse(impulse) / 100.f);
 
-		rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
-		rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());
+
+		if ( !rigidbody_self->IsFixed() ){
+			// Apply Fric & impulse & Torque
+			rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
+			rigidbody_self->ApplyImpulse(impulse);
+			rigidbody_self->SetAngularVelocity(rigidbody_self->GetAngularVelocity() * fric);
+			rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
+		}
+		if ( !rigidbody_other->IsFixed() ){
+			// Apply Fric & impulse & Torque
+			rigidbody_other->SetVelocity(rigidbody_other->GetVelocity() * fric);
+			rigidbody_other->ApplyImpulse(Vec::Reverse(impulse));
+			rigidbody_other->SetAngularVelocity(rigidbody_other->GetAngularVelocity() * fric);
+			rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());
+		}
 	}
 }
 

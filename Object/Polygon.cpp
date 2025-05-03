@@ -1,6 +1,5 @@
 #include "Polygon.h"
 #include "../Component/TransformComponent.h"
-#include "../Script/WallScript.h"
 
 void Polygon::CreateVertex(Vec2 _pos, Vec2 _scale)
 {

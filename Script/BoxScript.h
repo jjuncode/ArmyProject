@@ -1,7 +1,7 @@
 #pragma once
 #include "Script.h"
 
-class WallScript : public Script {
+class BoxScript : public Script {
     public:
         void Execute(float dt) override; // script execute
         
