@@ -6,7 +6,7 @@
 
 enum class CollisionEntityType {
     kPlayer = 0,
-    kWall,
+    kBox,
     
     kEND
 };

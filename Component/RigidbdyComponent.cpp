@@ -127,12 +127,12 @@ void ProcessImpulseColl(uint32_t self_entity_id, uint32_t other_entity_id, MTV _
 				torque_dot = (contact_info.contact_point_self + contact_info.contact_point_other )/ 2 ;
 			}
 
-			angular_direction_self = pos_self- torque_dot; 	
-			angular_direction_other = torque_dot - pos_other; 
+			angular_direction_self = torque_dot - pos_self; 	
+			angular_direction_other = torque_dot - pos_other;
 		}
 
-		float torque_self = Vec::Cross(angular_direction_self, impulse * direction / 100.f);
-		float torque_other = Vec::Cross(angular_direction_other, impulse * Vec::Reverse(direction) / 100.f);
+		float torque_self = Vec::Cross(angular_direction_self, impulse / 100.f);
+		float torque_other = Vec::Cross(angular_direction_other, Vec::Reverse(impulse) / 100.f);
 
 		rigidbody_self->ApplyAngular(torque_self / rigidbody_self->GetMass());
 		rigidbody_other->ApplyAngular(torque_other / rigidbody_other->GetMass());

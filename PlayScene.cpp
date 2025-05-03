@@ -35,21 +35,18 @@ void PlayScene::Init()
     player_camera.SetScript<CameraScript>(player.GetEntityID());
     player_camera.SetMainCamera();
 
-
-    // Polygon poly{4,Vec2(2*size,2*size), Vec2(size,size)};
-    // poly.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
-    // poly.SetScript<WallScript>();
-    // poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
-
+    Polygon poly{4,Vec2(2*size,2*size), Vec2(size,size)};
+    poly.SetCollider(CollisionEntityType::kBox, Vec2(size,size));
+    poly.SetScript<WallScript>();
+    poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
     
-    // Polygon poly2{4,Vec2(4.5f*size,4.5f*size), Vec2(size,size)};
-    // poly2.SetCollider(CollisionEntityType::kWall, Vec2(size,size));
-    // poly2.SetScript<WallScript>();
-    // poly2.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
+    Polygon poly2{4,Vec2(4.5f*size,4.5f*size), Vec2(size,size)};
+    poly2.SetCollider(CollisionEntityType::kBox, Vec2(size,size));
+    poly2.SetScript<WallScript>();
+    poly2.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
 
-
-    SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kWall, true);
-    SetCollisionLayer(CollisionEntityType::kWall, CollisionEntityType::kWall, true);
+    SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kBox, true);
+    SetCollisionLayer(CollisionEntityType::kBox, CollisionEntityType::kBox, true);
 }
 
 void PlayScene::Update(float dt)
@@ -90,8 +87,8 @@ void PlayScene::Update(float dt)
     if (mouse_state == MouseState::kLeftTap){
         int size = 100;
         Polygon poly{4, Vec2(mouse_pos.x, mouse_pos.y), Vec2(size, size)};
-        poly.SetCollider(CollisionEntityType::kWall, Vec2(size, size));
+        poly.SetCollider(CollisionEntityType::kBox, Vec2(size, size));
         poly.SetScript<WallScript>();
-        poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.85f);
+        poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.9f);
     }
 }
