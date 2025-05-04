@@ -11,6 +11,7 @@ class Rigidbody : public Component {
             , m_elastic{_e}
             , m_velocity_max{100000.f, 100000.f}
             , m_fixed{false}
+            , m_velo_angular{0}
             {};
 
             Rigidbody(bool _fixed)
