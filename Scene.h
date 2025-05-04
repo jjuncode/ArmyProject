@@ -75,27 +75,15 @@ public:
 	// Entity Method
 	// ================================
 public:
-	template <typename T>
-	auto& GetEntityVector(){
-		static std::vector<uint32_t> vec_entity_id{}; 	// entity id vector 
-		return vec_entity_id;
-	}
-
-	template<typename T> 
-	void AddEntity(const Entity& _entity){
-		auto& vec = GetEntityVector<T>();
-		vec.emplace_back(_entity.GetEntityID());	// entity의 자신 id를 return하도록
-
-		auto entity_id = _entity.GetEntityID();
-
+	void AddEntity(uint32_t _entity_id){
 		// Entity Activate
-		if (m_vec_entity_status.capacity() <= entity_id)
-			m_vec_entity_status.reserve( entity_id + 1 * 2);
+		if (m_vec_entity_status.capacity() <= _entity_id)
+			m_vec_entity_status.reserve( _entity_id + 1 * 2);
 
-		if ( entity_id < m_vec_entity_status.size()){
+		if ( _entity_id < m_vec_entity_status.size()){
 			// 만약 넣으려는 요소가 앞쪽이라면
 			// 기존것은 삭제되고 새로 대체된다.
-			m_vec_entity_status[entity_id] = EntityStatus::kActive;
+			m_vec_entity_status[_entity_id] = EntityStatus::kActive;
 		}
 		else{
 			// 아니면 그냥 insert
@@ -109,6 +97,27 @@ public:
 
 	EntityStatus GetEntityStatus(uint32_t entity_id ){
 		return m_vec_entity_status[entity_id];
+	}
+
+	void DeleteEntity(uint32_t entity_id) noexcept{
+		auto vec_components_id = GetComponentsID(entity_id);
+		auto script_id = GetScriptID(entity_id);
+		DeleteCollider(entity_id);
+
+		// Delete Component
+		for (auto& id : vec_components_id){
+			DeleteComponent(std::move(m_vec_component[id]));
+		}
+
+		// Delete Script
+		if ( Script::IsValid(script_id)){
+			DeleteScript(std::move(m_vec_script[script_id]));
+			m_vec_script_id[entity_id] = -1;
+		}
+
+		m_map_entity_components_id.erase(entity_id);
+		m_vec_entity_status[entity_id] = EntityStatus::kDead;
+		Entity::Dead(entity_id);	// Entity ID Reset
 	}
 
 	// ================================
@@ -147,10 +156,6 @@ public:
 		m_map_entity_components_id[owner_id].emplace_back(idx);
 	}	
 
-	// std::shared_ptr<Component>& GetComponent(const uint32_t _id){
-	// 	return m_vec_component[_id];
-	// }
-	
 	template<typename T>
 	std::shared_ptr<T> GetComponent(const uint32_t& _owner_id){
 		auto& map_component = AccessComponentMap<T>();
@@ -173,6 +178,7 @@ public:
 	} 
 
 	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;
+	void DeleteCollider(uint32_t entity_id) noexcept;
 
 	// ==============================
 	// Script Method

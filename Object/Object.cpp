@@ -16,13 +16,15 @@ void Object::Init(Vec2 _pos, Vec2 _scale)
 
     auto render = obj.AddComponent<RenderComponent>();
     cur_scene->AddComponent<RenderComponent>(std::move(render));
+
+    cur_scene->AddEntity(GetEntityID());
 }
 
 void Object::SetCollider(CollisionEntityType _type, Vec2 _size)
 { 
     auto& cur_scene = SceneMgr::GetCurScene();
-    auto collider = obj.AddComponent<ColliderComponent>();
-    collider->Init(_type);
-    collider->SetOBB(_size);
+    auto collider = obj.AddComponent<ColliderComponent>(_type, _size);
+    std::cout << "SIZE : " << _size.x <<", " << _size.y << std::endl;
+    collider->Init();
     cur_scene->AddComponent<ColliderComponent>(std::move(collider));
 }

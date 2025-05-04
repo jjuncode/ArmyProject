@@ -5,7 +5,6 @@
 class PlayerObject : public Object{
     public:
         PlayerObject(Vec2 _pos,Vec2 _scale) : Object(_pos, _scale ){
-            AddScene<PlayerObject>();
             CreateVertex(_pos, _scale);
         }
 

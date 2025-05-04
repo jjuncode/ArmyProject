@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Scene.h"
 #include "Core.h"
+#include "Mgr/SceneMgr.h"
+#include "Component/ColliderComponent.h"
 
 void Scene::Init()
 {
@@ -31,6 +33,15 @@ void Scene::Render()
 void Scene::Exit()
 {
     m_vec_component.clear();
+    m_vec_script.clear();
+    m_vec_entity_status.clear();
+    m_map_entity_components_id.clear();
+    m_map_collision_entity.clear();
+    m_vec_script_id.clear();
+    m_main_camear_id = -1;
+    for (auto& layer : m_collision_layer) {
+        layer.reset();
+    }
 }
 
 void Scene::SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_type, bool check)
@@ -64,20 +75,26 @@ void Scene::DeleteCollisionEntity(CollisionEntityType _type, const uint32_t &ent
 
 void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
 {
-	// Component dead in Loop
-	m_vec_entity_status[_comp->GetOwnerID()] = EntityStatus::kDead;
-    
+    if ( !_comp) return;
+
     // ID reset
-	_comp->Delete();
-    
-	// Really Delete
-	_comp.reset();
+    _comp->Delete();
+
+    // Really Delete
+    _comp.reset();
+}
+void Scene::DeleteCollider(uint32_t entity_id) noexcept
+{
+	auto coll = SceneMgr::GetComponent<ColliderComponent>(entity_id);
+    if (!coll) return;
+    auto type = coll->GetCollisionType();
+    DeleteCollisionEntity(type, entity_id);
+    DeleteComponent(coll);
 }
 
 void Scene::DeleteScript(std::shared_ptr<Script> &&_script) noexcept
 {
-    // Component dead in Loop
-	m_vec_entity_status[_script->GetOwnerID()] = EntityStatus::kDead;
+    if ( !_script) return;
     
     // ID reset
 	_script->Delete();

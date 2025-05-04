@@ -7,15 +7,10 @@
 
 std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
 
-
-void ColliderComponent::Init(CollisionEntityType _type)
+void ColliderComponent::Init()
 {
     auto& cur_scene = SceneMgr::GetCurScene();
-
-    m_collision_type = _type;
-    auto id = GetOwnerID();
-
-    cur_scene->AddCollisionEntity(_type, GetOwnerID());
+    cur_scene->AddCollisionEntity(m_collision_type, GetOwnerID());
 }
 
 CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)

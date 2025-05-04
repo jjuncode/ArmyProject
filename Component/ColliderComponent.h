@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "SFML/Graphics.hpp"
+#include "../Mgr/SceneMgr.h"
 
 enum class CollisionEntityType;
 
@@ -25,6 +26,12 @@ union CollisionInfoID{  // Entity ID
 };
 
 struct OBB{
+    OBB(Vec2 _size )
+        : width_half{_size.x/2,0}
+        , height_half{0,_size.y/2}
+        , m_color{ sf::Color::Green}
+    {}
+
     Vec2 width_half; // half width
     Vec2 height_half;// half height
     sf::Color m_color;
@@ -51,25 +58,26 @@ class ColliderComponent : public Component {
         OBB m_obb; // OBB collision
         
 public:
-    ColliderComponent() = default;
+    ColliderComponent(CollisionEntityType _type, Vec2 _size) 
+        : m_collision_type(_type)
+        , m_obb(_size)
+        {}
     ~ColliderComponent();
 
     void Render() override;
 
     void Collision(uint32_t coll_id, MTV _mtv, float dt); // Collision rhs ID
-    void Init(CollisionEntityType _type);
-    void SetOBB(Vec2 _size){
-        m_obb.width_half = Vec2(_size.x/2,0);
-        m_obb.height_half = Vec2(0,_size.y/2);
 
-        m_obb.m_color = sf::Color::Green;
-    }
-
+    void Init();
     const OBB& GetOBB() { return m_obb; };
     void RotateOBB(float angle){m_obb.Rotate(angle);}
     
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
     void SetCollisionStatus(uint32_t coll_entity_id, CollisionStatus status);
+
+    CollisionEntityType GetCollisionType() const noexcept{
+        return m_collision_type;
+    }
 
     void CollisionEnter(uint32_t other_entity_id,MTV _mtv, float dt);
     void CollisionStay(uint32_t other_entity_id ,MTV _mtv, float dt);

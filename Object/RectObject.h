@@ -5,7 +5,6 @@
 class RectObject : public Object{
     public:
         RectObject(Vec2 _pos,Vec2 _scale) : Object(_pos,_scale){
-            AddScene<RectObject>();
             CreateVertex(_pos, _scale);
         }
 

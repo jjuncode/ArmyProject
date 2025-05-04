@@ -18,11 +18,6 @@ class Object{
             Init(Vec2(0,0), Vec2(0,0));
         }
         
-        template<typename T>
-        void AddScene(){
-            SceneMgr::AddEntity<T>(obj);
-        }
-        
         void SetCollider(CollisionEntityType _type, Vec2 _size);
 
         uint32_t GetEntityID() const noexcept{
@@ -50,7 +45,6 @@ class Object{
         // ======================
         // Abstract Method 
         // ======================
-//         virtual void SetScript() = 0;
         virtual void CreateVertex(Vec2 _pos,Vec2 _scale) = 0;
 
     private:

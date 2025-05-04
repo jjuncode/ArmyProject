@@ -8,7 +8,6 @@ class Camera : public Object{
 
     public:
         Camera(uint32_t _target) :Object(), m_target(_target){
-            AddScene<Camera>();
         }
         void CreateVertex(Vec2 _pos, Vec2 _scale) override; // 형식상 존재
 

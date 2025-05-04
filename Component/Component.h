@@ -29,8 +29,7 @@ class Component{
         virtual void Render();
 
         void SetOwner(uint32_t _id){m_owner_id = _id;}
-
-
+        
         uint32_t GetOwnerID(){return m_owner_id; }
         uint32_t GetID(){return m_id;}
 

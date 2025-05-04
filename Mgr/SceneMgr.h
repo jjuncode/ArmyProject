@@ -72,14 +72,12 @@ class SceneMgr{
         // =========================
         // Entity Method
         // =========================
-        template<typename T>
-        static const std::vector<uint32_t>& GetEntityVector(){
-            return m_cur_scene->GetEntityVector<T>();
+        static void AddEntity(uint32_t _entity_id ){
+            m_cur_scene->AddEntity(_entity_id);
         }
 
-        template<typename T>
-        static void AddEntity(const Entity& _entity){
-            m_cur_scene->AddEntity<T>(_entity);
+        static void DeleteEntity(uint32_t _id) noexcept{
+            m_cur_scene->DeleteEntity(_id);
         }
 
         // =========================

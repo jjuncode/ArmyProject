@@ -84,11 +84,21 @@ void PlayScene::Update(float dt)
     mouse_pos *= 1/zoom_value;
     mouse_pos.y *= -1;
     mouse_pos += camera_pos;
+
+    static uint32_t lastest_obj_id{};
+
     if (mouse_state == MouseState::kLeftTap){
         int size = 100;
         Polygon poly{4, Vec2(mouse_pos.x, mouse_pos.y), Vec2(size, size)};
         poly.SetCollider(CollisionEntityType::kBox, Vec2(size, size));
         poly.SetScript<BoxScript>();
         poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.5f);
+
+        lastest_obj_id = poly.GetEntityID();
+    }
+
+    if ( InputMgr::IsTap(sf::Keyboard::Key::BackSpace)){
+        DeleteEntity(lastest_obj_id);
+        lastest_obj_id -=1;
     }
 }
