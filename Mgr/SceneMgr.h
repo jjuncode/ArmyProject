@@ -35,16 +35,12 @@ class SceneMgr{
             return m_cur_scene->GetComponent<T>(_owner_id);
         };
         
-        // static std::shared_ptr<Component>& GetComponent(const uint32_t _id){
-        //     return m_cur_scene -> GetComponent(_id);
-        // }
-        
         static const auto& GetComponentsID(const uint32_t& _owner_id){
             return m_cur_scene->GetComponentsID(_owner_id);
         }
         
-        static void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept{
-            m_cur_scene ->DeleteComponent(std::move(_comp));
+        static void DeleteComponent(uint32_t _comp_id) noexcept{
+            m_cur_scene ->DeleteComponent(_comp_id);
         }
         
         // =========================
@@ -61,8 +57,8 @@ class SceneMgr{
             return m_cur_scene->GetScript(_script_id);
         }
 
-        static void DeleteScript(std::shared_ptr<Script>&& _script) noexcept{
-            m_cur_scene ->DeleteScript(std::move(_script));
+        static void DeleteScript(uint32_t _script_id) noexcept{
+            m_cur_scene ->DeleteScript(_script_id);
         }
 
         static int GetScriptID(const uint32_t& _owner_id){

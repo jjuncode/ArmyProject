@@ -75,22 +75,8 @@ public:
 	// Entity Method
 	// ================================
 public:
-	void AddEntity(uint32_t _entity_id){
-		// Entity Activate
-		if (m_vec_entity_status.capacity() <= _entity_id)
-			m_vec_entity_status.reserve( _entity_id + 1 * 2);
-
-		if ( _entity_id < m_vec_entity_status.size()){
-			// 만약 넣으려는 요소가 앞쪽이라면
-			// 기존것은 삭제되고 새로 대체된다.
-			m_vec_entity_status[_entity_id] = EntityStatus::kActive;
-		}
-		else{
-			// 아니면 그냥 insert
-			m_vec_entity_status.emplace_back(EntityStatus::kActive);
-		}
-	}
-
+	void AddEntity(uint32_t _entity_id) noexcept;
+	
 	const auto& GetComponentsID(const uint32_t _owner_id){
 		return m_map_entity_components_id[_owner_id];
 	}
@@ -99,26 +85,7 @@ public:
 		return m_vec_entity_status[entity_id];
 	}
 
-	void DeleteEntity(uint32_t entity_id) noexcept{
-		auto vec_components_id = GetComponentsID(entity_id);
-		auto script_id = GetScriptID(entity_id);
-		DeleteCollider(entity_id);
-
-		// Delete Component
-		for (auto& id : vec_components_id){
-			DeleteComponent(std::move(m_vec_component[id]));
-		}
-
-		// Delete Script
-		if ( Script::IsValid(script_id)){
-			DeleteScript(std::move(m_vec_script[script_id]));
-			m_vec_script_id[entity_id] = -1;
-		}
-
-		m_map_entity_components_id.erase(entity_id);
-		m_vec_entity_status[entity_id] = EntityStatus::kDead;
-		Entity::Dead(entity_id);	// Entity ID Reset
-	}
+	void DeleteEntity(uint32_t entity_id) noexcept;
 
 	// ================================
 	// Component Method 
@@ -133,7 +100,8 @@ private:
 
 public:
 	template<typename T>
-	void AddComponent(const std::shared_ptr<T>& _comp){
+	void AddComponent(const std::shared_ptr<T>& _comp)
+	{
 		auto idx{_comp->GetID()}; 
 		auto owner_id{_comp->GetOwnerID()};
 
@@ -177,7 +145,7 @@ public:
 		return nullptr;
 	} 
 
-	void DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept;
+	void DeleteComponent(uint32_t _comp_id) noexcept;
 	void DeleteCollider(uint32_t entity_id) noexcept;
 
 	// ==============================
@@ -252,13 +220,9 @@ public:
 		return nullptr;
 	} 
 
-	int GetScriptID(const uint32_t& _owner_id){
-		if ( m_vec_script_id.size() <= _owner_id)
-			return -1;
-		return m_vec_script_id[_owner_id];
-	}
-
-	void DeleteScript(std::shared_ptr<Script>&& _script) noexcept;
+	int GetScriptID(const uint32_t& _owner_id);
+	
+	void DeleteScript(uint32_t _script_id) noexcept;
 
 	// ================================
 	// Camera Method 

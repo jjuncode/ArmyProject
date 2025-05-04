@@ -24,7 +24,6 @@ void Object::SetCollider(CollisionEntityType _type, Vec2 _size)
 { 
     auto& cur_scene = SceneMgr::GetCurScene();
     auto collider = obj.AddComponent<ColliderComponent>(_type, _size);
-    std::cout << "SIZE : " << _size.x <<", " << _size.y << std::endl;
     collider->Init();
     cur_scene->AddComponent<ColliderComponent>(std::move(collider));
 }

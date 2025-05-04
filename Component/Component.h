@@ -33,6 +33,8 @@ class Component{
         uint32_t GetOwnerID(){return m_owner_id; }
         uint32_t GetID(){return m_id;}
 
-        void Delete(){remain_id.push(m_id);}
+        void Delete(){
+            remain_id.push(m_id);
+        }
 
 };

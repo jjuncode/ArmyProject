@@ -73,32 +73,73 @@ void Scene::DeleteCollisionEntity(CollisionEntityType _type, const uint32_t &ent
     std::cout << "DELETE Collision ENTITY ID : " << entity_id << std::endl;
 }
 
-void Scene::DeleteComponent(std::shared_ptr<Component>&& _comp) noexcept
+void Scene::DeleteComponent(uint32_t _comp_id) noexcept
 {
-    if ( !_comp) return;
-
     // ID reset
-    _comp->Delete();
-
+    m_vec_component[_comp_id]->Delete();
     // Really Delete
-    _comp.reset();
+    m_vec_component[_comp_id].reset();
 }
 void Scene::DeleteCollider(uint32_t entity_id) noexcept
 {
 	auto coll = SceneMgr::GetComponent<ColliderComponent>(entity_id);
-    if (!coll) return;
+    if (!coll) 
+        return;
     auto type = coll->GetCollisionType();
     DeleteCollisionEntity(type, entity_id);
-    DeleteComponent(coll);
+    DeleteComponent(coll->GetID());
 }
 
-void Scene::DeleteScript(std::shared_ptr<Script> &&_script) noexcept
+void Scene::DeleteScript(uint32_t _script_id) noexcept
 {
-    if ( !_script) return;
-    
     // ID reset
-	_script->Delete();
-    
+    m_vec_script[_script_id]->Delete();
 	// Really Delete
-	_script.reset();
+    m_vec_script[_script_id].reset();
+}
+
+void Scene::AddEntity(uint32_t _entity_id) noexcept
+{
+    // Entity Activate
+    if (m_vec_entity_status.capacity() <= _entity_id)
+        m_vec_entity_status.reserve( _entity_id + 1 * 2);
+
+    if ( _entity_id < m_vec_entity_status.size()){
+        // 만약 넣으려는 요소가 앞쪽이라면
+        // 기존것은 삭제되고 새로 대체된다.
+        m_vec_entity_status[_entity_id] = EntityStatus::kActive;
+    }
+    else{
+        // 아니면 그냥 insert
+        m_vec_entity_status.emplace_back(EntityStatus::kActive);
+    }
+}
+
+void Scene::DeleteEntity(uint32_t entity_id) noexcept
+{
+    auto vec_components_id = GetComponentsID(entity_id);
+    auto script_id = GetScriptID(entity_id);
+    DeleteCollider(entity_id);
+
+    // Delete Component
+    for (auto& id : vec_components_id){
+        DeleteComponent(id);
+    }
+
+    // Delete Script
+    if ( Script::IsValid(script_id)){
+        DeleteScript(script_id);
+        m_vec_script_id[entity_id] = -1;
+    }
+
+    m_map_entity_components_id.erase(entity_id);
+    m_vec_entity_status[entity_id] = EntityStatus::kDead;
+    Entity::Dead(entity_id);	// Entity ID Reset
+}
+
+int Scene::GetScriptID(const uint32_t& _owner_id)
+{
+    if ( m_vec_script_id.size() <= _owner_id)
+        return -1;
+    return m_vec_script_id[_owner_id];
 }
