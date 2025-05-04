@@ -146,7 +146,6 @@ public:
 	} 
 
 	void DeleteComponent(uint32_t _comp_id) noexcept;
-	void DeleteCollider(uint32_t entity_id) noexcept;
 
 	// ==============================
 	// Script Method

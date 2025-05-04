@@ -80,15 +80,6 @@ void Scene::DeleteComponent(uint32_t _comp_id) noexcept
     // Really Delete
     m_vec_component[_comp_id].reset();
 }
-void Scene::DeleteCollider(uint32_t entity_id) noexcept
-{
-	auto coll = SceneMgr::GetComponent<ColliderComponent>(entity_id);
-    if (!coll) 
-        return;
-    auto type = coll->GetCollisionType();
-    DeleteCollisionEntity(type, entity_id);
-    DeleteComponent(coll->GetID());
-}
 
 void Scene::DeleteScript(uint32_t _script_id) noexcept
 {
@@ -119,7 +110,6 @@ void Scene::DeleteEntity(uint32_t entity_id) noexcept
 {
     auto vec_components_id = GetComponentsID(entity_id);
     auto script_id = GetScriptID(entity_id);
-    DeleteCollider(entity_id);
 
     // Delete Component
     for (auto& id : vec_components_id){
