@@ -27,13 +27,6 @@ void Rigidbody::Update(float dt)
 	m_acc_impulse = Vec2(0,0);
 	m_force = Vec2(0,0);
 
-	// Apply Angular
-	auto rotate_value = m_velo_angular * dt;
-	transform->AddRotate(rotate_value);
-
-	float angular_damp = 0.2f;	// 감쇠 비율 20%
-	m_velo_angular *= (1 - angular_damp);
-
 	// 최대 속도 제한
 	if (Vec::Length(m_velocity) > Vec::Length(m_velocity_max)) {
 		m_velocity = Vec::Normalize(m_velocity) * Vec::Length(m_velocity_max);
@@ -43,25 +36,20 @@ void Rigidbody::Update(float dt)
 	constexpr float VELOCITY_EPSILON = 1.f;
 	constexpr float ANGULAR_EPSILON = 0.1f;
 
-	if (Vec::LengthSquare(m_velocity) < VELOCITY_EPSILON)
-	{
+	if (Vec::LengthSquare(m_velocity) < VELOCITY_EPSILON){
 		m_velocity = Vec2(0.0f, 0.0f);
 	}
 
-	if (std::abs(m_velo_angular) < ANGULAR_EPSILON)
-	{
+	if (std::abs(m_velo_angular) < ANGULAR_EPSILON){
 		m_velo_angular = 0;
 	}
 
-	// // on ground 
-	// if ( pos.y <= 0 ){
-	// 	m_velocity.x *= m_fric;
-	// 	m_velo_angular *= 0.5f;
+	// Apply Angular
+	auto rotate_value = m_velo_angular * dt;
+	transform->AddRotate(rotate_value);
 
-	// 	transform->SetPos(Vec2(pos.x, 0));
-	// 	if ( m_velocity.y < 0 )
-	// 		m_velocity.y = 0;
-	// }
+	float angular_damp = 0.2f;	// 감쇠 비율 20%
+	m_velo_angular *= (1 - angular_damp);
 
 	transform->AddPos(m_velocity * dt);
 } 
