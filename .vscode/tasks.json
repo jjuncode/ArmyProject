@@ -3,25 +3,22 @@
 	"tasks": [
 		{
 			"type": "cppbuild",
-            "label": "build",
+			"label": "build",
 			"command": "/usr/bin/g++",
 			"args": [
 				"-fdiagnostics-color=always",
-                "-std=c++17",           // C++17 표준 사용
+				"-std=c++17",
 				"-g",
-                "/workspaces/ArmyProject/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
-                "/workspaces/ArmyProject/Component/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
-                "/workspaces/ArmyProject/Object/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
-                "/workspaces/ArmyProject/Mgr/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
-                "/workspaces/ArmyProject/Script/*.cpp", // 디렉터리의 모든 .cpp 파일 포함
-
+				"/workspaces/ArmyProject/*.cpp",
+				"/workspaces/ArmyProject/Component/*.cpp",
+				"/workspaces/ArmyProject/Object/*.cpp",
+				"/workspaces/ArmyProject/Mgr/*.cpp",
+				"/workspaces/ArmyProject/Script/*.cpp",
 				"-o",
-                "${fileDirname}/${fileBasenameNoExtension}",
-                
-                // Linking Library 
-                "-lsfml-graphics",
-                "-lsfml-window",
-                "-lsfml-system"
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"-lsfml-graphics",
+				"-lsfml-window",
+				"-lsfml-system"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
@@ -33,7 +30,30 @@
 				"kind": "build",
 				"isDefault": true
 			},
-            "detail": "디버거에서 생성된 작업입니다."
+			"detail": "디버거에서 생성된 작업입니다."
+		},
+		{
+			"type": "cppbuild",
+			"label": "C/C++: g++ 활성 파일 빌드",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "컴파일러: /usr/bin/g++"
 		}
-    ],
+	],
 }

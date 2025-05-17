@@ -12,27 +12,34 @@ void PlayerScript::Execute(float dt)
     int grid_offset{40};
 
     uint32_t player_speed{500};
-    uint32_t player_jump{1000};
+    uint32_t player_jump{100};
     uint32_t player_rotate_speed{1};
 
     auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
+    auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
     auto pos = transform->GetPos();
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
         transform->AddPos(Vec2(-dt*player_speed,0));
+    
+        rigidbody->SetVelocity(Vec2(0,rigidbody->GetVelocity().y));
+        rigidbody->SetAngularVelocity(0);
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
         transform->AddPos(Vec2(dt*player_speed,0));
+        
+        rigidbody->SetVelocity(Vec2(0,rigidbody->GetVelocity().y));
+        rigidbody->SetAngularVelocity(0);
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
         transform->AddPos(Vec2(0,dt*player_speed));
-        auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
         auto gravity = rigidbody->GetGravity();
 
         auto velo = rigidbody->GetVelocity();
         rigidbody->SetVelocity(Vec2(velo.x, 0));
+        rigidbody->SetAngularVelocity(0);
     }
 
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
@@ -41,16 +48,18 @@ void PlayerScript::Execute(float dt)
 
     if ( InputMgr::IsTap(sf::Keyboard::Space)){
         transform->AddPos(Vec2(0,1));
-        auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
 
         rigidbody->ApplyImpulse (Vec::Reverse(rigidbody->GetGravity()) ) ;
         rigidbody->ApplyImpulse(Vec2(0, player_jump) * rigidbody->GetMass());
         std::cout<<"JUMP"<<std::endl;
     }
 
-    if (InputMgr::IsTap(sf::Keyboard::Z)){
-        std::cout << "Player Pos: " << pos.x << " " << pos.y << std::endl;
-    }
+    // Print Angular vec
+    std::cout << "=========================" << std::endl;
+    std::cout << "Angular velo : "<< rigidbody->GetAngularVelocity() << std::endl;
+    std::cout << "VELO  : " << rigidbody->GetVelocity().x << " , " << rigidbody->GetVelocity().y << std::endl;
+    std::cout << "=========================" << std::endl;
+
 }
 
 void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, MTV _mtv,float dt)

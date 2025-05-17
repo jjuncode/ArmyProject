@@ -26,24 +26,19 @@ void PlayScene::Init()
 
     int size = 100;
 
-    PlayerObject player{Vec2(50,50), Vec2(size,size)};
+    PlayerObject player{Vec2(50,500), Vec2(size,size)};
     player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
-    player.AddComponent<Rigidbody>(25.f,0.9f, 0.5f);
+    player.AddComponent<Rigidbody>(25.f,0.9f);
     player.SetScript<PlayerScript>();
 
     Camera player_camera{player.GetEntityID()};
     player_camera.SetScript<CameraScript>(player.GetEntityID());
     player_camera.SetMainCamera();
 
-    Polygon poly{4,Vec2(2*size,2*size), Vec2(size,size)};
-    poly.SetCollider(CollisionEntityType::kBox, Vec2(size,size));
-    poly.SetScript<BoxScript>();
-    poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.5f);
-    
-    Polygon poly2{4,Vec2(4.5f*size,4.5f*size), Vec2(size,size)};
-    poly2.SetCollider(CollisionEntityType::kBox, Vec2(size,size));
-    poly2.SetScript<BoxScript>();
-    poly2.AddComponent<Rigidbody>(50.f, 0.9f, 0.5f);
+    Polygon poly3{1,Vec2(0,0), Vec2()};
+    poly3.SetCollider(CollisionEntityType::kBox, Vec2(20000,10));
+    poly3.SetScript<BoxScript>();
+    poly3.AddComponent<Rigidbody>(true);
 
     SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kBox, true);
     SetCollisionLayer(CollisionEntityType::kBox, CollisionEntityType::kBox, true);
@@ -92,7 +87,7 @@ void PlayScene::Update(float dt)
         Polygon poly{4, Vec2(mouse_pos.x, mouse_pos.y), Vec2(size, size)};
         poly.SetCollider(CollisionEntityType::kBox, Vec2(size, size));
         poly.SetScript<BoxScript>();
-        poly.AddComponent<Rigidbody>(50.f, 0.9f, 0.5f);
+        poly.AddComponent<Rigidbody>(25.f, 0.9f);
 
         lastest_obj_id = poly.GetEntityID();
     }

@@ -63,9 +63,11 @@ void Core::Loop()
             InputMgr::UpdateKeyState();
             InputMgr::UpdateMouseState();
 			time_acc -= time_frame;
+         SceneMgr::Render();
+
 
 		}
-        SceneMgr::Render();
+         SceneMgr::Render();
 
     }
 

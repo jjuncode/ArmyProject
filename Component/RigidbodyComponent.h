@@ -4,23 +4,32 @@
 
 class Rigidbody : public Component {
     public:
-        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.5f)
+        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.9f)
             : m_gravity{0,-1000.f}
+            ,m_velocity{0,0}
+            ,m_accel{0,0}
+            ,m_force{0,0}
+            ,m_velo_angular{0}
             , m_mass{_mass}
             , m_fric{_fric}
             , m_elastic{_e}
-            , m_velocity_max{100000.f, 100000.f}
+            , m_velocity_max{2000.f, 2000.f}
             , m_fixed{false}
-            , m_velo_angular{0}
+            , m_acc_impulse{0,0}
             {};
 
             Rigidbody(bool _fixed)
-            : m_gravity{0,0}
-            ,m_mass{1}
-            ,m_fric{0.9f}
-            ,m_elastic{0.9f}
-            ,m_velocity_max{100000.f, 100000.f}
+            : m_gravity{0,-1000.f}
+            ,m_mass{0}
+            ,m_fric{0.5f}
+            ,m_elastic{0.5f}
+            ,m_velocity{0,0}
+            ,m_accel{0,0}
+            ,m_force{0,0}
+            ,m_velo_angular{0}
+            ,m_velocity_max{0,0}
             ,m_fixed{_fixed}
+            , m_acc_impulse{0,0}
             {};
 
     private:
@@ -29,6 +38,7 @@ class Rigidbody : public Component {
         Vec2 m_force;                // 현재 힘
         Vec2 m_gravity;              // 중력
         Vec2 m_velocity_max;         // 최대 속도
+        Vec2 m_acc_impulse;         // 누적 충격량
 
         float m_mass;                // 질량
         float m_fric;               // 마찰력
@@ -41,8 +51,8 @@ public:
     void Update(float dt) override;
 
     void AddForce(const Vec2& force) { m_force += force; }
-    void ApplyImpulse(Vec2 impulse) {m_velocity += impulse / m_mass;}
-    void ApplyAngular(float _rhs) { m_velo_angular += _rhs/m_mass; }
+    void ApplyImpulse(Vec2 impulse) {m_acc_impulse += impulse;}
+    void ApplyAngular(float _rhs) { m_velo_angular += _rhs; }
 
     Vec2 GetGravity() { return m_gravity; }
     
@@ -66,11 +76,4 @@ public:
 
 void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
 
-// 충돌 지점 찾기
-struct ContactInfo{
-    bool coll_by_side{false};
-    Vec2 contact_point_self{};
-    Vec2 contact_point_other{};
-};
-
-ContactInfo GetCollisionPart(uint32_t self_entity_id, uint32_t other_entity_id);
+std::vector<Vec2> GetCollisionCandidate(uint32_t self_entity_id, uint32_t other_entity_id, Vec2 _mtv_vec);
