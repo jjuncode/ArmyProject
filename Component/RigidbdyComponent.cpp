@@ -34,7 +34,7 @@ void Rigidbody::Update(float dt)
 
 	// Get rid of too low velo & angular
 	constexpr float VELOCITY_EPSILON = 1.f;
-	constexpr float ANGULAR_EPSILON = 0.1f;
+	constexpr float ANGULAR_EPSILON = 0.05f;
 
 	if (Vec::LengthSquare(m_velocity) < VELOCITY_EPSILON){
 		m_velocity = Vec2(0.0f, 0.0f);
@@ -48,8 +48,7 @@ void Rigidbody::Update(float dt)
 	auto rotate_value = m_velo_angular * dt;
 	transform->AddRotate(rotate_value);
 
-	float angular_damp = 0.2f;	// 감쇠 비율 20%
-	m_velo_angular *= (1 - angular_damp);
+	m_velo_angular *= 0.9f;
 
 	transform->AddPos(m_velocity * dt);
 } 
@@ -90,14 +89,14 @@ void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id, M
 		auto vec_contact = GetCollisionCandidate(self_entity_id, other_entity_id, direction);
 		for(auto& dot : vec_contact)
 			dot += move_value;
-
+		
 		// Apply MTV
 		transform_self->AddPos(move_value);
 
 		// Get Elasticity
 		Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
 		float elastic = (rigidbody_self->GetElastic() + rigidbody_other->GetElastic()) / 2;
-
+ 
 		// Get Friction
 		float fric = (rigidbody_self->GetFric() + rigidbody_other->GetFric()) / 2;
 		
@@ -105,7 +104,7 @@ void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id, M
 		float velo_extract = Vec::Dot(relative_velo, direction);
 		float j{};
 		if ( rigidbody_other->IsFixed() ){
-			j = -(1 + elastic) * velo_extract / ((2.0f / rigidbody_self->GetMass()));
+			j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()));
 		}
 		else
 			j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
@@ -114,51 +113,82 @@ void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id, M
 		if ( j < 100){
 			j =0;
 		}
+
+		// Get Impulse
 		Vec2 impulse = direction * abs(j) / mass_self;
+	
+		// Apply Torque
+		{
+			auto pos_self = transform_self->GetPos();
+			auto pos_other = transform_other->GetPos();
+			auto pos_center = (pos_self + pos_other) / 2;
 
-		auto pos_self = transform_self->GetPos();
-		auto pos_other = transform_other->GetPos();
-		auto pos_center = (pos_self + pos_other) / 2;
+			Vec2 angular_direction_self{};
+			float additional_torque{1};
 
-		Vec2 angular_direction_self{};
+			if (vec_contact.size() == 1 ){
+				// coll by Dot 
+				angular_direction_self = vec_contact[0] - pos_self; // Dot 충돌이므로 다 self로 해도 상관없다.
 
-		if (vec_contact.size() == 1 ){
-			// coll by Dot 
-			angular_direction_self = vec_contact[0] - pos_self; // Dot 충돌이므로 다 self로 해도 상관없다.
-		}
-		else{
-			// coll by side
-			// vertical collision
-			auto distn_1 = Vec::LengthSquare(vec_contact[0] - pos_self);
-			auto distn_2 = Vec::LengthSquare(vec_contact[1] - pos_self);
- 			if ( distn_1 == distn_2 ){
-				// Don't Rotate
-				angular_direction_self = Vec2(0,0);
+				// 점충돌일 때 좀 크게해줌
+				additional_torque = Vec::Dot(Vec::Normalize(angular_direction_self), Vec::Normal(direction));
+				additional_torque = abs(additional_torque) + 1.5f;
 			}
 			else{
-				Vec2 torque_dot{};
-				torque_dot = (vec_contact[0] + vec_contact[1]) / 2;
+				// coll by side
+				// vertical collision
+				auto distn_1 = Vec::LengthSquare(vec_contact[0] - pos_self);
+				auto distn_2 = Vec::LengthSquare(vec_contact[1] - pos_self);
 
-				angular_direction_self = torque_dot - pos_self;
+ 				if ( distn_1 == distn_2 ){
+					// Don't Rotate
+					angular_direction_self = Vec2(0,0);
+				}
+				else{
+					Vec2 torque_dot{};
+					torque_dot = (vec_contact[0] + vec_contact[1]) / 2;
+
+					angular_direction_self = torque_dot - pos_self;
+				}
 			}
+
+			auto obb = coll_self->GetOBB();
+
+			float width_square = abs(Vec::LengthSquare(obb.width_half)) ;
+			float height_square = abs(Vec::LengthSquare(obb.height_half));
+
+			float inertia = (1.0f / 12.0f) * mass_self * (width_square + height_square);
+
+			// Get Torque
+			float torque_self = Vec::Cross(angular_direction_self, impulse) * additional_torque;
+			torque_self /= inertia;
+
+			
+			// 안착된 상태이면 벽과의 회전은 처리 안함
+			if ( rigidbody_other->IsFixed() &&rigidbody_self->IsOnSide() ){
+				torque_self = 0;
+			}
+			else{
+				// 벽과 충돌중이면서 돌아가는데 가해진 힘이 0이라면?
+				if (rigidbody_other->IsFixed() && rigidbody_self->GetAngularVelocity() && torque_self == 0){
+					rigidbody_self->SetAngularVelocity(0);
+					torque_self = 0;
+					// 안착
+					rigidbody_self->SetOnSide(true);
+				}
+				else{
+					rigidbody_self->SetOnSide(false);
+				}
+			}
+
+			// Apply Torque
+			rigidbody_self->SetAngularVelocity(rigidbody_self->GetAngularVelocity() * 0.9f);
+			rigidbody_self->ApplyAngular(torque_self);
 		}
-
-		auto obb = coll_self->GetOBB();
-
-		float width_square = abs(Vec::LengthSquare(obb.width_half)) ;
-		float height_square = abs(Vec::LengthSquare(obb.height_half));
-
-		float inertia = (1.0f / 12.0f) * mass_self * (width_square + height_square);
-
-		// Get Torque
-		float torque_self = Vec::Cross(angular_direction_self, impulse);
-		torque_self /= inertia;
 
 		// Apply Fric & impulse & Torque
 		rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
 		rigidbody_self->ApplyImpulse(impulse);
-		rigidbody_self->SetAngularVelocity(rigidbody_self->GetAngularVelocity() * fric);
-		rigidbody_self->ApplyAngular(torque_self);
 	}
 }
 

@@ -4,7 +4,7 @@
 
 class Rigidbody : public Component {
     public:
-        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.9f)
+        Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.25f)
             : m_gravity{0,-1000.f}
             ,m_velocity{0,0}
             ,m_accel{0,0}
@@ -16,20 +16,17 @@ class Rigidbody : public Component {
             , m_velocity_max{2000.f, 2000.f}
             , m_fixed{false}
             , m_acc_impulse{0,0}
+            , m_on_side{false}
             {};
 
             Rigidbody(bool _fixed)
-            : m_gravity{0,-1000.f}
+            : m_gravity{0,0}
             ,m_mass{0}
             ,m_fric{0.5f}
             ,m_elastic{0.5f}
             ,m_velocity{0,0}
-            ,m_accel{0,0}
-            ,m_force{0,0}
-            ,m_velo_angular{0}
-            ,m_velocity_max{0,0}
             ,m_fixed{_fixed}
-            , m_acc_impulse{0,0}
+            , m_on_side{2}
             {};
 
     private:
@@ -46,11 +43,14 @@ class Rigidbody : public Component {
         float m_velo_angular;       // 각속도 
 
         bool m_fixed;
+        int m_on_side; // 벽에 붙어있는지의 여부 
 
 public:
     void Update(float dt) override;
 
     void AddForce(const Vec2& force) { m_force += force; }
+    Vec2 GetForce(){return m_force;}
+
     void ApplyImpulse(Vec2 impulse) {m_acc_impulse += impulse;}
     void ApplyAngular(float _rhs) { m_velo_angular += _rhs; }
 
@@ -72,6 +72,13 @@ public:
     float GetMass() { return m_mass; }
 
     bool IsFixed() { return m_fixed; }
+    
+    void SetOnSide(bool _rhs){ 
+        if (_rhs == false && m_on_side != 1 ) // 두번까진 기다려준다.
+            m_on_side = 0;
+        else
+            m_on_side +=1; }
+    bool IsOnSide(){return m_on_side>=2;}
 };
 
 void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);

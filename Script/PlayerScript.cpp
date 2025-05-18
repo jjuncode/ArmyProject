@@ -12,7 +12,7 @@ void PlayerScript::Execute(float dt)
     int grid_offset{40};
 
     uint32_t player_speed{500};
-    uint32_t player_jump{100};
+    uint32_t player_jump{10};
     uint32_t player_rotate_speed{1};
 
     auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
@@ -44,6 +44,7 @@ void PlayerScript::Execute(float dt)
 
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
         transform->AddRotate(dt*player_rotate_speed);
+        rigidbody->SetOnSide(false);
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::Space)){
@@ -53,13 +54,6 @@ void PlayerScript::Execute(float dt)
         rigidbody->ApplyImpulse(Vec2(0, player_jump) * rigidbody->GetMass());
         std::cout<<"JUMP"<<std::endl;
     }
-
-    // Print Angular vec
-    std::cout << "=========================" << std::endl;
-    std::cout << "Angular velo : "<< rigidbody->GetAngularVelocity() << std::endl;
-    std::cout << "VELO  : " << rigidbody->GetVelocity().x << " , " << rigidbody->GetVelocity().y << std::endl;
-    std::cout << "=========================" << std::endl;
-
 }
 
 void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, MTV _mtv,float dt)
