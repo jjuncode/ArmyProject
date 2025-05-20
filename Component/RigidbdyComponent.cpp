@@ -47,8 +47,6 @@ void Rigidbody::Update(float dt)
 		m_velo_angular = 0;
 	}
 
-	std::cout << "ANGULAR : " << m_velo_angular <<std::endl;
-
 	// Apply Angular
 	auto rotate_value = m_velo_angular * dt;
 	transform->AddRotate(rotate_value);
@@ -201,6 +199,8 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 					auto cross = Vec::Cross(angular_direction_self, direction);
 					float rotate_drc{ cross / abs(cross)};
 					transform_self->AddRotate(Vec::GetRadian(ground_vec.second) * rotate_drc);
+				
+					rigidbody_self->AddForce(Vec::Reverse(rigidbody_self->GetGravity())*mass_self);
 				}
 			}
 		
