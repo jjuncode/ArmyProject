@@ -16,7 +16,6 @@ class Rigidbody : public Component {
             , m_velocity_max{2000.f, 2000.f}
             , m_fixed{false}
             , m_acc_impulse{0,0}
-            , m_on_side{false}
             {};
 
             Rigidbody(bool _fixed)
@@ -26,7 +25,6 @@ class Rigidbody : public Component {
             ,m_elastic{0.5f}
             ,m_velocity{0,0}
             ,m_fixed{_fixed}
-            , m_on_side{2}
             {};
 
     private:
@@ -43,7 +41,6 @@ class Rigidbody : public Component {
         float m_velo_angular;       // 각속도 
 
         bool m_fixed;
-        int m_on_side; // 벽에 붙어있는지의 여부 
 
 public:
     void Update(float dt) override;
@@ -72,15 +69,11 @@ public:
     float GetMass() { return m_mass; }
 
     bool IsFixed() { return m_fixed; }
-    
-    void SetOnSide(bool _rhs){ 
-        if (_rhs == false && m_on_side != 1 ) // 두번까진 기다려준다.
-            m_on_side = 0;
-        else
-            m_on_side +=1; }
-    bool IsOnSide(){return m_on_side>=2;}
 };
 
-void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
+namespace Physic{
+    void ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id,MTV _mtv, float dt);
+    std::pair<Vec2,float> GetGroundVec(Vec2 _width, Vec2 _height, Vec2 _contact_dot, Vec2 _mtv_direction);
+};
 
 std::vector<Vec2> GetCollisionCandidate(uint32_t self_entity_id, uint32_t other_entity_id, Vec2 _mtv_vec);

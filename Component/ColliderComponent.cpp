@@ -1,6 +1,7 @@
 #include "ColliderComponent.h"
 #include "../Mgr/SceneMgr.h"
 #include "../Core.h"
+#include <cmath>
 
 #include "TransformComponent.h"
 #include "../Script/CameraScript.h"
@@ -149,4 +150,19 @@ void ColliderComponent::Collision(uint32_t coll_entity_id, MTV _mtv, float dt)
             CollisionStay(coll_entity_id,_mtv, dt);
         }
     }
+}
+
+void OBB::Rotate(float angle)
+{
+    // Rotate
+    Vec2 width_new;
+    width_new.x = width_half.x * cos(angle) - width_half.y * sin(angle);
+    width_new.y = width_half.x * sin(angle) + width_half.y * cos(angle);
+
+    Vec2 height_new;
+    height_new.x = height_half.x * cos(angle) - height_half.y * sin(angle);
+    height_new.y = height_half.x * sin(angle) + height_half.y * cos(angle);
+
+    width_half = width_new;
+    height_half = height_new;
 }

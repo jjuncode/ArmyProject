@@ -9,10 +9,6 @@
 
 void BoxScript::Execute(float dt)
 {
-    if ( InputMgr::IsTap(sf::Keyboard::T) || InputMgr::IsHold(sf::Keyboard::T) ){
-        auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
-        transform->AddRotate(dt*100);
-    }   
 }
 
 void BoxScript::ExecuteCollEnter(uint32_t other_entity_id,MTV _mtv, float dt)
@@ -20,7 +16,7 @@ void BoxScript::ExecuteCollEnter(uint32_t other_entity_id,MTV _mtv, float dt)
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
     
-    ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
+    Physic::ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
 }
 
 void BoxScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
@@ -28,7 +24,7 @@ void BoxScript::ExecuteCollStay(uint32_t other_entity_id,MTV _mtv, float dt)
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
     
-    ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
+    Physic::ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
 }
 
 void BoxScript::ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt)

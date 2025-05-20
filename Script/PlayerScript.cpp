@@ -21,38 +21,49 @@ void PlayerScript::Execute(float dt)
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
         transform->AddPos(Vec2(-dt*player_speed,0));
-    
-        rigidbody->SetVelocity(Vec2(0,rigidbody->GetVelocity().y));
-        rigidbody->SetAngularVelocity(0);
+
+        if (rigidbody){
+            rigidbody->SetVelocity(Vec2(0, rigidbody->GetVelocity().y));
+            rigidbody->SetAngularVelocity(0);
+        }
     }
 
-    if ( InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
-        transform->AddPos(Vec2(dt*player_speed,0));
-        
-        rigidbody->SetVelocity(Vec2(0,rigidbody->GetVelocity().y));
-        rigidbody->SetAngularVelocity(0);
+    if (InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
+        transform->AddPos(Vec2(dt * player_speed, 0));
+
+        if (rigidbody){
+            rigidbody->SetVelocity(Vec2(0, rigidbody->GetVelocity().y));
+            rigidbody->SetAngularVelocity(0);
+        }
     }
 
-    if ( InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
-        transform->AddPos(Vec2(0,dt*player_speed));
-        auto gravity = rigidbody->GetGravity();
+    if (InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
+        transform->AddPos(Vec2(0, dt * player_speed));
+        if (rigidbody){
+            auto gravity = rigidbody->GetGravity();
 
-        auto velo = rigidbody->GetVelocity();
-        rigidbody->SetVelocity(Vec2(velo.x, 0));
-        rigidbody->SetAngularVelocity(0);
+            auto velo = rigidbody->GetVelocity();
+            rigidbody->SetVelocity(Vec2(velo.x, 0));
+            rigidbody->SetAngularVelocity(0);
+        }
     }
 
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
-        transform->AddRotate(dt*player_rotate_speed);
-        rigidbody->SetOnSide(false);
+        transform->AddRotate(dt * player_rotate_speed);
     }
 
-    if ( InputMgr::IsTap(sf::Keyboard::Space)){
-        transform->AddPos(Vec2(0,1));
+    if (InputMgr::IsTap(sf::Keyboard::Space)){
+        transform->AddPos(Vec2(0, 1));
 
-        rigidbody->ApplyImpulse (Vec::Reverse(rigidbody->GetGravity()) ) ;
-        rigidbody->ApplyImpulse(Vec2(0, player_jump) * rigidbody->GetMass());
-        std::cout<<"JUMP"<<std::endl;
+        if (rigidbody){
+            rigidbody->ApplyImpulse(Vec::Reverse(rigidbody->GetGravity()));
+            rigidbody->ApplyImpulse(Vec2(0, player_jump) * rigidbody->GetMass());
+            std::cout << "JUMP" << std::endl;
+        }
+    }
+
+    if ( InputMgr::IsTap(sf::Keyboard::T)){
+        transform->AddRotate(Vec::GetRadian(45.f));
     }
 }
 
@@ -61,7 +72,7 @@ void PlayerScript::ExecuteCollEnter(uint32_t other_entity_id, MTV _mtv,float dt)
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
 
-    ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
+    Physic::ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
 }
 
 void PlayerScript::ExecuteCollStay(uint32_t other_entity_id, MTV _mtv,float dt)
@@ -69,7 +80,7 @@ void PlayerScript::ExecuteCollStay(uint32_t other_entity_id, MTV _mtv,float dt)
     auto coll = SceneMgr::GetComponent<ColliderComponent>(GetOwnerID());
     coll->SetOBBColor(sf::Color::Red);
 
-    ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
+    Physic::ProcessPhysicCollision(GetOwnerID(), other_entity_id, _mtv, dt);
 }
 
 void PlayerScript::ExecuteCollExit(uint32_t other_entity_id,MTV _mtv, float dt)

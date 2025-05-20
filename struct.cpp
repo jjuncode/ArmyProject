@@ -1,4 +1,5 @@
 #include "struct.h"
+#include <algorithm>
 
 float Vec::EdgeDistnSquare(Edge _edge)
 {
@@ -63,6 +64,21 @@ Vec2 Vec::Projection(Vec2 vec_unit, Vec2 rhs)
 Vec2 Vec::Reverse(const Vec2 &vec)
 {
     return Vec2(-vec.x, -vec.y);
+}
+
+float Vec::GetDegree(Vec2 _v1, Vec2 _v2)
+{
+   // 두 벡터 사이의 각도(라디안) 구하기
+   auto dot = Vec::Dot(Vec::Normalize(_v1), Vec::Normalize(_v2));
+   dot = std::clamp(dot, -1.0f, 1.0f );
+   auto angle = std::acos(dot);
+   float degree = angle * ( 180.0f / 3.14159265f);
+   return degree;
+}
+
+float Vec::GetRadian(float _v)
+{
+   return _v * (3.14159265f / 180.f);
 }
 
 std::vector<Edge> Edge::CreateEdge(std::vector<Vec2> vec_vertex)

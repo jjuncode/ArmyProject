@@ -30,25 +30,15 @@ struct OBB{
         : width_half{_size.x/2,0}
         , height_half{0,_size.y/2}
         , m_color{ sf::Color::Green}
-    {}
+        , obb_size_half{_size/2}
+        {}
 
     Vec2 width_half; // half width
     Vec2 height_half;// half height
+    Vec2 obb_size_half;
     sf::Color m_color;
 
-    void Rotate(float angle){
-        // Rotate
-        Vec2 width_new;
-        width_new.x = width_half.x * cos(angle) - width_half.y * sin(angle);
-        width_new.y = width_half.x * sin(angle) + width_half.y * cos(angle);
-    
-        Vec2 height_new;
-        height_new.x= height_half.x * cos(angle) - height_half.y * sin(angle);
-        height_new.y= height_half.x * sin(angle) + height_half.y * cos(angle);
-
-        width_half = width_new;
-        height_half = height_new;
-    }
+    void Rotate(float angle);
 };
 
 class ColliderComponent : public Component {
@@ -71,6 +61,9 @@ public:
     void Init();
     const OBB& GetOBB() { return m_obb; };
     void RotateOBB(float angle){m_obb.Rotate(angle);}
+    Vec2 GetOBBSize(){return m_obb.obb_size_half;}
+    void SetOBBSize(Vec2 _width, Vec2 _height ){m_obb.width_half = _width;
+        m_obb.height_half = _height; }
     
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
     void SetCollisionStatus(uint32_t coll_entity_id, CollisionStatus status);

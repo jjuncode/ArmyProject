@@ -116,6 +116,9 @@ namespace Vec{
     Vec2 Normal(const Vec2& vec);
 
     Vec2 Reverse(const Vec2& vec);
+
+    float GetDegree(Vec2 _v1, Vec2 _v2);
+    float GetRadian(float _v);
 }
 
 struct MTV{
