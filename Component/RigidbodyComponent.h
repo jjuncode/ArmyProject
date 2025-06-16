@@ -6,10 +6,11 @@ class Rigidbody : public Component {
     public:
         Rigidbody(float _mass = 1.f, float _fric = 0.9f, float _e = 0.25f)
             : m_gravity{0,-1000.f}
-            ,m_velocity{0,0}
-            ,m_accel{0,0}
-            ,m_force{0,0}
-            ,m_velo_angular{0}
+            , m_velocity{0,0}
+            , m_accel{0,0}
+            , m_force{0,0}
+            , m_velo_angular{0}
+            , m_accel_angular{0}
             , m_mass{_mass}
             , m_fric{_fric}
             , m_elastic{_e}
@@ -39,6 +40,7 @@ class Rigidbody : public Component {
         float m_fric;               // 마찰력
         float m_elastic;            // 탄성계수
         float m_velo_angular;       // 각속도 
+        float m_accel_angular;      // 각가속도
 
         bool m_fixed;
 
@@ -49,12 +51,15 @@ public:
     Vec2 GetForce(){return m_force;}
 
     void ApplyImpulse(Vec2 impulse) {m_acc_impulse += impulse;}
-    void ApplyAngular(float _rhs) { m_velo_angular += _rhs; }
+    void ApplyAngular(float _rhs) { m_accel_angular += _rhs; }
 
     Vec2 GetGravity() { return m_gravity; }
     
     Vec2 GetVelocity() { return m_velocity; }
     void SetVelocity(const Vec2& velocity) { m_velocity = velocity; }
+
+    Vec2 GetAccel() { return m_accel; }
+    void SetAccel(const Vec2& _accel) { m_accel = _accel;}
 
     float GetAngularVelocity() { return m_velo_angular; }
     void SetAngularVelocity(float _rhs) { m_velo_angular = _rhs; }

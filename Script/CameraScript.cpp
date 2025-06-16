@@ -46,3 +46,28 @@ void CameraScript::FollowTargetPos()
     
     camera_transform->SetPos(target_transform->GetPos());
 }
+
+constexpr Mat3 CameraScript::GetViewMatrix() const
+{
+    auto transform = SceneMgr::GetComponent<TransformComponent>(m_target);
+
+    if (!transform) {
+        return Mat3();
+    }
+
+    Vec2 pos = transform->GetPos();
+    float rotate = transform->GetRotate();
+
+    Mat3 t_inverse{
+        Vec3(1, 0, -pos.x),
+        Vec3(0, 1, -pos.y),
+        Vec3(0, 0, 1),
+    };
+    Mat3 r_inverse{
+        Vec3(cos(rotate), sin(rotate), 0),
+        Vec3(-sin(rotate), cos(rotate), 0),
+        Vec3(0, 0, 1),
+    };
+
+    return r_inverse * t_inverse; // View Matrix
+}

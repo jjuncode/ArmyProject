@@ -21,4 +21,6 @@ class CameraScript : public Script {
         Vec2 GetMainCameraPos();
 
         void FollowTargetPos();
+
+        constexpr Mat3 GetViewMatrix() const;
 };

@@ -1,13 +1,6 @@
 #include "struct.h"
 #include <algorithm>
 
-float Vec::EdgeDistnSquare(Edge _edge)
-{
-        Vec2 vec = _edge.end - _edge.start;
-        float length = (vec.x * vec.x) + (vec.y * vec.y);
-        return length;
-}
-
 float Vec::LengthSquare(Vec2 _vec)
 {
     return (_vec.x * _vec.x + _vec.y * _vec.y);
@@ -16,18 +9,6 @@ float Vec::LengthSquare(Vec2 _vec)
 float Vec::Length(Vec2 _vec)
 {
     return sqrt(LengthSquare(_vec));
-}
-
-Vec2 Vec::ChangeVec(Edge _edge)
-{
-    return Vec2(_edge.end.x - _edge.start.x, _edge.end.y - _edge.start.y);
-}
-
-Vec2 Vec::NormalizeEdge(Edge _edge)
-{
-    float distn = EdgeDistnSquare(_edge);
-    Vec2 vec = _edge.end - _edge.start;
-    return Vec2(vec.x / sqrt(distn), vec.y / sqrt(distn));
 }
 
 Vec2 Vec::Normalize(const Vec2 &vec)
@@ -81,34 +62,23 @@ float Vec::GetRadian(float _v)
    return _v * (3.14159265f / 180.f);
 }
 
-std::vector<Edge> Edge::CreateEdge(std::vector<Vec2> vec_vertex)
+std::ostream &operator<<(std::ostream &os, const Vec3 &vec)
 {
-    std::vector<Edge> vec_edge;
-	// Vec2 start;
-	// Edge edge;
+    os << vec.x << ", " << vec.y << ", " << vec.z;
+    return os;
+}
 
-    // int cnt{};
-    // for (const auto &dot : vec_vertex){
-    //     ++cnt;
-    //     if (cnt == 1){
-    //         edge.start = dot;
-    //         start = dot;
-    //     }
-    //     else{
-    //         edge.end = dot;
-    //         vec_edge.emplace_back(edge);
+std::ostream &operator<<(std::ostream &os, const Mat3 &mat)
+{
+    os << "MAT3:\n";
+    os << "[" << mat[0] << "]\n";
+    os << "[" << mat[1] << "]\n";
+    os << "[" << mat[2] << "]\n";
+    return os;
+}
 
-    //         edge.start = dot;
-    //     }
-    // }
-
-    // // Finish Edge
-    // Edge edge_end{edge.end, start};
-    // vec_edge.emplace_back(edge_end);
-
-    for (size_t i = 0; i < vec_vertex.size(); ++i) {
-        vec_edge.push_back(Edge(vec_vertex[i], vec_vertex[(i + 1) % vec_vertex.size()]));
-    }
-    
-    return vec_edge;
+constexpr Vec2 Vec3::ConvertToVec2() const
+{
+    assert( z!= 0 );
+    return Vec2(x/z, y/z);
 }

@@ -27,14 +27,29 @@ void Rigidbody::Update(float dt)
 	m_acc_impulse = Vec2(0,0);
 	m_force = Vec2(0,0);
 
+	// Get Angular
+	m_velo_angular += m_accel_angular * dt;
+	auto rotate_value = m_velo_angular * dt;
+	
 	// 최대 속도 제한
 	if (Vec::Length(m_velocity) > Vec::Length(m_velocity_max)) {
 		m_velocity = Vec::Normalize(m_velocity) * Vec::Length(m_velocity_max);
 	}
 
+	// Apply Angular
+	transform->AddRotate(rotate_value);
+	m_accel_angular =0;	// 초기화해줘야된다
+
+	// Apply Velocity
+	transform->AddPos(m_velocity * dt);
+	
+	constexpr float dump{0.9f};
+	m_velocity *= ( 1.0f -(dump* dt )) ;
+	m_velo_angular *=  ( 1.0f - (dump* dt));
+
 	// Get rid of too low velo & angular
 	constexpr float VELOCITY_EPSILON = 0.1f;
-	constexpr float ANGULAR_EPSILON = 0.05f;
+	constexpr float ANGULAR_EPSILON = 0.001f;
 
 	if ( abs(m_velocity.x )< VELOCITY_EPSILON ) {
 		m_velocity.x = 0;
@@ -46,14 +61,6 @@ void Rigidbody::Update(float dt)
 	if (std::abs(m_velo_angular) < ANGULAR_EPSILON){
 		m_velo_angular = 0;
 	}
-
-	// Apply Angular
-	auto rotate_value = m_velo_angular * dt;
-	transform->AddRotate(rotate_value);
-
-	m_velo_angular *= 0.9f;
-
-	transform->AddPos(m_velocity * dt);
 } 
 
 void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id, MTV _mtv, float dt)
@@ -69,6 +76,7 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
     auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
 
 	if (rigidbody_other && rigidbody_self){
+
 		// Set Move Ratio
 		// Compare Mass
 		auto mass_self = rigidbody_self->GetMass();
@@ -102,6 +110,7 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
  
 		// Get Friction
 		float fric = (rigidbody_self->GetFric() + rigidbody_other->GetFric()) / 2;
+		rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric );
 		
 		// Get Impulse
 		float velo_extract = Vec::Dot(relative_velo, direction);
@@ -111,11 +120,14 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 		}
 		else
 			j = -(1 + elastic) * velo_extract / ((1.0f / rigidbody_self->GetMass()) + (1.0f / rigidbody_other->GetMass()));
-		
+
+		std::cout << "J : " << j << std::endl;
+
 		// Get rid of too low j
-		if ( j < 100){
+		if ( j < 0.01f){
 			j =0;
 		}
+
 
 		// Get Impulse
 		Vec2 impulse = direction * abs(j) / mass_self;
@@ -139,10 +151,6 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 			if (vec_contact.size() == 1 ){
 				// coll by Dot 
 				angular_direction_self = vec_contact[0] - pos_self; // Dot 충돌이므로 다 self로 해도 상관없다.
-
-				// 점충돌일 때 좀 크게해줌
-				additional_torque = Vec::Dot(Vec::Normalize(angular_direction_self), Vec::Normal(direction));
-				additional_torque = (abs(additional_torque)+1 )*2.f;
 			}
 			else{
 				// coll by side
@@ -177,38 +185,45 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 			}
 
 			// Get Torque
-			float torque_self = Vec::Cross(angular_direction_self, impulse) * additional_torque;
+			float torque_self = Vec::Cross(angular_direction_self, impulse) * additional_torque * mass_self;
 			torque_self /= inertia;
 			
-			// Apply Torque
-			rigidbody_self->ApplyAngular(torque_self);
-			auto angular = rigidbody_self->GetAngularVelocity() * 0.9f;
+			// gravity torque
+			auto gravity_torque_drc = pos_self - vec_contact[0];
+			auto gravity_torque = Vec::Cross (gravity_torque_drc , rigidbody_self->GetGravity());
+			gravity_torque /= inertia;
 
-			// 안착된 상태 판정하기
-			if (vec_contact.size() == 1){
-				// Only in Dot Collision 
-				//torque_self *= ground_vec.second;
+			auto gravity_angular_dt = gravity_torque* dt;
 
-				if (ground_vec.second < 5.f && rigidbody_self->GetVelocity().x ==0 ){
-					// 지면과의 각도가 1도 이하라면 지면에 부착 
-					// x방향으로의 속도가 없으면 안착한 것임
-					// 멈춰버렷
-					angular = 0;
-					torque_self = 0; 
+			// 안착상태체크
+			if ( vec_contact.size() == 1 ) {
+				auto cur_angular_velo = rigidbody_self->GetAngularVelocity();
+				// 만약 중력 torque과 현재 각속도가 반대방향이면 중력 torque를 적용
+				if ( gravity_angular_dt * cur_angular_velo <0 ) 
+					torque_self+= gravity_torque;
 
-					auto cross = Vec::Cross(angular_direction_self, direction);
-					float rotate_drc{ cross / abs(cross)};
-					transform_self->AddRotate(Vec::GetRadian(ground_vec.second) * rotate_drc);
-				
-					rigidbody_self->AddForce(Vec::Reverse(rigidbody_self->GetGravity())*mass_self);
+				// 만약 중력 torque보다 현재 각속도가 반대방향이면서 힘도 적다면
+				if ( gravity_angular_dt * cur_angular_velo <= 0 && abs(gravity_angular_dt) > abs(cur_angular_velo )) {
+					// 안착된 상태 판정하기
+					if (ground_vec.second < 5.f ){
+						// 지면과의 각도가 1도 이하라면 지면에 부착 
+						// 안착시키고 회전을 무효처리한다.
+						torque_self = 0; 
+						gravity_torque = 0;
+						rigidbody_self->SetAngularVelocity(0);	// 현재 각속도를 무시
+
+						auto cross = Vec::Cross(angular_direction_self, direction);
+						float rotate_drc{ cross / abs(cross)};
+						transform_self->AddRotate(Vec::GetRadian(ground_vec.second) * rotate_drc);
+					}
 				}
 			}
-		
-			rigidbody_self->SetAngularVelocity(angular);
+
+			// Apply Torque ( Gravity is already applied )
+			rigidbody_self->ApplyAngular(torque_self);
 		}
 
-		// Apply Fric & impulse
-		rigidbody_self->SetVelocity(rigidbody_self->GetVelocity() * fric);
+		// Apply impulse
 		rigidbody_self->ApplyImpulse(impulse);
 	}
 }
@@ -335,6 +350,12 @@ std::vector<Vec2> GetCollisionCandidate(uint32_t self_entity_id, uint32_t other_
 	// Is Coll by Side?
 	Vec2 v1 = self_contact_candidates[0] - self_contact_candidates[1];
 	Vec2 v2 = other_contact_candidates[0] - other_contact_candidates[1];
+
+	if (abs( v1.x) < 0.0001f ) v1.x = 0;
+	if ( abs(v1.y) < 0.0001f ) v1.y = 0;
+	if ( abs(v2.x) < 0.0001f ) v2.x = 0;
+	if ( abs(v2.y) < 0.0001f ) v2.y = 0;
+
 	if (Vec::Dot(v1, v2) == 0 || Vec::Cross(v1, v2) == 0) {
 		coll_by_side = true;
 	} else {
