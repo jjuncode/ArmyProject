@@ -4,9 +4,5 @@
 
 class RectObject : public Object{
     public:
-        RectObject(Vec2 _pos,Vec2 _scale) : Object(_pos,_scale){
-            CreateVertex(_pos, _scale);
-        }
-
-        void CreateVertex(Vec2 _pos,Vec2 _scale) override;
+        RectObject(Vec2 _pos,Vec2 _scale) : Object(_pos,_scale){}
 };

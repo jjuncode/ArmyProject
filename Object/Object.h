@@ -42,11 +42,6 @@ class Object{
             cur_scene->AddScript<T>(std::move(script));
         }
 
-        // ======================
-        // Abstract Method 
-        // ======================
-        virtual void CreateVertex(Vec2 _pos,Vec2 _scale) = 0;
-
     private:
         virtual void Init(Vec2 _pos,Vec2 _scale);
 };

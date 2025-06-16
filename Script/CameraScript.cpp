@@ -47,7 +47,7 @@ void CameraScript::FollowTargetPos()
     camera_transform->SetPos(target_transform->GetPos());
 }
 
-constexpr Mat3 CameraScript::GetViewMatrix() const
+const Mat3 CameraScript::GetViewMatrix() const
 {
     auto transform = SceneMgr::GetComponent<TransformComponent>(m_target);
 

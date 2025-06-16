@@ -76,9 +76,3 @@ std::ostream &operator<<(std::ostream &os, const Mat3 &mat)
     os << "[" << mat[2] << "]\n";
     return os;
 }
-
-constexpr Vec2 Vec3::ConvertToVec2() const
-{
-    assert( z!= 0 );
-    return Vec2(x/z, y/z);
-}

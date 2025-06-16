@@ -27,5 +27,5 @@ class TransformComponent : public Component{
         Vec2 GetScale(){return m_scale;}
         void SetScale(const Vec2 _scale) { m_scale =_scale;}
 
-        constexpr Mat3 GetModelMatrix() const;
+        const Mat3 GetModelMatrix() const;
 };

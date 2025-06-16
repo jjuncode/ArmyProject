@@ -90,12 +90,18 @@ void ColliderComponent::Render()
     auto pos = transform->GetPos();
 
     // Camera Zoom in/out
-    auto scale_value = camera_script->GetZoomValue();
+    float scale_value = 1.0f;
+    if (camera_script) 
+        scale_value = camera_script->GetZoomValue();
 
     // pos scaling
     pos *= scale_value;
     auto resolution = Core::GetWindowSize();
-    auto camera_pos = (camera_transform->GetPos() * scale_value) - (resolution / 2);
+
+    Vec2 camera_pos = Vec2(0, 0);
+    if (camera_transform)
+        // Camera position
+        camera_pos = (camera_transform->GetPos() * scale_value) - (resolution / 2);
 
     auto render_pos = pos - camera_pos;
 

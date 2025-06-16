@@ -103,8 +103,6 @@ struct Vec3{
         assert(index < 3);
         return scalr[index];
     }
-
-    constexpr Vec2 ConvertToVec2() const;
 };
 
 struct Mat3
@@ -149,7 +147,7 @@ struct RGBA{
     uint8_t b;
     uint8_t a;
 
-    RGBA(uint8_t _r = 255, uint8_t _g = 255, uint8_t _b = 255, uint8_t _a = 255)
+    RGBA(uint8_t _r = 255u, uint8_t _g = 255u, uint8_t _b = 255u, uint8_t _a = 1)
         : r{_r}, g{_g}, b{_b}, a{_a} {}
 };
 
@@ -157,8 +155,8 @@ struct Vertex{
     Vec2 v;
     RGBA color;
 
-    Vertex(const Vec2& _v = Vec2(), const RGBA& _color = RGBA())
-        : v{_v}, color{_color} {}
+    Vertex(const Vec3& _v = Vec3(), const RGBA& _color = RGBA())
+        : v{_v.x , _v.y }, color{_color} {}
 };
 
 namespace Vec{

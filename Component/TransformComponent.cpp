@@ -19,7 +19,7 @@ void TransformComponent::AddRotate(float offset)
     }
 }
 
-constexpr Mat3 TransformComponent::GetModelMatrix() const
+const Mat3 TransformComponent::GetModelMatrix() const
 {
     // Create a transformation matrix
     Mat3 t{

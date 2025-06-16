@@ -22,5 +22,5 @@ class CameraScript : public Script {
 
         void FollowTargetPos();
 
-        constexpr Mat3 GetViewMatrix() const;
+        const Mat3 GetViewMatrix() const;
 };
