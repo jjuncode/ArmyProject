@@ -1,5 +1,6 @@
 #include "struct.h"
 #include <algorithm>
+#include "Core.h"
 
 float Vec::LengthSquare(Vec2 _vec)
 {
@@ -60,6 +61,18 @@ float Vec::GetDegree(Vec2 _v1, Vec2 _v2)
 float Vec::GetRadian(float _v)
 {
    return _v * (3.14159265f / 180.f);
+}
+
+Vec2 Vec::ConvertToScreenCoord(const Vec2 &vec)
+{
+    auto window = Core::GetWindowSize();
+    return Vec2(vec.x + window.x / 2, -vec.y + window.y / 2);
+}
+
+Vec2 Vec::ConvertToCartesian(const Vec2 &vec)
+{
+    auto window = Core::GetWindowSize();
+    return Vec2(vec.x+0.5f - window.x / 2.f, -(vec.y+0.5f) + window.y / 2.f);
 }
 
 std::ostream &operator<<(std::ostream &os, const Vec3 &vec)

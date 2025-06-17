@@ -103,6 +103,11 @@ struct Vec3{
         assert(index < 3);
         return scalr[index];
     }
+
+    Vec2 ToVec2() const {
+        assert(z!=0);
+        return Vec2(x/z, y/z);
+    }
 };
 
 struct Mat3
@@ -175,6 +180,9 @@ namespace Vec{
 
     float GetDegree(Vec2 _v1, Vec2 _v2);
     float GetRadian(float _v);
+
+    Vec2 ConvertToScreenCoord(const Vec2& vec);
+    Vec2 ConvertToCartesian(const Vec2& vec);
 }
 
 struct MTV{

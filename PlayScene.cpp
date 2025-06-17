@@ -27,7 +27,7 @@ void PlayScene::Init()
 
     int size = 200;
 
-    PlayerObject player{Vec2(400,400), Vec2(size,size)};
+    PlayerObject player{Vec2(0,0), Vec2(size,size)};
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
     player.SetScript<PlayerScript>();
