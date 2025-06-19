@@ -1,6 +1,5 @@
 #include "BoxScript.h"
 
-#include "../Component/TransformComponent.h"
 #include "../Component/ColliderComponent.h"
 #include "../Component/RigidbodyComponent.h"
 

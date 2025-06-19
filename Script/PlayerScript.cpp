@@ -1,6 +1,5 @@
 #include "PlayerScript.h"
 
-#include "../Component/TransformComponent.h"
 #include "../Component/ColliderComponent.h"
 #include "../Component/RigidbodyComponent.h"
 
@@ -15,12 +14,12 @@ void PlayerScript::Execute(float dt)
     uint32_t player_jump{10};
     uint32_t player_rotate_speed{1};
 
-    auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
+    auto &transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
     auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
-    auto pos = transform->GetPos();
+    auto pos = transform.GetPos();
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
-        transform->AddPos(Vec2(-dt*player_speed,0));
+        transform.AddPos(Vec2(-dt*player_speed,0));
 
         if (rigidbody){
             rigidbody->SetVelocity(Vec2(0, rigidbody->GetVelocity().y));
@@ -29,7 +28,7 @@ void PlayerScript::Execute(float dt)
     }
 
     if (InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
-        transform->AddPos(Vec2(dt * player_speed, 0));
+        transform.AddPos(Vec2(dt * player_speed, 0));
 
         if (rigidbody){
             rigidbody->SetVelocity(Vec2(0, rigidbody->GetVelocity().y));
@@ -38,7 +37,7 @@ void PlayerScript::Execute(float dt)
     }
 
     if (InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
-        transform->AddPos(Vec2(0, dt * player_speed));
+        transform.AddPos(Vec2(0, dt * player_speed));
         if (rigidbody){
             auto gravity = rigidbody->GetGravity();
 
@@ -49,11 +48,11 @@ void PlayerScript::Execute(float dt)
     }
 
     if (InputMgr::IsTap(sf::Keyboard::R) || InputMgr::IsHold(sf::Keyboard::R)){
-        transform->AddRotate(dt * player_rotate_speed);
+        transform.AddRotate(dt * player_rotate_speed);
     }
 
     if (InputMgr::IsTap(sf::Keyboard::Space)){
-        transform->AddPos(Vec2(0, 1));
+        transform.AddPos(Vec2(0, 1));
 
         if (rigidbody){
             rigidbody->ApplyImpulse(Vec::Reverse(rigidbody->GetGravity()));
@@ -63,7 +62,7 @@ void PlayerScript::Execute(float dt)
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::T)){
-        transform->AddRotate(Vec::GetRadian(45.f));
+        transform.AddRotate(Vec::GetRadian(45.f));
     }
 }
 

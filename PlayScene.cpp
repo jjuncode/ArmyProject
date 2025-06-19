@@ -8,7 +8,6 @@
 #include "Mgr/SceneMgr.h"
 #include "Mgr/CollisionMgr.h"
 
-#include "Component/TransformComponent.h"
 #include "Component/RigidbodyComponent.h"
 #include "Component/Mesh.h"
 #include "Component/Texture.h"
@@ -41,7 +40,7 @@ void PlayScene::Init()
     auto script = player->CreateScript<PlayerScript>();
     player->SetMesh("square");
     player->SetTexutre("player.png");
-    SceneMgr::GetCurScene().AddObject(std::move(player));
+    SceneMgr::AddObject(std::move(player));
 
     // Camera player_camera{player.GetEntityID()};
     // player_camera.SetScript<CameraScript>(player.GetEntityID());

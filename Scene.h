@@ -7,16 +7,16 @@
 class Scene
 {
 protected:
-	std::vector<std::shared_ptr<Component>> m_vec_component;
-	std::vector<std::shared_ptr<Script>> m_vec_script;	// script component vector
+	std::vector<std::shared_ptr<Component>> m_vec_component;	// Components
+	std::vector<std::shared_ptr<Script>> m_vec_script;			// Scripts
 	
 	uint32_t m_main_camear_id{};					// main camera id
 
 private:
 	std::vector<std::unique_ptr<Object>> m_vec_object;	// object vector
 
-	// Collision Entity Map
-	std::unordered_map<CollisionObjectType, std::list<uint32_t>> m_map_collision_entity;  
+	// Collision Object Map
+	std::unordered_map<CollisionObjectType, std::list<uint32_t>> m_map_collision_object;  
 
 	// Collision Layer
 	std::bitset<static_cast<std::size_t>(CollisionObjectType::kEND)>
@@ -42,28 +42,26 @@ public:
 	// ======================
 	void SetCollisionLayer(CollisionObjectType l_type, CollisionObjectType r_type, bool check);
 
-	const auto& GetCollisionLayer(){
-		return m_collision_layer;
-	}
+	const auto& GetCollisionLayer(){return m_collision_layer;}
 
-	const auto& GetCollisionEntity(uint32_t _type ){
+	const auto& GetCollisionObject(uint32_t _type ){
 		auto type = static_cast<CollisionObjectType>(_type);
-		return m_map_collision_entity[type];
+		return m_map_collision_object[type];
 	}
 
-	void AddCollisionEntity(CollisionObjectType _type, uint32_t entity_id){
-		auto& list = m_map_collision_entity[_type];
+	void AddCollisionObject(CollisionObjectType _type, uint32_t entity_id){
+		auto& list = m_map_collision_object[_type];
 		list.emplace_back(entity_id);
 	}
 
-	void DeleteCollisionEntity(CollisionObjectType _type, const uint32_t& entity_id) noexcept;
+	void DeleteCollisionObject(CollisionObjectType _type, const uint32_t& entity_id) noexcept;
 
 	// ================================
-	// Entity Method
+	// Object Method
 	// ================================
-public:
+protected:
 	void AddObject(std::unique_ptr<Object>&& _obj) noexcept;
-	const Object& GetObject(const uint32_t _obj_id) const noexcept{
+	Object& GetObject(const uint32_t _obj_id) const noexcept{
 		return *(m_vec_object[_obj_id].get());
 	}
 
@@ -76,15 +74,12 @@ public:
 	// ================================
 	// Component Method 
 	// ================================
-private:
 	template <typename T>
 	auto &AccessComponentMap()
 	{
 		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_component{};	// 각 자료형별 Component Map ( 순차적으로 되도록 Entity_id 로 저장 )
 		return map_component;
 	}
-
-public:
 	template<typename T>
 	void AddComponent(const std::shared_ptr<T>& _comp)
 	{
@@ -135,15 +130,12 @@ public:
 	// ==============================
 	// Script Method
 	// ==============================
-	private:
 	template <typename T>
 	auto &AccessScriptMap()
 	{
 		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_script{};
 		return map_script;
 	}
-
-	public:
 
 	template<typename T>
 	void AddScript(const std::shared_ptr<T>& _script){
@@ -207,4 +199,5 @@ public:
 		return m_main_camear_id;
 	}
 
+	friend class SceneMgr;
 };

@@ -2,25 +2,22 @@
 #include "SceneMgr.h"
 
 #include "../Component/ColliderComponent.h"
-#include "../Component/TransformComponent.h"
 
 void CollisionMgr::Collision(float dt)
 {
-    auto& cur_scene = SceneMgr::GetCurScene();
-
-    const auto& layer = cur_scene.GetCollisionLayer();
+    const auto& layer = SceneMgr::GetCollisionLayer();
     for (int i=0; i<static_cast<int>(CollisionObjectType::kEND); ++i){
         for (int j=i; j<static_cast<int>(CollisionObjectType::kEND); ++j){
             if ( layer[i][j] ){
                 // collision check
                 // that layer has to be collision
-                const auto& vec_entity_left = cur_scene.GetCollisionEntity(i);
-                const auto& vec_entity_right = cur_scene.GetCollisionEntity(j);
+                const auto& vec_object_left = SceneMgr::GetCollisionObject(i);
+                const auto& vec_object_right = SceneMgr::GetCollisionObject(j);
 
                 // not Same Group
                 if (i != j){
-                    for (const auto &left_id : vec_entity_left){
-                        for (const auto &right_id : vec_entity_right){
+                    for (const auto &left_id : vec_object_left){
+                        for (const auto &right_id : vec_object_right){
                             if (left_id == right_id)
                                 continue;
 
@@ -32,8 +29,8 @@ void CollisionMgr::Collision(float dt)
                 }
                 else{
                     // same group
-                    for (auto i = vec_entity_left.begin(); i != vec_entity_left.end(); ++i){
-                        for (auto j = i; j != vec_entity_left.end(); ++j){
+                    for (auto i = vec_object_left.begin(); i != vec_object_left.end(); ++i){
+                        for (auto j = i; j != vec_object_left.end(); ++j){
                             if (i == j)
                                 continue;
                             // id setting
@@ -55,7 +52,7 @@ void CollisionMgr::CollisionCheck(ColliderComponent *left_coll, ColliderComponen
 {
     // Only Activate Entity
     if (left_coll && right_coll){
-        if (SceneMgr::GetCurScene().IsActiveObject(left_coll->GetOwnerID()) || SceneMgr::GetCurScene().IsActiveObject(right_coll->GetOwnerID()))
+        if (SceneMgr::IsActiveObject(left_coll->GetOwnerID()) || SceneMgr::IsActiveObject(right_coll->GetOwnerID()))
             return;
         else{
             auto coll_info = CollisionLogic(left_coll, right_coll);
@@ -106,8 +103,8 @@ std::pair<bool, MTV>  CollisionMgr::CollisionLogic(ColliderComponent *left, Coll
 
 std::pair<bool, MTV>  CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
 {
-    auto transform_left = SceneMgr::GetComponent<TransformComponent>(left->GetOwnerID());
-    auto transform_right = SceneMgr::GetComponent<TransformComponent>(right->GetOwnerID());
+    auto& transform_left = SceneMgr::GetObject(left->GetOwnerID()).GetTransform();
+    auto& transform_right = SceneMgr::GetObject(right->GetOwnerID()).GetTransform();
 
     auto left_obb = left->GetOBB();
     auto right_obb = right->GetOBB();
@@ -123,7 +120,7 @@ std::pair<bool, MTV>  CollisionMgr::OBBCollision_Logic(ColliderComponent *left, 
         vec_unit = Vec::Normal(vec_unit);
         
         // center Proj vec
-        Vec2 center_vec = transform_left->GetPos() - transform_right->GetPos();
+        Vec2 center_vec = transform_left.GetPos() - transform_right.GetPos();
         Vec2 center_vec_proj= Vec::Projection(vec_unit,center_vec);   // right is fixed
 
         // Get Corner Proj Vec

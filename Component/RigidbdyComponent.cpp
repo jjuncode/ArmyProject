@@ -1,5 +1,5 @@
 #include "RigidbodyComponent.h"
-#include "TransformComponent.h"
+#include "../Object/Object.h"
 #include "ColliderComponent.h"
 
 #include "../Mgr/SceneMgr.h"
@@ -8,8 +8,8 @@
 
 void Rigidbody::Update(float dt)
 {
-    auto transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
-	auto pos = transform->GetPos();
+    auto& transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
+	auto pos = transform.GetPos();
 
 	if (IsFixed())
 		return;
@@ -37,11 +37,11 @@ void Rigidbody::Update(float dt)
 	}
 
 	// Apply Angular
-	transform->AddRotate(rotate_value);
+	transform.AddRotate(rotate_value);
 	m_accel_angular =0;	// 초기화해줘야된다
 
 	// Apply Velocity
-	transform->AddPos(m_velocity * dt);
+	transform.AddPos(m_velocity * dt);
 	
 	constexpr float dump{0.9f};
 	m_velocity *= ( 1.0f -(dump* dt )) ;
@@ -65,14 +65,14 @@ void Rigidbody::Update(float dt)
 
 void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_entity_id, MTV _mtv, float dt)
 {
-	auto transform_self = SceneMgr::GetComponent<TransformComponent>(self_entity_id);
+    auto& transform_self = SceneMgr::GetObject(self_entity_id).GetTransform();
 	auto rigidbody_self = SceneMgr::GetComponent<Rigidbody>(self_entity_id);
 	auto coll_self = SceneMgr::GetComponent<ColliderComponent>(self_entity_id);
 
 	if ( rigidbody_self->IsFixed() )
 		return;
 	
-    auto transform_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id);
+    auto& transform_other = SceneMgr::GetObject(other_entity_id).GetTransform();
     auto rigidbody_other = SceneMgr::GetComponent<Rigidbody>(other_entity_id);
 
 	if (rigidbody_other && rigidbody_self){
@@ -86,7 +86,7 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 
 		// Set MTV direction
 		Vec2 direction{};
-		auto pos_subtraction = transform_self->GetPos() - transform_other->GetPos();
+		auto pos_subtraction = transform_self.GetPos() - transform_other.GetPos();
 		if (Vec::Dot(pos_subtraction, _mtv.vec) < 0){
 			direction = Vec::Reverse(_mtv.vec);
 		}
@@ -102,7 +102,7 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 			dot += move_value;
 		
 		// Apply MTV
-		transform_self->AddPos(move_value);
+		transform_self.AddPos(move_value);
 
 		// Get Elasticity
 		Vec2 relative_velo = rigidbody_self->GetVelocity() - rigidbody_other->GetVelocity();
@@ -141,8 +141,8 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 			float inertia = (1.0f / 12.0f) * mass_self * (width_square + height_square);
 			auto ground_vec = Physic::GetGroundVec(obb.width_half, obb.height_half, vec_contact[0], direction);
 		
-			auto pos_self = transform_self->GetPos();
-			auto pos_other = transform_other->GetPos();
+			auto pos_self = transform_self.GetPos();
+			auto pos_other = transform_other.GetPos();
 			auto pos_center = (pos_self + pos_other) / 2;
 
 			Vec2 angular_direction_self{};
@@ -214,7 +214,7 @@ void Physic::ProcessPhysicCollision(uint32_t self_entity_id, uint32_t other_enti
 
 						auto cross = Vec::Cross(angular_direction_self, direction);
 						float rotate_drc{ cross / abs(cross)};
-						transform_self->AddRotate(Vec::GetRadian(ground_vec.second) * rotate_drc);
+						transform_self.AddRotate(Vec::GetRadian(ground_vec.second) * rotate_drc);
 					}
 				}
 			}
@@ -257,8 +257,11 @@ std::vector<Vec2> GetCollisionCandidate(uint32_t self_entity_id, uint32_t other_
 	auto coll_self = SceneMgr::GetComponent<ColliderComponent>(self_entity_id);
 	auto coll_other = SceneMgr::GetComponent<ColliderComponent>(other_entity_id);
 
-	Vec2 pos_self = SceneMgr::GetComponent<TransformComponent>(self_entity_id)->GetPos();
-	Vec2 pos_other = SceneMgr::GetComponent<TransformComponent>(other_entity_id)->GetPos();
+    auto& transform_self = SceneMgr::GetObject(self_entity_id).GetTransform();
+    auto& transform_other = SceneMgr::GetObject(other_entity_id).GetTransform();
+	
+	Vec2 pos_self = transform_self.GetPos();
+	Vec2 pos_other = transform_other.GetPos();
 	
 	bool coll_by_side{true};
 	

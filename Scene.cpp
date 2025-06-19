@@ -21,10 +21,9 @@ void Scene::Render()
 	auto window = Core::GetWindowContext();
 	window->clear();
 
-	for (const auto& comp : m_vec_component) {
-        if ( comp ) 
-            if (m_vec_object[comp->GetOwnerID()]->GetStatus() == ObjectStatus::kActive)
-                comp->Render();
+	for (const auto& obj : m_vec_object) {
+        if (obj->GetStatus() == ObjectStatus::kActive)
+            obj->Render();
 	}
 
 	window->display();
@@ -35,7 +34,7 @@ void Scene::Exit()
     m_vec_object.clear();
     m_vec_component.clear();
     m_vec_script.clear();
-    m_map_collision_entity.clear();
+    m_map_collision_object.clear();
     m_main_camear_id = -1;
     for (auto& layer : m_collision_layer) {
         layer.reset();
@@ -59,9 +58,9 @@ void Scene::SetCollisionLayer(CollisionObjectType l_type, CollisionObjectType r_
     m_collision_layer[row][col] = check;
 }
 
-void Scene::DeleteCollisionEntity(CollisionObjectType _type, const uint32_t &obj_id) noexcept
+void Scene::DeleteCollisionObject(CollisionObjectType _type, const uint32_t &obj_id) noexcept
 {
-    auto& list = m_map_collision_entity[_type];
+    auto& list = m_map_collision_object[_type];
 
     auto it = std::find(list.begin(), list.end(), obj_id);
     if (it != list.end()){

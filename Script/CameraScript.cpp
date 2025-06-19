@@ -1,5 +1,4 @@
 #include "CameraScript.h"
-#include "../Component/TransformComponent.h"
 
 #include "../Mgr/SceneMgr.h"
 #include "../Mgr/InputMgr.h"
@@ -35,28 +34,24 @@ void CameraScript::Execute(float dt)
 
 Vec2 CameraScript::GetMainCameraPos()
 {
-    auto camera_transform = SceneMgr::GetComponent<TransformComponent>(m_target);
-    return camera_transform->GetPos();
+    auto &camera_transform = SceneMgr::GetObject(m_target).GetTransform();
+    return camera_transform.GetPos();
 }
 
 void CameraScript::FollowTargetPos()
 {
-    auto target_transform = SceneMgr::GetComponent<TransformComponent>(m_target);
-    auto camera_transform = SceneMgr::GetComponent<TransformComponent>(GetOwnerID());
+    auto &target_transform = SceneMgr::GetObject(m_target).GetTransform();
+    auto& camera_transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
     
-    camera_transform->SetPos(target_transform->GetPos());
+    camera_transform.SetPos(target_transform.GetPos());
 }
 
 const Mat3 CameraScript::GetViewMatrix() const
 {
-    auto transform = SceneMgr::GetComponent<TransformComponent>(m_target);
+    auto& transform = SceneMgr::GetObject(m_target).GetTransform();
 
-    if (!transform) {
-        return Mat3();
-    }
-
-    Vec2 pos = transform->GetPos();
-    float rotate = transform->GetRotate();
+    Vec2 pos = transform.GetPos();
+    float rotate = transform.GetRotate();
 
     Mat3 t_inverse{
         Vec3(1, 0, -pos.x),

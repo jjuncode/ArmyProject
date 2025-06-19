@@ -3,15 +3,13 @@
 #include "../Core.h"
 #include <cmath>
 
-#include "TransformComponent.h"
 #include "../Script/CameraScript.h"
 
 std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision_status{};
 
 void ColliderComponent::Init()
 {
-    auto& cur_scene = SceneMgr::GetCurScene();
-    cur_scene.AddCollisionEntity(m_collision_type, GetOwnerID());
+    SceneMgr::AddCollisionObject(m_collision_type, GetOwnerID());
 }
 
 CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
@@ -74,20 +72,19 @@ void ColliderComponent::CollisionExit(uint32_t other_entity_id,MTV _mtv, float d
 
 ColliderComponent::~ColliderComponent()
 {
-   SceneMgr::GetCurScene().DeleteCollisionEntity(m_collision_type, GetOwnerID());
+   SceneMgr::DeleteCollisionObject(m_collision_type, GetOwnerID());
 }
 
 void ColliderComponent::Render()
 {
     // OBB Render
-    auto id_owner = GetOwnerID();	// self id
-	auto transform = SceneMgr::GetComponent<TransformComponent>(id_owner);
+    auto& transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
 
 	auto camera_id = SceneMgr::GetMainCamera();
-	auto camera_transform = SceneMgr::GetComponent<TransformComponent>(camera_id);
+    auto& camera_transform = SceneMgr::GetObject(camera_id).GetTransform();
 	auto camera_script = SceneMgr::GetScript<CameraScript>(camera_id);
 
-    auto pos = transform->GetPos();
+    auto pos = transform.GetPos();
 
     // Camera Zoom in/out
     float scale_value = 1.0f;
@@ -99,9 +96,7 @@ void ColliderComponent::Render()
     auto resolution = Core::GetWindowSize();
 
     Vec2 camera_pos = Vec2(0, 0);
-    if (camera_transform)
-        // Camera position
-        camera_pos = (camera_transform->GetPos() * scale_value) - (resolution / 2);
+    camera_pos = (camera_transform.GetPos() * scale_value) - (resolution / 2);
 
     auto render_pos = pos - camera_pos;
 

@@ -1,10 +1,11 @@
 #pragma once
 #include <vector>
 #include <stack>
+#include <memory>
 #include "../struct.h"
 
-#include "../Component/Texture.h"
-#include "../Component/Mesh.h"
+#include "../Component/Transform.h"
+#include "../Component/Renderer.h"
 
 enum class CollisionObjectType {
     kPlayer = 0,
@@ -29,6 +30,9 @@ private:
     std::string m_name;
     ObjectStatus m_status;
 
+    std::unique_ptr<Transform> m_transform;
+    std::unique_ptr<Renderer> m_renderer;
+
     std::size_t m_mesh_key;
     std::size_t m_texture_key;
 
@@ -38,12 +42,12 @@ private:
     
 
 public:
-
     void SetCollider(CollisionObjectType _type, Vec2 _size);
 
     const uint32_t GetObjectID() const { return m_id; }
-
     const auto& GetStatus() const { return m_status; }
+    auto& GetTransform() { return *(m_transform.get()); }
+    void Render() const;
 
     static void DeadID(int _id);
 
@@ -72,8 +76,8 @@ public:
     void SetTexutre(std::string &&_name);
     void SetMesh(std::string &&_name);
 
-    const auto &GetTexture() { return Texture::GetTexture(m_texture_key); };
-    const Mesh &GetMesh() { return Mesh::GetMesh(m_mesh_key); };
+    const auto &GetTextureKey() { return m_texture_key; };
+    const auto &GetMeshKey() { return m_mesh_key; };
 
 private:
     virtual void Init(Vec2 _pos, Vec2 _scale);
