@@ -122,7 +122,7 @@ public:
 		auto& map = AccessComponentMap<T>();
 		map[owner_id] = _comp;
 		m_map_entity_components_id[owner_id].emplace_back(idx);
-	}	
+	}
 
 	template<typename T>
 	std::shared_ptr<T> GetComponent(const uint32_t& _owner_id){

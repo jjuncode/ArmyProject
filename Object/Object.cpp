@@ -4,6 +4,23 @@
 #include "../Component/RenderComponent.h"
 #include "../Component/TransformComponent.h"
 #include "../Component/ColliderComponent.h"
+#include "../Component/Texture.h"
+
+void Object::SetTexutre(std::string &&_name)
+{
+    m_texture_key = std::hash<std::string>()(std::move(_name));
+}
+
+void Object::SetMesh(std::string &&_name)
+{
+    m_mesh_key = std::hash<std::string>()(std::move(_name));
+}
+
+
+// const Mesh &Object::GetMesh()
+// {
+//     return Mesh();
+// }
 
 void Object::Init(Vec2 _pos, Vec2 _scale)
 {

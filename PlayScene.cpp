@@ -15,6 +15,7 @@
 #include "Component/TransformComponent.h"
 #include "Component/RigidbodyComponent.h"
 #include "Component/Mesh.h"
+#include "Component/Texture.h"
 
 #include "Script/CameraScript.h"
 #include "Script/PlayerScript.h"
@@ -27,11 +28,14 @@ void PlayScene::Init()
 
     int size = 200;
 
+    Texture::CreateTexture("player.png");
+
     PlayerObject player{Vec2(0,0), Vec2(size,size)};
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
     player.SetScript<PlayerScript>();
     player.AddComponent<Mesh>(Mesh::Square);
+    player.SetTexutre("player.png");
 
     // Camera player_camera{player.GetEntityID()};
     // player_camera.SetScript<CameraScript>(player.GetEntityID());

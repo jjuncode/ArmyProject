@@ -63,5 +63,6 @@
         "regex": "cpp",
         "iomanip": "cpp",
         "shared_mutex": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

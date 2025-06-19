@@ -22,6 +22,10 @@ struct Vec2
     // 복사 생성자
     Vec2(const Vec2& other): x{other.x}, y{other.y} {}
 
+    bool IsValid(){
+        return (x!= 0) && (y!= 0);
+    }
+
     Vec2 operator- (const Vec2& rhs){
         return Vec2(x-rhs.x, y-rhs.y);
     }
@@ -159,9 +163,16 @@ struct RGBA{
 struct Vertex{
     Vec2 v;
     RGBA color;
+    Vec2 uv;
 
-    Vertex(const Vec3& _v = Vec3(), const RGBA& _color = RGBA())
-        : v{_v.x , _v.y }, color{_color} {}
+    Vertex(const Vec3& _v = Vec3(), const RGBA& _color = RGBA(), const Vec2& _uv = Vec2())
+        : v{_v.x , _v.y }, color{_color}, uv{_uv} {}
+
+    bool IsUV(){
+        if ( uv.IsValid()) 
+            return true;
+        return false;
+    }
 };
 
 namespace Vec{

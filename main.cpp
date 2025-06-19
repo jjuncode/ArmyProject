@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Core.h"
+#include "Component/Texture.h"
 
 int main()
 {

@@ -44,6 +44,10 @@ class SceneMgr{
         }
         
         // =========================
+        // Resource Method 
+        // =========================
+
+        // =========================
         // Script Method
         // =========================
         // Get Script by Entity ID + Class Name 

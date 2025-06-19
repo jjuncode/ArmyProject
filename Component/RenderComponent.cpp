@@ -3,10 +3,11 @@
 #include "../Core.h"
 
 #include "../Mgr/SceneMgr.h"
+#include "../Script/CameraScript.h"
 
 #include "TransformComponent.h"
 #include "Mesh.h"
-#include "../Script/CameraScript.h"
+#include "Texture.h"
 
 void RenderComponent::Render()
 {
@@ -27,6 +28,12 @@ void RenderComponent::Render()
 	// auto scale_value = camera_script->GetZoomValue();
 	// auto camera_pos = (camera_script->GetMainCameraPos() * scale_value) - (resolution / 2);
 	// pos *= scale_value;
+
+	// =========================================== 
+	// 임시 코드
+	auto key = std::hash<std::string>()("player.png");
+	auto texture = Texture::GetTexture(key);
+	// =========================================== 
 
 	uint32_t triangle_count = mesh->GetIndexs().size() / 3;
 	auto vec_vertexs = mesh->GetVertexs();
@@ -91,13 +98,25 @@ void RenderComponent::Render()
 
 					auto mesh = Mesh::Square;
 
-					sf::Color color = sf::Color(
-						static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
-						static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
-						static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
-					sf::Vertex point[] = {
-						sf::Vertex(sf::Vector2f(frag.x, frag.y), color)};
-					window->draw(point, 1, sf::Points);
+					if ( v1.IsUV() ) {
+						// 한점만 있어도 다 있다는거니까 ㅇㅇ
+						Vec2 target_uv( v1.uv.x * one_minus_s_t + v2.uv.x * s + v3.uv.x * t,
+														   v1.uv.y * one_minus_s_t + v2.uv.y * s + v3.uv.y * t);
+						
+						sf::Vertex point[] = {
+							sf::Vertex(sf::Vector2f(frag.x, frag.y)
+							,texture.GetPixel(target_uv))};
+						window->draw(point, 1, sf::Points);
+					}
+					else{
+						sf::Color color = sf::Color(
+							static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
+							static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
+							static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
+						sf::Vertex point[] = {
+							sf::Vertex(sf::Vector2f(frag.x, frag.y), color)};
+						window->draw(point, 1, sf::Points);
+					}
 				}
 			}
 		}

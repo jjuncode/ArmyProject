@@ -4,10 +4,14 @@
 #include "../struct.h"
 #include "../Mgr/SceneMgr.h"
 #include "SFML/Graphics.hpp"
+#include "../Component/Texture.h"
+#include "../Component/Mesh.h"
 
 class Object{
     protected:
         Entity obj;
+        std::size_t m_mesh_key;
+        std::size_t m_texture_key;
 
     public:
         Object(Vec2 _pos,Vec2 _scale){
@@ -41,6 +45,12 @@ class Object{
             auto script = obj.SetScript<T>(std::forward<V>(params)...);
             cur_scene->AddScript<T>(std::move(script));
         }
+
+        void SetTexutre(std::string&& _name);
+        void SetMesh(std::string&& _name);
+
+        const auto& GetTexture(){ return Texture::GetTexture(m_texture_key);};
+        // const Mesh& GetMesh();
 
     private:
         virtual void Init(Vec2 _pos,Vec2 _scale);

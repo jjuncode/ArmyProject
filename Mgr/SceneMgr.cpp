@@ -1,5 +1,6 @@
 #include "SceneMgr.h"
 #include "../pch.h"
+#include "../Component/Texture.h"
 
 std::unique_ptr<Scene> SceneMgr::m_cur_scene{};
 
