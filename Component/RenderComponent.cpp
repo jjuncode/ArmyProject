@@ -16,10 +16,6 @@ void RenderComponent::Render()
 	
 	auto id_owner = GetOwnerID();	// self id
 	auto transform = SceneMgr::GetComponent<TransformComponent>(id_owner);
-	auto mesh = SceneMgr::GetComponent<Mesh>(id_owner);
-	if ( !transform || !mesh ) {
-		return; // If transform or mesh is not available, exit the function
-	}
 
 	// auto pos = transform ->GetPos();
 	
@@ -31,12 +27,20 @@ void RenderComponent::Render()
 
 	// =========================================== 
 	// 임시 코드
-	auto key = std::hash<std::string>()("player.png");
-	auto texture = Texture::GetTexture(key);
+	auto key_texture = std::hash<std::string>()("player.png");
+	auto texture = Texture::GetTexture(key_texture);
+
+	auto key_mesh = std::hash<std::string>()("square");
+	auto mesh = Mesh::GetMesh(key_mesh);
 	// =========================================== 
 
-	uint32_t triangle_count = mesh->GetIndexs().size() / 3;
-	auto vec_vertexs = mesh->GetVertexs();
+	if ( !transform || !mesh.IsValid() ) {
+		return; // If transform or mesh is not available, exit the function
+	}
+
+
+	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
+	auto vec_vertexs = mesh.GetVertexs();
 
 	auto model = transform->GetModelMatrix();
 	for ( auto& v : vec_vertexs){
@@ -44,9 +48,9 @@ void RenderComponent::Render()
 	}
 
 	for (int i =0; i < triangle_count; ++i ) {
-		auto v1 = vec_vertexs[mesh->GetIndexs()[i*3]];
-		auto v2 = vec_vertexs[mesh->GetIndexs()[i*3 + 1]];
-		auto v3 = vec_vertexs[mesh->GetIndexs()[i*3 + 2]];
+		auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
+		auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
+		auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
 	
 		std::array<Vertex, 3> tri {v1,v2,v3};
 	
@@ -95,8 +99,6 @@ void RenderComponent::Render()
 				if (s>=0.f && s<= 1.f && t>=0.f && t<=1.f
 					 && one_minus_s_t >= 0.f && one_minus_s_t <= 1.f) {
 					// Inside the triangle
-
-					auto mesh = Mesh::Square;
 
 					if ( v1.IsUV() ) {
 						// 한점만 있어도 다 있다는거니까 ㅇㅇ

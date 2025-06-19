@@ -1,12 +1,31 @@
 #include "Mesh.h"
 
-Mesh Mesh::Square { {
-    Vertex{ Vec3{ -0.5f, -0.5f, 0.0f }, RGBA{ 255, 0, 0 }, Vec2(0.125f, 0.75f) },
-    Vertex{ Vec3{  0.5f, -0.5f, 0.0f }, RGBA{ 0, 255, 0 },Vec2(0.25f, 0.75f) },
-    Vertex{ Vec3{  0.5f,  0.5f, 0.0f }, RGBA{ 0, 0, 255 }, Vec2(0.25f, 0.875f) },
-    Vertex{ Vec3{ -0.5f,  0.5f, 0.0f }, RGBA{ 255, 255, 255 }, Vec2(0.125f, 0.875f) }
-}, 
+std::unordered_map<std::size_t, std::unique_ptr<Mesh>> Mesh::map_meshes;
+
+
+void Mesh::CreateMesh(std::string&& _name
+            , std::vector<Vertex>&& _vec
+            ,std::vector<uint32_t>&& _idx)
 {
-    0, 1, 2, 
-    0, 2, 3
-}};
+    std::size_t key = std::hash<std::string>()(_name);
+    
+    if (map_meshes.find(key) != map_meshes.end()) {
+        std::cerr << "Mesh already exists: " << _name << std::endl;
+        return; // Mesh already exists
+    } else {
+        auto mesh = std::unique_ptr<Mesh>(new Mesh(std::move(_name), std::move(_vec), std::move(_idx)));
+        map_meshes[key] = std::move(mesh);
+        std::cout << "Creating mesh: " << _name << std::endl;
+    }
+}
+
+const Mesh &Mesh::GetMesh(std::size_t _key)
+{
+    if ( map_meshes.find(_key) != map_meshes.end()) {
+        auto p_mesh = map_meshes[_key].get();
+        return *(p_mesh);
+    }
+    else{
+        assert(false && "Mesh not found");
+    }
+}

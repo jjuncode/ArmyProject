@@ -50,7 +50,7 @@ class Object{
         void SetMesh(std::string&& _name);
 
         const auto& GetTexture(){ return Texture::GetTexture(m_texture_key);};
-        // const Mesh& GetMesh();
+        const Mesh& GetMesh(){ return Mesh::GetMesh(m_mesh_key);};
 
     private:
         virtual void Init(Vec2 _pos,Vec2 _scale);

@@ -16,12 +16,6 @@ void Object::SetMesh(std::string &&_name)
     m_mesh_key = std::hash<std::string>()(std::move(_name));
 }
 
-
-// const Mesh &Object::GetMesh()
-// {
-//     return Mesh();
-// }
-
 void Object::Init(Vec2 _pos, Vec2 _scale)
 {
     auto& cur_scene = SceneMgr::GetCurScene();

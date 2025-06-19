@@ -30,11 +30,23 @@ void PlayScene::Init()
 
     Texture::CreateTexture("player.png");
 
+    Mesh::CreateMesh( "square",
+    {
+        Vertex{ Vec3{ -0.5f, -0.5f, 0.0f }, RGBA{ 255, 0, 0 }, Vec2(0.125f, 0.75f) },
+        Vertex{ Vec3{  0.5f, -0.5f, 0.0f }, RGBA{ 0, 255, 0 },Vec2(0.25f, 0.75f) },
+        Vertex{ Vec3{  0.5f,  0.5f, 0.0f }, RGBA{ 0, 0, 255 }, Vec2(0.25f, 0.875f) },
+        Vertex{ Vec3{ -0.5f,  0.5f, 0.0f }, RGBA{ 255, 255, 255 }, Vec2(0.125f, 0.875f) }
+    }, 
+    {
+        0, 1, 2, 
+        0, 2, 3
+    });
+
     PlayerObject player{Vec2(0,0), Vec2(size,size)};
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
     player.SetScript<PlayerScript>();
-    player.AddComponent<Mesh>(Mesh::Square);
+    player.SetMesh("square");
     player.SetTexutre("player.png");
 
     // Camera player_camera{player.GetEntityID()};
