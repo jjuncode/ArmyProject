@@ -2,10 +2,6 @@
 #include "pch.h"
 #include "Core.h"
 
-#include "Object/Entity.h"
-#include "Object/RectObject.h"
-#include "Object/PlayerObject.h"
-#include "Object/Polygon.h"
 #include "Object/Camera.h"
 
 #include "Mgr/InputMgr.h"
@@ -23,9 +19,6 @@
 
 void PlayScene::Init()
 {
-    // GridObject grid;
-    // grid.Init(gird_offset);
-
     int size = 200;
 
     Texture::CreateTexture("player.png");
@@ -42,41 +35,36 @@ void PlayScene::Init()
         0, 2, 3
     });
 
-    PlayerObject player{Vec2(0,0), Vec2(size,size)};
+    auto player = Object::CreateObject(Vec2(0,0), Vec2(size,size));
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
-    player.SetScript<PlayerScript>();
-    player.SetMesh("square");
-    player.SetTexutre("player.png");
+    auto script = player->CreateScript<PlayerScript>();
+    player->SetMesh("square");
+    player->SetTexutre("player.png");
+    SceneMgr::GetCurScene().AddObject(std::move(player));
 
     // Camera player_camera{player.GetEntityID()};
     // player_camera.SetScript<CameraScript>(player.GetEntityID());
     // player_camera.SetMainCamera();
 
-    // Polygon poly3{1,Vec2(0,0), Vec2()};
-    // poly3.SetCollider(CollisionEntityType::kBox, Vec2(20000,10));
-    // poly3.SetScript<BoxScript>();
-    // // poly3.AddComponent<Rigidbody>(true);
-    // poly3.AddComponent<Mesh>(Mesh::Square);
-
-    SetCollisionLayer(CollisionEntityType::kPlayer, CollisionEntityType::kBox, true);
-    SetCollisionLayer(CollisionEntityType::kBox, CollisionEntityType::kBox, true);
+    SetCollisionLayer(CollisionObjectType::kPlayer, CollisionObjectType::kBox, true);
+    SetCollisionLayer(CollisionObjectType::kBox, CollisionObjectType::kBox, true);
 }
 
 void PlayScene::Update(float dt)
 {
     // Entity Update
-    for (const auto &entity : m_vec_component){
-        if (entity){
-            if (m_vec_entity_status[entity->GetOwnerID()] == EntityStatus::kActive)
-                entity->Update(dt);
+    for (const auto &comp : m_vec_component){
+        if (comp){
+            if (IsActiveObject(comp->GetOwnerID()))
+                comp->Update(dt);
         }
     }
     
     // Sciprt Execute
     for (const auto& script : m_vec_script){
         if(script){
-            if (m_vec_entity_status[script->GetOwnerID()] == EntityStatus::kActive)
+            if (IsActiveObject(script->GetOwnerID()))
             script->Execute(dt);
         }
     }

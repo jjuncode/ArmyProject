@@ -6,16 +6,16 @@
 
 void CollisionMgr::Collision(float dt)
 {
-    const auto& cur_scene = SceneMgr::GetCurScene();
+    auto& cur_scene = SceneMgr::GetCurScene();
 
-    const auto& layer = cur_scene->GetCollisionLayer();
-    for (int i=0; i<static_cast<int>(CollisionEntityType::kEND); ++i){
-        for (int j=i; j<static_cast<int>(CollisionEntityType::kEND); ++j){
+    const auto& layer = cur_scene.GetCollisionLayer();
+    for (int i=0; i<static_cast<int>(CollisionObjectType::kEND); ++i){
+        for (int j=i; j<static_cast<int>(CollisionObjectType::kEND); ++j){
             if ( layer[i][j] ){
                 // collision check
                 // that layer has to be collision
-                const auto& vec_entity_left = cur_scene->GetCollisionEntity(i);
-                const auto& vec_entity_right = cur_scene->GetCollisionEntity(j);
+                const auto& vec_entity_left = cur_scene.GetCollisionEntity(i);
+                const auto& vec_entity_right = cur_scene.GetCollisionEntity(j);
 
                 // not Same Group
                 if (i != j){
@@ -55,7 +55,7 @@ void CollisionMgr::CollisionCheck(ColliderComponent *left_coll, ColliderComponen
 {
     // Only Activate Entity
     if (left_coll && right_coll){
-        if (SceneMgr::GetCurScene()->GetEntityStatus(left_coll->GetOwnerID()) != EntityStatus::kActive || SceneMgr::GetCurScene()->GetEntityStatus(right_coll->GetOwnerID()) != EntityStatus::kActive)
+        if (SceneMgr::GetCurScene().IsActiveObject(left_coll->GetOwnerID()) || SceneMgr::GetCurScene().IsActiveObject(right_coll->GetOwnerID()))
             return;
         else{
             auto coll_info = CollisionLogic(left_coll, right_coll);

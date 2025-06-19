@@ -2,15 +2,7 @@
 #include "pch.h"
 #include "Component/Component.h"
 #include "Script/Script.h"
-#include "Object/Entity.h"
-
-enum class CollisionEntityType {
-    kPlayer = 0,
-    kBox,
-    
-    kEND
-};
-
+#include "Object/Object.h"
 
 class Scene
 {
@@ -18,22 +10,17 @@ protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;
 	std::vector<std::shared_ptr<Script>> m_vec_script;	// script component vector
 	
-	std::vector<EntityStatus> m_vec_entity_status;	// entity 상태 vector
 	uint32_t m_main_camear_id{};					// main camera id
-	
-	private:
-	// Entity Components Map
-	std::unordered_map<uint32_t, std::vector<uint32_t>> m_map_entity_components_id;	
-	
-	// Entity Scripts Vec
-	std::vector<int> m_vec_script_id;	// script id vector ( idx == entity id )
+
+private:
+	std::vector<std::unique_ptr<Object>> m_vec_object;	// object vector
 
 	// Collision Entity Map
-	std::unordered_map<CollisionEntityType, std::list<uint32_t>> m_map_collision_entity;  
+	std::unordered_map<CollisionObjectType, std::list<uint32_t>> m_map_collision_entity;  
 
 	// Collision Layer
-	std::bitset<static_cast<std::size_t>(CollisionEntityType::kEND)>
-	m_collision_layer[static_cast<uint32_t>(CollisionEntityType::kEND)];
+	std::bitset<static_cast<std::size_t>(CollisionObjectType::kEND)>
+	m_collision_layer[static_cast<uint32_t>(CollisionObjectType::kEND)];
 
 
 public:	
@@ -53,39 +40,38 @@ public:
 	// ======================
 	// Collision Func
 	// ======================
-	void SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_type, bool check);
+	void SetCollisionLayer(CollisionObjectType l_type, CollisionObjectType r_type, bool check);
 
 	const auto& GetCollisionLayer(){
 		return m_collision_layer;
 	}
 
 	const auto& GetCollisionEntity(uint32_t _type ){
-		auto type = static_cast<CollisionEntityType>(_type);
+		auto type = static_cast<CollisionObjectType>(_type);
 		return m_map_collision_entity[type];
 	}
 
-	void AddCollisionEntity(CollisionEntityType _type, uint32_t entity_id){
+	void AddCollisionEntity(CollisionObjectType _type, uint32_t entity_id){
 		auto& list = m_map_collision_entity[_type];
 		list.emplace_back(entity_id);
 	}
 
-	void DeleteCollisionEntity(CollisionEntityType _type, const uint32_t& entity_id) noexcept;
+	void DeleteCollisionEntity(CollisionObjectType _type, const uint32_t& entity_id) noexcept;
 
 	// ================================
 	// Entity Method
 	// ================================
 public:
-	void AddEntity(uint32_t _entity_id) noexcept;
-	
-	const auto& GetComponentsID(const uint32_t _owner_id){
-		return m_map_entity_components_id[_owner_id];
+	void AddObject(std::unique_ptr<Object>&& _obj) noexcept;
+	const Object& GetObject(const uint32_t _obj_id) const noexcept{
+		return *(m_vec_object[_obj_id].get());
 	}
 
-	EntityStatus GetEntityStatus(uint32_t entity_id ){
-		return m_vec_entity_status[entity_id];
+	bool IsActiveObject(uint32_t _obj_id) const noexcept{
+		return m_vec_object[_obj_id]->GetStatus() == ObjectStatus::kActive;
 	}
 
-	void DeleteEntity(uint32_t entity_id) noexcept;
+	void DeleteObject(uint32_t _obj_id) noexcept;
 
 	// ================================
 	// Component Method 
@@ -121,7 +107,6 @@ public:
 
 		auto& map = AccessComponentMap<T>();
 		map[owner_id] = _comp;
-		m_map_entity_components_id[owner_id].emplace_back(idx);
 	}
 
 	template<typename T>
@@ -135,9 +120,9 @@ public:
 			if ( !iter->second.expired()){
 				auto comp = iter->second.lock(); // 죽었는가 
 				auto id = comp->GetID();
-				if (m_vec_entity_status[_owner_id] == EntityStatus::kActive)
+				if (m_vec_object[_owner_id]->GetStatus() == ObjectStatus::kActive)
 					return comp;
-				else if (m_vec_entity_status[_owner_id] == EntityStatus::kDead)
+				else if (m_vec_object[_owner_id]->GetStatus() == ObjectStatus::kDead)
 					return nullptr;
 			}
 		}
@@ -181,17 +166,6 @@ public:
 
 		auto& map = AccessScriptMap<T>();
 		map[owner_id] = _script;
-
-
-		// size setting 
-		if (m_vec_script_id.capacity() <= owner_id)
-			m_vec_script_id.reserve(owner_id + 1 * 2);
-
-		// Fill Empty Space
-		while (m_vec_script_id.size() <= owner_id)
-			m_vec_script_id.emplace_back(-1);
-
-		m_vec_script_id[owner_id] = (idx);
 	}
 
 	std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
@@ -209,9 +183,9 @@ public:
 			if ( !iter->second.expired()){
 				auto script = iter->second.lock(); // 죽었는가 
 				auto id = script->GetID();
-				if (m_vec_entity_status[_owner_id] == EntityStatus::kActive)
+				if (m_vec_object[_owner_id]->GetStatus() == ObjectStatus::kActive)
 					return script;
-				else if (m_vec_entity_status[_owner_id] == EntityStatus::kDead)
+				else if (m_vec_object[_owner_id]->GetStatus() == ObjectStatus::kDead)
 					return nullptr;
 			}
 		}

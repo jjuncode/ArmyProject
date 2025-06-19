@@ -1,57 +1,81 @@
 #pragma once
 #include <vector>
-#include "Entity.h"
+#include <stack>
 #include "../struct.h"
-#include "../Mgr/SceneMgr.h"
-#include "SFML/Graphics.hpp"
+
 #include "../Component/Texture.h"
 #include "../Component/Mesh.h"
 
+enum class CollisionObjectType {
+    kPlayer = 0,
+    kBox,
+    
+    kEND
+};
+
+enum class ObjectStatus{
+	// Object 상태
+	kActive,	
+	kDeActive,
+	kDead,
+	END
+};
+
 class Object{
-    protected:
-        Entity obj;
-        std::size_t m_mesh_key;
-        std::size_t m_texture_key;
+private:
+    static std::stack<uint32_t> remain_id;
+    uint32_t m_id;
+    
+    std::string m_name;
+    ObjectStatus m_status;
 
-    public:
-        Object(Vec2 _pos,Vec2 _scale){
-            Init(_pos, _scale);
-        }
+    std::size_t m_mesh_key;
+    std::size_t m_texture_key;
 
-        Object(){
-            Init(Vec2(0,0), Vec2(0,0));
-        }
-        
-        void SetCollider(CollisionEntityType _type, Vec2 _size);
+    std::size_t m_script_id;
+    std::vector<uint32_t> m_vec_component_id; // component id vector
 
-        uint32_t GetEntityID() const noexcept{
-            return obj.GetEntityID();
-        }
+    
 
-        // Component Template
-        template <typename T, typename... V>
-        void AddComponent(V &&...params)
-        {
-            auto &cur_scene = SceneMgr::GetCurScene();
-            auto comp = obj.AddComponent<T>(std::forward<V>(params)...);
-            cur_scene->AddComponent<T>(std::move(comp));
-        }
+public:
 
-        // Script Template
-        template <typename T, typename... V>
-        void SetScript(V &&...params)
-        {
-            auto &cur_scene = SceneMgr::GetCurScene();
-            auto script = obj.SetScript<T>(std::forward<V>(params)...);
-            cur_scene->AddScript<T>(std::move(script));
-        }
+    void SetCollider(CollisionObjectType _type, Vec2 _size);
 
-        void SetTexutre(std::string&& _name);
-        void SetMesh(std::string&& _name);
+    const uint32_t GetObjectID() const { return m_id; }
 
-        const auto& GetTexture(){ return Texture::GetTexture(m_texture_key);};
-        const Mesh& GetMesh(){ return Mesh::GetMesh(m_mesh_key);};
+    const auto& GetStatus() const { return m_status; }
 
-    private:
-        virtual void Init(Vec2 _pos,Vec2 _scale);
+    static void DeadID(int _id);
+
+    static std::unique_ptr<Object> CreateObject(Vec2 _pos = Vec2(), Vec2 _scale = Vec2()) {
+        return std::unique_ptr<Object>(new Object(_pos, _scale));
+    }
+
+    // Component Template
+    template<typename T, typename... V>
+	std::unique_ptr<T> CreateComponent(V&&... params)
+	{
+		std::unique_ptr<T> comp{std::make_unique<T>(std::forward<V>(params)...)};
+		comp->SetOwner(m_id);
+       return comp;
+    }
+
+	// Script Template 
+	template<typename T, typename... V>
+	std::unique_ptr<T> CreateScript(V&&... params)
+    {
+        std::unique_ptr<T> script{std::make_unique<T>(std::forward<V>(params)...)};
+        script->SetOwner(m_id);
+        return script;
+    }
+
+    void SetTexutre(std::string &&_name);
+    void SetMesh(std::string &&_name);
+
+    const auto &GetTexture() { return Texture::GetTexture(m_texture_key); };
+    const Mesh &GetMesh() { return Mesh::GetMesh(m_mesh_key); };
+
+private:
+    virtual void Init(Vec2 _pos, Vec2 _scale);
+    Object(Vec2 _pos = Vec2(), Vec2 _scale = Vec2());
 };

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Core.h"
-#include "Object/Entity.h"
 #include "Mgr/SceneMgr.h"
 #include "PlayScene.h"
 #include "Mgr/InputMgr.h"

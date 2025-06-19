@@ -6,7 +6,7 @@
 #include "SFML/Graphics.hpp"
 #include "../Mgr/SceneMgr.h"
 
-enum class CollisionEntityType;
+enum class CollisionObjectType;
 
 enum class CollisionStatus{
     kEnter,
@@ -44,11 +44,11 @@ struct OBB{
 class ColliderComponent : public Component {
     private:
         static std::unordered_map<uint64_t, CollisionStatus> m_map_collision_status;
-        CollisionEntityType m_collision_type;
+        CollisionObjectType m_collision_type;
         OBB m_obb; // OBB collision
         
 public:
-    ColliderComponent(CollisionEntityType _type, Vec2 _size) 
+    ColliderComponent(CollisionObjectType _type, Vec2 _size) 
         : m_collision_type(_type)
         , m_obb(_size)
         {}
@@ -68,7 +68,7 @@ public:
     CollisionStatus GetCollisionStatus(uint32_t coll_entity_id);
     void SetCollisionStatus(uint32_t coll_entity_id, CollisionStatus status);
 
-    CollisionEntityType GetCollisionType() const noexcept{
+    CollisionObjectType GetCollisionType() const noexcept{
         return m_collision_type;
     }
 

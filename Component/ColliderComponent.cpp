@@ -11,7 +11,7 @@ std::unordered_map<uint64_t, CollisionStatus> ColliderComponent::m_map_collision
 void ColliderComponent::Init()
 {
     auto& cur_scene = SceneMgr::GetCurScene();
-    cur_scene->AddCollisionEntity(m_collision_type, GetOwnerID());
+    cur_scene.AddCollisionEntity(m_collision_type, GetOwnerID());
 }
 
 CollisionStatus ColliderComponent::GetCollisionStatus(uint32_t coll_entity_id)
@@ -74,7 +74,7 @@ void ColliderComponent::CollisionExit(uint32_t other_entity_id,MTV _mtv, float d
 
 ColliderComponent::~ColliderComponent()
 {
-   SceneMgr::GetCurScene()->DeleteCollisionEntity(m_collision_type, GetOwnerID());
+   SceneMgr::GetCurScene().DeleteCollisionEntity(m_collision_type, GetOwnerID());
 }
 
 void ColliderComponent::Render()

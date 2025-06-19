@@ -21,9 +21,9 @@ class SceneMgr{
             m_cur_scene->Init();
         }
 
-        static std::unique_ptr<Scene> &GetCurScene()
+        static Scene& GetCurScene()
         {
-            return m_cur_scene;
+            return *(m_cur_scene.get());
         }
 
         // =========================
@@ -35,12 +35,8 @@ class SceneMgr{
             return m_cur_scene->GetComponent<T>(_owner_id);
         };
         
-        static const auto& GetComponentsID(const uint32_t& _owner_id){
-            return m_cur_scene->GetComponentsID(_owner_id);
-        }
-        
         static void DeleteComponent(uint32_t _comp_id) noexcept{
-            m_cur_scene ->DeleteComponent(_comp_id);
+            m_cur_scene->DeleteComponent(_comp_id);
         }
         
         // =========================
@@ -62,7 +58,7 @@ class SceneMgr{
         }
 
         static void DeleteScript(uint32_t _script_id) noexcept{
-            m_cur_scene ->DeleteScript(_script_id);
+            m_cur_scene->DeleteScript(_script_id);
         }
 
         static int GetScriptID(const uint32_t& _owner_id){
@@ -70,14 +66,14 @@ class SceneMgr{
         }
 
         // =========================
-        // Entity Method
+        // Object Method
         // =========================
-        static void AddEntity(uint32_t _entity_id ){
-            m_cur_scene->AddEntity(_entity_id);
+        static void AddObject(std::unique_ptr<Object>&& _obj) noexcept{
+            m_cur_scene->AddObject(std::move(_obj));
         }
 
-        static void DeleteEntity(uint32_t _id) noexcept{
-            m_cur_scene->DeleteEntity(_id);
+        static void DeleteObject(uint32_t _id) noexcept{
+            m_cur_scene->DeleteObject(_id);
         }
 
         // =========================

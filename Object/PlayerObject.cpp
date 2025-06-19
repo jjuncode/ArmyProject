@@ -1,5 +1,0 @@
-#include "PlayerObject.h"
-#include "../Mgr/SceneMgr.h"
-#include "../Component/RenderComponent.h"
-#include "../Component/TransformComponent.h"
-#include "../Script/PlayerScript.h"

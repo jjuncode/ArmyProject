@@ -23,7 +23,7 @@ void Scene::Render()
 
 	for (const auto& comp : m_vec_component) {
         if ( comp ) 
-            if (m_vec_entity_status[comp->GetOwnerID()] == EntityStatus::kActive)
+            if (m_vec_object[comp->GetOwnerID()]->GetStatus() == ObjectStatus::kActive)
                 comp->Render();
 	}
 
@@ -32,19 +32,17 @@ void Scene::Render()
 
 void Scene::Exit()
 {
+    m_vec_object.clear();
     m_vec_component.clear();
     m_vec_script.clear();
-    m_vec_entity_status.clear();
-    m_map_entity_components_id.clear();
     m_map_collision_entity.clear();
-    m_vec_script_id.clear();
     m_main_camear_id = -1;
     for (auto& layer : m_collision_layer) {
         layer.reset();
     }
 }
 
-void Scene::SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_type, bool check)
+void Scene::SetCollisionLayer(CollisionObjectType l_type, CollisionObjectType r_type, bool check)
 {
     int row{};
     int col{};
@@ -61,16 +59,16 @@ void Scene::SetCollisionLayer(CollisionEntityType l_type, CollisionEntityType r_
     m_collision_layer[row][col] = check;
 }
 
-void Scene::DeleteCollisionEntity(CollisionEntityType _type, const uint32_t &entity_id) noexcept
+void Scene::DeleteCollisionEntity(CollisionObjectType _type, const uint32_t &obj_id) noexcept
 {
     auto& list = m_map_collision_entity[_type];
 
-    auto it = std::find(list.begin(), list.end(), entity_id);
+    auto it = std::find(list.begin(), list.end(), obj_id);
     if (it != list.end()){
         list.erase(it);
     }
 
-    std::cout << "DELETE Collision ENTITY ID : " << entity_id << std::endl;
+    std::cout << "DELETE Collision Object ID : " << obj_id << std::endl;
 }
 
 void Scene::DeleteComponent(uint32_t _comp_id) noexcept
@@ -89,47 +87,35 @@ void Scene::DeleteScript(uint32_t _script_id) noexcept
     m_vec_script[_script_id].reset();
 }
 
-void Scene::AddEntity(uint32_t _entity_id) noexcept
+void Scene::AddObject(std::unique_ptr<Object>&& _obj) noexcept
 {
-    // Entity Activate
-    if (m_vec_entity_status.capacity() <= _entity_id)
-        m_vec_entity_status.reserve( _entity_id + 1 * 2);
+	auto idx{_obj->GetObjectID()}; 
+    
+    // size setting
+    if (m_vec_object.capacity() <= idx)
+        m_vec_object.reserve(idx + 1 * 2);
 
-    if ( _entity_id < m_vec_entity_status.size()){
+    if (idx + 1 <= m_vec_object.size()){
         // 만약 넣으려는 요소가 앞쪽이라면
         // 기존것은 삭제되고 새로 대체된다.
-        m_vec_entity_status[_entity_id] = EntityStatus::kActive;
+        m_vec_object[idx] = std::move(_obj);
     }
     else{
         // 아니면 그냥 insert
-        m_vec_entity_status.emplace_back(EntityStatus::kActive);
+        m_vec_object.push_back(std::move(_obj));
     }
 }
 
-void Scene::DeleteEntity(uint32_t entity_id) noexcept
+void Scene::DeleteObject(uint32_t _obj_id) noexcept
 {
-    auto vec_components_id = GetComponentsID(entity_id);
-    auto script_id = GetScriptID(entity_id);
-
     // Delete Component
-    for (auto& id : vec_components_id){
-        DeleteComponent(id);
-    }
 
     // Delete Script
-    if ( Script::IsValid(script_id)){
-        DeleteScript(script_id);
-        m_vec_script_id[entity_id] = -1;
-    }
 
-    m_map_entity_components_id.erase(entity_id);
-    m_vec_entity_status[entity_id] = EntityStatus::kDead;
-    Entity::Dead(entity_id);	// Entity ID Reset
+    Object::DeadID(_obj_id);	// Entity ID Reset
 }
 
 int Scene::GetScriptID(const uint32_t& _owner_id)
 {
-    if ( m_vec_script_id.size() <= _owner_id)
-        return -1;
-    return m_vec_script_id[_owner_id];
+    return -1;
 }
