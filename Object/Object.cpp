@@ -1,8 +1,6 @@
 #include "Object.h"
 
 #include "../Mgr/SceneMgr.h"
-#include "../Component/ColliderComponent.h"
-#include "../Component/Texture.h"
 
 std::stack<uint32_t> Object::remain_id{};
 
@@ -57,10 +55,8 @@ void Object::Execute(float dt) const
     m_script->Execute(dt);
 }
 
-void Object::SetCollider(CollisionObjectType _type, Vec2 _size)
-{ 
-    auto&& collider = Component::CreateComponent<ColliderComponent>(_type, _size);
-    collider->Init();
-    m_vec_component_id.emplace_back(collider->GetID());
-    SceneMgr::AddComponent<ColliderComponent>(std::move(collider));
+void Object::SetComponentID(std::unique_ptr<Component> &_comp)
+{
+    _comp->SetOwner(m_id);
+    m_vec_component_id.emplace_back(_comp->GetID());
 }

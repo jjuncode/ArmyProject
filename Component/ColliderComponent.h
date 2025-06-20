@@ -51,7 +51,9 @@ public:
     ColliderComponent(CollisionObjectType _type, Vec2 _size) 
         : m_collision_type(_type)
         , m_obb(_size)
-        {}
+        {
+            Init();
+        }
     ~ColliderComponent();
 
     void Render() override;

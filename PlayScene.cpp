@@ -2,15 +2,11 @@
 #include "pch.h"
 #include "Core.h"
 
-#include "Object/Camera.h"
-
 #include "Mgr/InputMgr.h"
 #include "Mgr/SceneMgr.h"
 #include "Mgr/CollisionMgr.h"
 
 #include "Component/RigidbodyComponent.h"
-#include "Component/Mesh.h"
-#include "Component/Texture.h"
 
 #include "Script/CameraScript.h"
 #include "Script/PlayerScript.h"

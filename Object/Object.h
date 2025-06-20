@@ -4,9 +4,11 @@
 #include <memory>
 #include "../struct.h"
 
-#include "../Component/Transform.h"
-#include "../Component/Renderer.h"
+#include "Transform.h"
+#include "Renderer.h"
 #include "../Script/Script.h"
+
+class Component;
 
 enum class CollisionObjectType {
     kPlayer = 0,
@@ -43,7 +45,7 @@ public:
     void Render() const;
     void Execute(float dt) const;
 
-    void SetCollider(CollisionObjectType _type, Vec2 _size);
+    void SetComponentID(std::unique_ptr<Component>& _comp);
     void SetVisible(bool _visible) { m_renderer->SetVisible(_visible); }
     void SetTexutre(std::string &&_name);
     void SetMesh(std::string &&_name);
