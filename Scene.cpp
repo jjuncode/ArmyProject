@@ -33,7 +33,6 @@ void Scene::Exit()
 {
     m_vec_object.clear();
     m_vec_component.clear();
-    m_vec_script.clear();
     m_map_collision_object.clear();
     m_main_camear_id = -1;
     for (auto& layer : m_collision_layer) {
@@ -72,18 +71,7 @@ void Scene::DeleteCollisionObject(CollisionObjectType _type, const uint32_t &obj
 
 void Scene::DeleteComponent(uint32_t _comp_id) noexcept
 {
-    // ID reset
-    m_vec_component[_comp_id]->Delete();
-    // Really Delete
     m_vec_component[_comp_id].reset();
-}
-
-void Scene::DeleteScript(uint32_t _script_id) noexcept
-{
-    // ID reset
-    m_vec_script[_script_id]->Delete();
-	// Really Delete
-    m_vec_script[_script_id].reset();
 }
 
 void Scene::AddObject(std::unique_ptr<Object>&& _obj) noexcept
@@ -107,14 +95,18 @@ void Scene::AddObject(std::unique_ptr<Object>&& _obj) noexcept
 
 void Scene::DeleteObject(uint32_t _obj_id) noexcept
 {
+    auto& obj = m_vec_object[_obj_id];
+    
     // Delete Component
+    for ( auto& comp_id : obj->GetComponentsID()){
+        m_vec_component[comp_id].reset();
+    }
 
-    // Delete Script
-
-    Object::DeadID(_obj_id);	// Entity ID Reset
+    // Delete Object
+    m_vec_object[_obj_id].reset();
 }
 
-int Scene::GetScriptID(const uint32_t& _owner_id)
-{
-    return -1;
-}
+// int Scene::GetScriptID(const uint32_t& _owner_id)
+// {
+//     return -1;
+// }

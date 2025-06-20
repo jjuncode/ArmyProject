@@ -20,6 +20,7 @@ void Core::Init(int x, int y)
     view.setSize(m_window_size.x, m_window_size.y); 
     window.setView(view);
 
+    SceneMgr::LoadResource();
     SceneMgr::ChangeScene<PlayScene>();
 }
 
@@ -61,9 +62,6 @@ void Core::Loop()
             InputMgr::UpdateKeyState();
             InputMgr::UpdateMouseState();
 			time_acc -= time_frame;
-         SceneMgr::Render();
-
-
 		}
          SceneMgr::Render();
 

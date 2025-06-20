@@ -8,13 +8,11 @@ class Scene
 {
 protected:
 	std::vector<std::shared_ptr<Component>> m_vec_component;	// Components
-	std::vector<std::shared_ptr<Script>> m_vec_script;			// Scripts
+	std::vector<std::unique_ptr<Object>> m_vec_object;			// object vector
 	
 	uint32_t m_main_camear_id{};					// main camera id
 
 private:
-	std::vector<std::unique_ptr<Object>> m_vec_object;	// object vector
-
 	// Collision Object Map
 	std::unordered_map<CollisionObjectType, std::list<uint32_t>> m_map_collision_object;  
 
@@ -61,14 +59,8 @@ public:
 	// ================================
 protected:
 	void AddObject(std::unique_ptr<Object>&& _obj) noexcept;
-	Object& GetObject(const uint32_t _obj_id) const noexcept{
-		return *(m_vec_object[_obj_id].get());
-	}
-
-	bool IsActiveObject(uint32_t _obj_id) const noexcept{
-		return m_vec_object[_obj_id]->GetStatus() == ObjectStatus::kActive;
-	}
-
+	Object& GetObject(const uint32_t _obj_id) const noexcept{return *(m_vec_object[_obj_id].get());}
+	bool IsActiveObject(uint32_t _obj_id) const noexcept{return m_vec_object[_obj_id]->GetStatus() == ObjectStatus::kActive;}
 	void DeleteObject(uint32_t _obj_id) noexcept;
 
 	// ================================
@@ -81,7 +73,7 @@ protected:
 		return map_component;
 	}
 	template<typename T>
-	void AddComponent(const std::shared_ptr<T>& _comp)
+	void AddComponent(std::shared_ptr<T>&& _comp)
 	{
 		auto idx{_comp->GetID()}; 
 		auto owner_id{_comp->GetOwnerID()};
@@ -126,68 +118,6 @@ protected:
 	} 
 
 	void DeleteComponent(uint32_t _comp_id) noexcept;
-
-	// ==============================
-	// Script Method
-	// ==============================
-	template <typename T>
-	auto &AccessScriptMap()
-	{
-		static std::unordered_map<uint32_t, std::weak_ptr<T>> map_script{};
-		return map_script;
-	}
-
-	template<typename T>
-	void AddScript(const std::shared_ptr<T>& _script){
-		auto idx{_script->GetID()}; 
-		auto owner_id{_script->GetOwnerID()};
-
-		// size setting 
-		if (m_vec_script.capacity() <= idx)
-			m_vec_script.reserve(idx + 1 * 2);
-
-		if (idx + 1 <= m_vec_script.size()){
-			// 만약 넣으려는 요소가 앞쪽이라면
-			// 기존것은 삭제되고 새로 대체된다.
-			m_vec_script[idx] = _script;
-		}
-		else{
-			// 아니면 그냥 insert
-			m_vec_script.emplace_back(_script);
-		}
-
-		auto& map = AccessScriptMap<T>();
-		map[owner_id] = _script;
-	}
-
-	std::shared_ptr<Script>& GetScript(const uint32_t _script_id){
-		return m_vec_script[_script_id];
-	}
-	
-	template<typename T>
-	std::shared_ptr<T> GetScript(const uint32_t& _owner_id){
-		auto& map_script = AccessScriptMap<T>();
-
-		auto iter {map_script.find(_owner_id)};
-		if ( iter != map_script.end()){
-			// Find
-			
-			if ( !iter->second.expired()){
-				auto script = iter->second.lock(); // 죽었는가 
-				auto id = script->GetID();
-				if (m_vec_object[_owner_id]->GetStatus() == ObjectStatus::kActive)
-					return script;
-				else if (m_vec_object[_owner_id]->GetStatus() == ObjectStatus::kDead)
-					return nullptr;
-			}
-		}
-
-		return nullptr;
-	} 
-
-	int GetScriptID(const uint32_t& _owner_id);
-	
-	void DeleteScript(uint32_t _script_id) noexcept;
 
 	// ================================
 	// Camera Method 

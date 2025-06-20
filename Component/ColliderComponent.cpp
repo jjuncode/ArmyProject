@@ -45,28 +45,31 @@ void ColliderComponent::SetCollisionStatus(uint32_t coll_entity_id, CollisionSta
 
 void ColliderComponent::CollisionEnter(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto script_id = SceneMgr::GetScriptID(GetOwnerID());
+    auto& obj = SceneMgr::GetObject(GetOwnerID());
+    auto& script = obj.GetScript();
+    auto script_id = script.GetID();
     if ( Script::IsValid(script_id) ) {
-        auto script = SceneMgr::GetScript(script_id);
-        script->ExecuteCollEnter(other_entity_id, _mtv,dt);
+        script.ExecuteCollEnter(other_entity_id, _mtv,dt);
     }
 }
 
 void ColliderComponent::CollisionStay(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto script_id = SceneMgr::GetScriptID(GetOwnerID());
-    if ( Script::IsValid(script_id) ) {
-        auto script = SceneMgr::GetScript(script_id);
-        script->ExecuteCollStay(other_entity_id,  _mtv,dt);
+     auto& obj = SceneMgr::GetObject(GetOwnerID());
+    auto& script = obj.GetScript();
+    auto script_id = script.GetID();
+     if ( Script::IsValid(script_id) ) {
+        script.ExecuteCollStay(other_entity_id,  _mtv,dt);
     }
 }
 
 void ColliderComponent::CollisionExit(uint32_t other_entity_id,MTV _mtv, float dt)
 {
-    auto script_id = SceneMgr::GetScriptID(GetOwnerID());
+     auto& obj = SceneMgr::GetObject(GetOwnerID());
+    auto& script = obj.GetScript();
+    auto script_id = script.GetID();
     if ( Script::IsValid(script_id) ) {
-        auto script = SceneMgr::GetScript(script_id);
-        script->ExecuteCollExit(other_entity_id, _mtv, dt);
+        script.ExecuteCollExit(other_entity_id, _mtv, dt);
     }
 }
 
@@ -78,25 +81,26 @@ ColliderComponent::~ColliderComponent()
 void ColliderComponent::Render()
 {
     // OBB Render
-    auto& transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
+     auto& obj = SceneMgr::GetObject(GetOwnerID());
+    auto& transform = obj.GetTransform();
 
-	auto camera_id = SceneMgr::GetMainCamera();
-    auto& camera_transform = SceneMgr::GetObject(camera_id).GetTransform();
-	auto camera_script = SceneMgr::GetScript<CameraScript>(camera_id);
+	// auto camera_id = SceneMgr::GetMainCamera();
+    // auto& camera_transform = SceneMgr::GetObject(camera_id).GetTransform();
+	// auto camera_script = SceneMgr::GetScript<CameraScript>(camera_id);
 
     auto pos = transform.GetPos();
 
     // Camera Zoom in/out
     float scale_value = 1.0f;
-    if (camera_script) 
-        scale_value = camera_script->GetZoomValue();
+    // if (camera_script) 
+    //     scale_value = camera_script->GetZoomValue();
 
     // pos scaling
     pos *= scale_value;
     auto resolution = Core::GetWindowSize();
 
     Vec2 camera_pos = Vec2(0, 0);
-    camera_pos = (camera_transform.GetPos() * scale_value) - (resolution / 2);
+    // camera_pos = (camera_transform.GetPos() * scale_value) - (resolution / 2);
 
     auto render_pos = pos - camera_pos;
 

@@ -11,6 +11,8 @@
 
 void Renderer::Render()
 {
+	if ( !m_is_visible ) return;
+
  	auto window = Core::GetWindowContext();
 	auto resolution = Core::GetWindowSize();
 	
@@ -36,10 +38,8 @@ void Renderer::Render()
 	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
 	auto vec_vertexs = mesh.GetVertexs();
 
-	auto model = transform.GetModelMatrix();
-	for ( auto& v : vec_vertexs){
-		v.v = (model * v.v).ToVec2();
-	}
+	// Vertex Shader 
+	VertexShader(vec_vertexs, transform.GetModelMatrix());
 
 	for (int i =0; i < triangle_count; ++i ) {
 		auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
@@ -132,5 +132,12 @@ void Renderer::Render()
 
 		// window->draw(line, 6, sf::Lines);
 
+	}
+}
+
+void VertexShader(std::vector<Vertex> &_v, const Mat3 &_matrix)
+{
+	for (auto& v : _v ){
+		v.v = (_matrix * v.v).ToVec2();
 	}
 }

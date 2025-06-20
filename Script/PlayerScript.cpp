@@ -62,7 +62,10 @@ void PlayerScript::Execute(float dt)
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::T)){
-        transform.AddRotate(Vec::GetRadian(45.f));
+        static bool toogle{false};
+        SceneMgr::GetObject(GetOwnerID()).SetVisible(toogle);
+
+        toogle = !toogle;
     }
 }
 

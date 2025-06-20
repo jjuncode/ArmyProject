@@ -20,27 +20,15 @@ void PlayScene::Init()
 {
     int size = 200;
 
-    Texture::CreateTexture("player.png");
-
-    Mesh::CreateMesh( "square",
-    {
-        Vertex{ Vec3{ -0.5f, -0.5f, 0.0f }, RGBA{ 255, 0, 0 }, Vec2(0.125f, 0.75f) },
-        Vertex{ Vec3{  0.5f, -0.5f, 0.0f }, RGBA{ 0, 255, 0 },Vec2(0.25f, 0.75f) },
-        Vertex{ Vec3{  0.5f,  0.5f, 0.0f }, RGBA{ 0, 0, 255 }, Vec2(0.25f, 0.875f) },
-        Vertex{ Vec3{ -0.5f,  0.5f, 0.0f }, RGBA{ 255, 255, 255 }, Vec2(0.125f, 0.875f) }
-    }, 
-    {
-        0, 1, 2, 
-        0, 2, 3
-    });
-
     auto player = Object::CreateObject(Vec2(0,0), Vec2(size,size));
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
-    auto script = player->CreateScript<PlayerScript>();
+    auto script = Script::CreateScript<PlayerScript>();
+    player->SetScript(std::move(script));
     player->SetMesh("square");
     player->SetTexutre("player.png");
     SceneMgr::AddObject(std::move(player));
+    
 
     // Camera player_camera{player.GetEntityID()};
     // player_camera.SetScript<CameraScript>(player.GetEntityID());
@@ -61,11 +49,9 @@ void PlayScene::Update(float dt)
     }
     
     // Sciprt Execute
-    for (const auto& script : m_vec_script){
-        if(script){
-            if (IsActiveObject(script->GetOwnerID()))
-            script->Execute(dt);
-        }
+    for (const auto& obj : m_vec_object ){
+        if (IsActiveObject(obj->GetObjectID()))
+            obj->Execute(dt);
     }
 
     // Collision Check

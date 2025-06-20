@@ -1,5 +1,6 @@
 #include "Object.h"
 
+#include "../Mgr/SceneMgr.h"
 #include "../Component/ColliderComponent.h"
 #include "../Component/Texture.h"
 
@@ -13,6 +14,12 @@ void Object::SetTexutre(std::string &&_name)
 void Object::SetMesh(std::string &&_name)
 {
     m_mesh_key = std::hash<std::string>()(std::move(_name));
+}
+
+void Object::SetScript(std::unique_ptr<Script> &&_script)
+{
+    _script->SetOwner(m_id);
+    m_script = std::move(_script);
 }
 
 void Object::Init(Vec2 _pos, Vec2 _scale)
@@ -45,14 +52,15 @@ void Object::Render() const
     m_renderer->Render();
 }
 
-void Object::DeadID(int _id)
+void Object::Execute(float dt) const
 {
-    remain_id.push(_id);
+    m_script->Execute(dt);
 }
 
 void Object::SetCollider(CollisionObjectType _type, Vec2 _size)
 { 
-    auto collider = CreateComponent<ColliderComponent>(_type, _size);
+    auto&& collider = Component::CreateComponent<ColliderComponent>(_type, _size);
     collider->Init();
+    m_vec_component_id.emplace_back(collider->GetID());
     SceneMgr::AddComponent<ColliderComponent>(std::move(collider));
 }

@@ -21,6 +21,8 @@ class SceneMgr{
             m_cur_scene->Init();
         }
 
+        static void LoadResource();
+
         // =========================
         // Collision Method
         // =========================
@@ -34,25 +36,11 @@ class SceneMgr{
         // Component Method
         // =========================
         template <typename T>
-        static void AddComponent(std::shared_ptr<T>&& _comp){return m_cur_scene->AddComponent<T>(_comp);};
+        static void AddComponent(std::shared_ptr<T>&& _comp){m_cur_scene->AddComponent<T>(std::move(_comp));};
         template <typename T>
         static std::shared_ptr<T> GetComponent(const uint32_t &_owner_id){return m_cur_scene->GetComponent<T>(_owner_id);};
         static void DeleteComponent(uint32_t _comp_id) noexcept{m_cur_scene->DeleteComponent(_comp_id);}
         
-        // =========================
-        // Resource Method 
-        // =========================
-
-        // =========================
-        // Script Method
-        // =========================
-        // Get Script by Entity ID + Class Name 
-        template<typename T>
-        static std::shared_ptr<T> GetScript(const uint32_t &_owner_id){return m_cur_scene->GetScript<T>(_owner_id);};
-        static std::shared_ptr<Script> &GetScript(const uint32_t _script_id){return m_cur_scene->GetScript(_script_id);}
-        static void DeleteScript(uint32_t _script_id) noexcept{m_cur_scene->DeleteScript(_script_id);}
-        static int GetScriptID(const uint32_t& _owner_id){return m_cur_scene->GetScriptID(_owner_id);}
-
         // =========================
         // Object Method
         // =========================
