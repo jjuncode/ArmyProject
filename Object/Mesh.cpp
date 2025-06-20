@@ -26,6 +26,20 @@ const Mesh &Mesh::GetMesh(std::size_t _key)
         return *(p_mesh);
     }
     else{
-        assert(false && "Mesh not found");
+          if ( _key == NO_KEY ) {
+            // No Texture 
+            static Mesh default_mesh{"NULL"};  // 기본 mesh
+            return default_mesh;
+        }
+        else
+            assert(false && "Mesh not found");
     }
+}
+
+const bool Mesh::IsValid() const
+{
+    if ( m_name == "NULL" ){
+        return false;
+    }
+    return true;
 }

@@ -20,8 +20,10 @@ public:
 
     const sf::Color GetPixel(Vec2 _uv) const;
     const std::string &GetName() const { return m_name; };
+    const bool IsValid() const ;
 
 private:
     Texture(std::string &&_name);
     bool LoadImage(std::string &&_name);
 };
+

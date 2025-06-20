@@ -6,6 +6,9 @@
 std::unordered_map<std::size_t, std::unique_ptr<Texture>> Texture::map_textures;
 
 Texture::Texture(std::string &&_name)
+    :m_name{"NULL"}
+    ,m_image{}
+    ,m_vec_color{}
 {
     m_name = std::move(_name);
 
@@ -41,7 +44,13 @@ const Texture& Texture::GetTexture(const std::size_t& _key)
         return *(p_texture);
     }
     else{
-        assert(false && "Texture not found");
+        if ( _key == NO_KEY ) {
+            // No Texture 
+            static Texture default_texture{"NULL"};  // 기본 텍스처 객체
+            return default_texture;
+        }
+        else
+            assert(false && "Texture not found");
     }
 }
 
@@ -77,4 +86,12 @@ bool Texture::LoadImage(std::string &&_name)
         std::cout<<"Texutre Load SUCCESS!"<< std::endl;
         return true;
     }
+}
+
+const bool Texture::IsValid() const
+{
+    if ( m_name == "NULL" ){
+        return false;
+    }
+    return true;
 }

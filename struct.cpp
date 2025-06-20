@@ -75,6 +75,12 @@ Vec2 Vec::ConvertToCartesian(const Vec2 &vec)
     return Vec2(vec.x+0.5f - window.x / 2.f, -(vec.y+0.5f) + window.y / 2.f);
 }
 
+std::ostream &operator<<(std::ostream &os, const Vec2 &vec)
+{
+    os << vec.x << ", " << vec.y;
+    return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const Vec3 &vec)
 {
     os << vec.x << ", " << vec.y << ", " << vec.z;

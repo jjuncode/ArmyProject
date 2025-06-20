@@ -79,18 +79,10 @@ void Scene::AddObject(std::unique_ptr<Object>&& _obj) noexcept
 	auto idx{_obj->GetObjectID()}; 
     
     // size setting
-    if (m_vec_object.capacity() <= idx)
-        m_vec_object.reserve(idx + 1 * 2);
+    if (m_vec_object.size() <= idx)
+        m_vec_object.resize(idx + 1 * 2);
 
-    if (idx + 1 <= m_vec_object.size()){
-        // 만약 넣으려는 요소가 앞쪽이라면
-        // 기존것은 삭제되고 새로 대체된다.
-        m_vec_object[idx] = std::move(_obj);
-    }
-    else{
-        // 아니면 그냥 insert
-        m_vec_object.push_back(std::move(_obj));
-    }
+    m_vec_object[idx] = std::move(_obj);
 }
 
 void Scene::DeleteObject(uint32_t _obj_id) noexcept

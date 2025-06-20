@@ -1,6 +1,7 @@
 #include "PlayScene.h"
 #include "pch.h"
 #include "Core.h"
+#include "mymath.h"
 
 #include "Mgr/InputMgr.h"
 #include "Mgr/SceneMgr.h"
@@ -14,7 +15,7 @@
 
 void PlayScene::Init()
 {
-    int size = 200;
+    int size = 100;
 
     auto player = Object::CreateObject(Vec2(0,0), Vec2(size,size));
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
@@ -23,12 +24,25 @@ void PlayScene::Init()
     player->SetScript(std::move(script));
     player->SetMesh("square");
     player->SetTexutre("player.png");
-    SceneMgr::AddObject(std::move(player));
     
-
+    auto camera = Object::CreateObject();
+    auto script_camera = Script::CreateScript<CameraScript>(player->GetObjectID());
+    camera->SetVisible(false);
+    camera->SetScript(std::move(script_camera));
+    
+    for (int i=0; i<10; ++i){
+        auto pos = Vec2(GetRandomInt(0, 1600), GetRandomInt(0,1600));
+        auto obj = Object::CreateObject(pos, Vec2(size,size));
+        obj->SetMesh("square");
+        SceneMgr::AddObject(std::move(obj));
+    }
     // Camera player_camera{player.GetEntityID()};
     // player_camera.SetScript<CameraScript>(player.GetEntityID());
     // player_camera.SetMainCamera();
+    
+    SceneMgr::SetMainCamera(camera);
+    SceneMgr::AddObject(std::move(player));
+    SceneMgr::AddObject(std::move(camera));
 
     SetCollisionLayer(CollisionObjectType::kPlayer, CollisionObjectType::kBox, true);
     SetCollisionLayer(CollisionObjectType::kBox, CollisionObjectType::kBox, true);

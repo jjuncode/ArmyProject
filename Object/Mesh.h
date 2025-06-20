@@ -14,7 +14,7 @@ private:
     static std::unordered_map<std::size_t, std::unique_ptr<Mesh>> map_meshes;
 
 public:
-    Mesh(const std::string& _name, const std::vector<Vertex>& _vec, const std::vector<uint32_t>& _idx)
+    Mesh(const std::string& _name, const std::vector<Vertex>& _vec = {}, const std::vector<uint32_t>& _idx = {})
         : m_name{_name}, m_vertexs{_vec} , m_indexs{_idx}{}
     Mesh(const Mesh& _mesh) :m_name{_mesh.m_name}, m_vertexs{_mesh.m_vertexs}, m_indexs{_mesh.m_indexs} {}
 
@@ -26,7 +26,5 @@ public:
 
     static const Mesh& GetMesh(std::size_t _key);
 
-    bool IsValid() const {
-        return !m_vertexs.empty() && !m_indexs.empty();
-    }
+    const bool IsValid() const;
 };

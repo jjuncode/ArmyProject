@@ -5,41 +5,34 @@
 #include "../Mgr/SceneMgr.h"
 #include "../Script/CameraScript.h"
 
-#include "../Object/Object.h"
+#include "Object.h"
 #include "Mesh.h"
 #include "Texture.h"
 
 void Renderer::Render()
 {
 	if ( !m_is_visible ) return;
-
- 	auto window = Core::GetWindowContext();
+	
+	auto window = Core::GetWindowContext();
 	auto resolution = Core::GetWindowSize();
 	
 	auto& obj = SceneMgr::GetObject(m_id_owner); 
 	auto& transform = obj.GetTransform();
-
-	// auto pos = transform ->GetPos();
-	
-	// auto camera_id = SceneMgr::GetMainCamera();
-	// auto camera_script = SceneMgr::GetScript<CameraScript>(camera_id);
-	// auto scale_value = camera_script->GetZoomValue();
-	// auto camera_pos = (camera_script->GetMainCameraPos() * scale_value) - (resolution / 2);
-	// pos *= scale_value;
-
 	auto texture = Texture::GetTexture(obj.GetTextureKey());
 	auto mesh = Mesh::GetMesh(obj.GetMeshKey());
-
+	
 	if ( !mesh.IsValid() ) {
 		return; // If transform or mesh is not available, exit the function
 	}
 
-
 	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
 	auto vec_vertexs = mesh.GetVertexs();
-
+	
+	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
+	auto view_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetViewMatrix();
+	auto model_matrix = transform.GetModelMatrix();
 	// Vertex Shader 
-	VertexShader(vec_vertexs, transform.GetModelMatrix());
+	VertexShader(vec_vertexs, view_matrix * model_matrix);
 
 	for (int i =0; i < triangle_count; ++i ) {
 		auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
@@ -94,7 +87,7 @@ void Renderer::Render()
 					 && one_minus_s_t >= 0.f && one_minus_s_t <= 1.f) {
 					// Inside the triangle
 
-					if ( v1.IsUV() ) {
+					if ( v1.IsUV() && texture.IsValid()) {
 						// 한점만 있어도 다 있다는거니까 ㅇㅇ
 						Vec2 target_uv( v1.uv.x * one_minus_s_t + v2.uv.x * s + v3.uv.x * t,
 														   v1.uv.y * one_minus_s_t + v2.uv.y * s + v3.uv.y * t);

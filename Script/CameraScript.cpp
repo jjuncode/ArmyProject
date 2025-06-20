@@ -7,48 +7,38 @@
 
 void CameraScript::Execute(float dt)
 {
-    FollowTargetPos();
-
-    if ( InputMgr::IsHold(sf::Keyboard::Equal)){
-        // Zoom in 
-        if ( m_zoom_value < m_zoom_max) 
-           m_zoom_value += m_zoom_speed * dt;
-        else {
-            m_zoom_value = m_zoom_max;
-        }    
-    }
-    else if ( InputMgr::IsHold(sf::Keyboard::Dash)){
-        // Zoom out
-        if ( m_zoom_value > m_zoom_min ){
-            m_zoom_value -= m_zoom_speed * dt;
-        }
-        else {
-            m_zoom_value = m_zoom_min;
-        }
-    }
-
-    if ( InputMgr::IsTap(sf::Keyboard::Num0)){
-        m_zoom_value = 1.0f;
-    }
+    FollowTargetPos(dt);
 }
 
 Vec2 CameraScript::GetMainCameraPos()
 {
-    auto &camera_transform = SceneMgr::GetObject(m_target).GetTransform();
+    auto &camera_transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
     return camera_transform.GetPos();
 }
 
-void CameraScript::FollowTargetPos()
+void CameraScript::FollowTargetPos(float dt)
 {
     auto &target_transform = SceneMgr::GetObject(m_target).GetTransform();
     auto& camera_transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
-    
-    camera_transform.SetPos(target_transform.GetPos());
+
+    auto target_pos = target_transform.GetPos();
+    auto camera_pos = camera_transform.GetPos();
+
+    auto distn = target_pos - camera_pos;
+    if ( Vec::LengthSquare(distn) < 1.f ) {
+        camera_pos = target_pos;
+    }
+    else{
+        auto dir = Vec::Normalize(distn);
+        camera_pos += dir* dt * m_speed;
+    }
+
+    camera_transform.SetPos(camera_pos);
 }
 
 const Mat3 CameraScript::GetViewMatrix() const
 {
-    auto& transform = SceneMgr::GetObject(m_target).GetTransform();
+    auto& transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
 
     Vec2 pos = transform.GetPos();
     float rotate = transform.GetRotate();

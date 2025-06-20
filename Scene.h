@@ -78,19 +78,11 @@ protected:
 		auto idx{_comp->GetID()}; 
 		auto owner_id{_comp->GetOwnerID()};
 
-		// size setting 
-		if (m_vec_component.capacity() <= idx)
-			m_vec_component.reserve(idx + 1 * 2);
+		  // size setting
+		if (m_vec_component.size() <= idx)
+			m_vec_component.resize(idx + 1 * 2);
 
-		if (idx + 1 <= m_vec_component.size()){
-			// 만약 넣으려는 요소가 앞쪽이라면
-			// 기존것은 삭제되고 새로 대체된다.
-			m_vec_component[idx] = _comp;
-		}
-		else{
-			// 아니면 그냥 insert
-			m_vec_component.emplace_back(_comp);
-		}
+		m_vec_component[idx] = std::move(_comp);
 
 		auto& map = AccessComponentMap<T>();
 		map[owner_id] = _comp;

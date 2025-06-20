@@ -14,7 +14,7 @@ class Script {
 public:
     void SetOwner(uint32_t _id) { m_owner_id = _id; }
 
-    uint32_t GetOwnerID() { return m_owner_id; }
+    const uint32_t GetOwnerID() const { return m_owner_id; }
     uint32_t GetID() { return m_id; }
     
     static bool IsValid(int _id) { return _id != -1; }

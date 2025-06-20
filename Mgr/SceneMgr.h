@@ -2,6 +2,7 @@
 #include <memory>
 #include "../Scene.h"
 #include "../Script/Script.h"
+#include "../Object/Object.h"
 
 class SceneMgr{
     private:
@@ -45,13 +46,13 @@ class SceneMgr{
         // Object Method
         // =========================
         static Object& GetObject(const uint32_t& _id ) noexcept{return m_cur_scene->GetObject(_id);}
-        static void AddObject(std::unique_ptr<Object>&& _obj) noexcept{m_cur_scene->AddObject(std::move(_obj));}
+        static void AddObject(std::unique_ptr<Object>&& _obj) noexcept{m_cur_scene->AddObject(std::move(_obj));}    // Muse be placed in the order they were created  
         static void DeleteObject(uint32_t _id) noexcept{m_cur_scene->DeleteObject(_id);}
 	    static bool IsActiveObject(uint32_t _obj_id) {return m_cur_scene->IsActiveObject(_obj_id);}
 
         // =========================
         // Camera Method
         // =========================
-        static void SetMainCamera(uint32_t _id) noexcept{m_cur_scene->SetMainCamera(_id);}
+        static void SetMainCamera(const std::unique_ptr<Object>& _obj) noexcept{m_cur_scene->SetMainCamera(_obj->GetObjectID());}
         static uint32_t GetMainCamera() noexcept{return m_cur_scene->GetMainCamera(); }
 };

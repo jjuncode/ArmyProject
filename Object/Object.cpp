@@ -23,13 +23,21 @@ void Object::SetScript(std::unique_ptr<Script> &&_script)
 void Object::Init(Vec2 _pos, Vec2 _scale)
 {
     m_transform = std::make_unique<Transform>();
+    m_transform->SetOwner(m_id);
     m_transform->SetPos(_pos);
     m_transform->SetScale(_scale);
 
     m_renderer = std::make_unique<Renderer>();
+    m_renderer->SetOwner(m_id);
 }
 
 Object::Object(Vec2 _pos, Vec2 _scale)
+        : m_status{ObjectStatus::kActive}
+        , m_transform{nullptr}
+        , m_renderer{nullptr}
+        , m_script{nullptr}
+        , m_mesh_key{NO_KEY}
+        , m_texture_key{NO_KEY}
 {
 	static uint id_cnt{};	
 
@@ -52,7 +60,8 @@ void Object::Render() const
 
 void Object::Execute(float dt) const
 {
-    m_script->Execute(dt);
+    if ( m_script)
+        m_script->Execute(dt);
 }
 
 void Object::SetComponentID(std::unique_ptr<Component> &_comp)

@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <iostream>
 
+static size_t NO_KEY{std::hash<std::string>()("NULL")};
+
 struct Vec2
 {
     union {
@@ -134,6 +136,7 @@ struct Mat3
     }
 };
 
+std::ostream& operator<<(std::ostream& os, const Vec2& vec);
 std::ostream& operator<<(std::ostream& os, const Vec3& vec);
 std::ostream& operator << ( std::ostream& os, const Mat3& mat);
 
