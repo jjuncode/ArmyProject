@@ -2,7 +2,6 @@
 
 std::unordered_map<std::size_t, std::unique_ptr<Mesh>> Mesh::map_meshes;
 
-
 void Mesh::CreateMesh(std::string&& _name
             , std::vector<Vertex>&& _vec
             ,std::vector<uint32_t>&& _idx)

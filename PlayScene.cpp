@@ -12,6 +12,7 @@
 #include "Script/CameraScript.h"
 #include "Script/PlayerScript.h"
 #include "Script/BoxScript.h"
+#include "Script/LightScript.h"
 
 void PlayScene::Init()
 {
@@ -33,12 +34,20 @@ void PlayScene::Init()
     for (int i=0; i<10; ++i){
         auto pos = Vec2(GetRandomInt(0, 1600), GetRandomInt(0,1600));
         auto obj = Object::CreateObject(pos, Vec2(size,size));
-        obj->SetMesh("square");
+        obj->SetMesh("circle");
+        obj->SetColor(sf::Color::Blue);
         SceneMgr::AddObject(std::move(obj));
     }
-    // Camera player_camera{player.GetEntityID()};
-    // player_camera.SetScript<CameraScript>(player.GetEntityID());
-    // player_camera.SetMainCamera();
+
+    auto light = Object::CreateObject(Vec2(0,0),Vec2(size,size));
+    auto script_light = Script::CreateScript<LightScript>(sf::Color::Red);
+    script_light->SetRange(400.f);
+    light->SetScript(std::move(script_light));
+    light->SetVisible(true);
+    light->SetMesh("circle");
+    light->SetColor(sf::Color::Red);
+    light->SetShading(false);
+    SceneMgr::AddLight(std::move(light));
     
     SceneMgr::SetMainCamera(camera);
     SceneMgr::AddObject(std::move(player));
@@ -60,8 +69,9 @@ void PlayScene::Update(float dt)
     
     // Sciprt Execute
     for (const auto& obj : m_vec_object ){
-        if (IsActiveObject(obj->GetObjectID()))
-            obj->Execute(dt);
+        if ( obj ) 
+            if (IsActiveObject(obj->GetObjectID()))
+                obj->Execute(dt);
     }
 
     // Collision Check

@@ -51,6 +51,8 @@ public:
     void SetMesh(std::string &&_name);
     void SetScript(std::unique_ptr<Script>&& _script);
     void SetComponentID(const uint32_t& _id) {m_vec_component_id.emplace_back(_id);}
+    void SetColor(sf::Color _color){ m_renderer->SetColor(_color); }
+    void SetShading(bool _v){ m_renderer->SetFragment(_v);}
 
     const uint32_t GetObjectID() const { return m_id; }
     const auto &GetStatus() const { return m_status; }

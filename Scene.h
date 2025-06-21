@@ -11,6 +11,7 @@ protected:
 	std::vector<std::unique_ptr<Object>> m_vec_object;			// object vector
 	
 	uint32_t m_main_camear_id{};					// main camera id
+	std::vector<uint32_t> m_vec_light_id;				// light vector 
 
 private:
 	// Collision Object Map
@@ -62,6 +63,8 @@ protected:
 	Object& GetObject(const uint32_t _obj_id) const noexcept{return *(m_vec_object[_obj_id].get());}
 	bool IsActiveObject(uint32_t _obj_id) const noexcept{return m_vec_object[_obj_id]->GetStatus() == ObjectStatus::kActive;}
 	void DeleteObject(uint32_t _obj_id) noexcept;
+	void AddLight(std::unique_ptr<Object>&& _obj) noexcept;
+	const auto& GetLightIDs() const noexcept{return m_vec_light_id;}
 
 	// ================================
 	// Component Method 

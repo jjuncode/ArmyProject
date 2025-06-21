@@ -4,6 +4,7 @@
 
 #include "../Mgr/SceneMgr.h"
 #include "../Script/CameraScript.h"
+#include "../Script/LightScript.h"
 
 #include "Object.h"
 #include "Mesh.h"
@@ -30,6 +31,7 @@ void Renderer::Render()
 	
 	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
 	auto view_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetViewMatrix();
+	auto view_matrix_inv = view_matrix.Inverse();
 	auto model_matrix = transform.GetModelMatrix();
 	// Vertex Shader 
 	VertexShader(vec_vertexs, view_matrix * model_matrix);
@@ -92,39 +94,25 @@ void Renderer::Render()
 						Vec2 target_uv( v1.uv.x * one_minus_s_t + v2.uv.x * s + v3.uv.x * t,
 														   v1.uv.y * one_minus_s_t + v2.uv.y * s + v3.uv.y * t);
 						
-						sf::Vertex point[] = {
-							sf::Vertex(sf::Vector2f(frag.x, frag.y)
-							,texture.GetPixel(target_uv))};
-						window->draw(point, 1, sf::Points);
+						sf::Vertex point {sf::Vector2f(frag.x, frag.y)
+											,texture.GetPixel(target_uv) + m_color};
+						if ( m_is_shading)
+							FragmentShader(point, transform.GetPos(),view_matrix_inv);
+						window->draw(&point, 1, sf::Points);
 					}
 					else{
 						sf::Color color = sf::Color(
 							static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
 							static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
 							static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
-						sf::Vertex point[] = {
-							sf::Vertex(sf::Vector2f(frag.x, frag.y), color)};
-						window->draw(point, 1, sf::Points);
+						sf::Vertex point{sf::Vector2f(frag.x, frag.y), color+ m_color};
+						if (m_is_shading)
+							FragmentShader(point, transform.GetPos(),view_matrix_inv);
+						window->draw(&point, 1, sf::Points);
 					}
 				}
 			}
 		}
-	
-		// auto view = camera_script->GetViewMatrix();
-
-		// sf::Vertex line[] = {
-		// 	sf::Vertex(sf::Vector2f(v1.v.x, v1.v.y), sf::Color::White),
-		// 	sf::Vertex(sf::Vector2f(v2.v.x, v2.v.y), sf::Color::White),
-			
-		// 	sf::Vertex(sf::Vector2f(v2.v.x, v2.v.y), sf::Color::White),
-		// 	sf::Vertex(sf::Vector2f(v3.v.x, v3.v.y), sf::Color::White),
-			
-		// 	sf::Vertex(sf::Vector2f(v3.v.x, v3.v.y), sf::Color::White),
-		// 	sf::Vertex(sf::Vector2f(v1.v.x, v1.v.y), sf::Color::White),
-		// };
-
-		// window->draw(line, 6, sf::Lines);
-
 	}
 }
 
@@ -132,5 +120,47 @@ void VertexShader(std::vector<Vertex> &_v, const Mat3 &_matrix)
 {
 	for (auto& v : _v ){
 		v.v = (_matrix * v.v).ToVec2();
+	}
+}
+
+void FragmentShader(sf::Vertex &_point, Vec2 pos_object, Mat3& _view_matrix_inv)
+{
+	Vec2 v{_point.position.x, _point.position.y};
+	v = (_view_matrix_inv * Vec::ConvertToCartesian(v)).ToVec2();
+
+	Vec2 v_normal = Vec::Normalize(v - pos_object);
+
+	auto& vec_light_id = SceneMgr::GetLightIDs();
+	for (const auto& light_id : vec_light_id){
+		auto& light = SceneMgr::GetObject(light_id);
+		auto light_script =  static_cast<LightScript*>(&light.GetScript());
+		
+		auto light_pos = light.GetTransform().GetPos();
+		auto light_dir = Vec::Normalize(light_pos - v);
+		auto light_color = light_script->GetLightColor();
+
+		auto shading = Vec::Dot(v_normal, light_dir);
+		shading = std::clamp(shading, 0.f, 1.f);
+
+		float distance = Vec::Length(light_pos - v);
+		float attenuation = std::clamp(1.f - distance / light_script->GetRange(), 0.f, 1.f);
+
+		// 감쇠 적용
+		shading *= attenuation;
+
+		sf::Color shading_light {
+			static_cast<sf::Uint8>(light_color.r * shading),
+			static_cast<sf::Uint8>(light_color.g * shading),
+			static_cast<sf::Uint8>(light_color.b * shading)
+		};
+
+		sf::Color shading_color {
+			static_cast<sf::Uint8>( _point.color.r * shading),
+			static_cast<sf::Uint8>( _point.color.g * shading),
+			static_cast<sf::Uint8>( _point.color.b * shading)
+		};
+
+		_point.color = shading_color + shading_light;
+		// _point.color += shading_light;
 	}
 }

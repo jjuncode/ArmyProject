@@ -49,6 +49,8 @@ class SceneMgr{
         static void AddObject(std::unique_ptr<Object>&& _obj) noexcept{m_cur_scene->AddObject(std::move(_obj));}    // Muse be placed in the order they were created  
         static void DeleteObject(uint32_t _id) noexcept{m_cur_scene->DeleteObject(_id);}
 	    static bool IsActiveObject(uint32_t _obj_id) {return m_cur_scene->IsActiveObject(_obj_id);}
+        static void AddLight(std::unique_ptr<Object>&& _obj) noexcept{m_cur_scene->AddLight(std::move(_obj));}
+        static const auto& GetLightIDs() noexcept {return m_cur_scene->GetLightIDs();}
 
         // =========================
         // Camera Method

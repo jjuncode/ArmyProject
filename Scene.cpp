@@ -22,9 +22,10 @@ void Scene::Render()
 	window->clear();
 
 	for (const auto& obj : m_vec_object) {
-        if (obj->GetStatus() == ObjectStatus::kActive)
-            obj->Render();
-	}
+        if ( obj )
+            if (obj->GetStatus() == ObjectStatus::kActive)
+                obj->Render();
+    }
 
 	window->display();
 }
@@ -96,6 +97,12 @@ void Scene::DeleteObject(uint32_t _obj_id) noexcept
 
     // Delete Object
     m_vec_object[_obj_id].reset();
+}
+
+void Scene::AddLight(std::unique_ptr<Object> &&_obj) noexcept
+{
+    m_vec_light_id.emplace_back(_obj->GetObjectID());
+    AddObject(std::move(_obj));
 }
 
 // int Scene::GetScriptID(const uint32_t& _owner_id)

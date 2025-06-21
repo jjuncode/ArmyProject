@@ -95,3 +95,37 @@ std::ostream &operator<<(std::ostream &os, const Mat3 &mat)
     os << "[" << mat[2] << "]\n";
     return os;
 }
+
+Mat3 Mat3::Inverse() const
+{
+    const Vec3& r0 = row[0];
+    const Vec3& r1 = row[1];
+    const Vec3& r2 = row[2];
+
+    float det =
+          r0.x * (r1.y * r2.z - r1.z * r2.y)
+        - r0.y * (r1.x * r2.z - r1.z * r2.x)
+        + r0.z * (r1.x * r2.y - r1.y * r2.x);
+
+    assert(std::abs(det) > 1e-6f && "Matrix is not invertible!");
+
+    float inv_det = 1.0f / det;
+
+    return Mat3(
+        Vec3(
+            (r1.y * r2.z - r1.z * r2.y) * inv_det,
+            (r0.z * r2.y - r0.y * r2.z) * inv_det,
+            (r0.y * r1.z - r0.z * r1.y) * inv_det
+        ),
+        Vec3(
+            (r1.z * r2.x - r1.x * r2.z) * inv_det,
+            (r0.x * r2.z - r0.z * r2.x) * inv_det,
+            (r0.z * r1.x - r0.x * r1.z) * inv_det
+        ),
+        Vec3(
+            (r1.x * r2.y - r1.y * r2.x) * inv_det,
+            (r0.y * r2.x - r0.x * r2.y) * inv_det,
+            (r0.x * r1.y - r0.y * r1.x) * inv_det
+        )
+    );
+}

@@ -134,6 +134,8 @@ struct Mat3
             Vec3(row[0][2], row[1][2], row[2][2])
         );
     }
+
+    [[nodiscard]] Mat3 Inverse() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Vec2& vec);
