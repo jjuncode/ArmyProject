@@ -2,12 +2,21 @@
 #include "../pch.h"
 #include "../Object/Texture.h"
 #include "../Object/Mesh.h"
+#include "../Object/Renderer.h"
+#include "InputMgr.h"
 
 std::unique_ptr<Scene> SceneMgr::m_cur_scene{};
 
 void SceneMgr::Update(float dt)
 {
     m_cur_scene->Update(dt);
+
+    if ( InputMgr::IsTap(sf::Keyboard::F1))
+        Renderer::SetDrawMode(DrawMode::kDefault_Shading);
+    else if (InputMgr::IsTap(sf::Keyboard::F2))
+        Renderer::SetDrawMode(DrawMode::kDefault_Shading_None);
+    else if (InputMgr::IsTap(sf::Keyboard::F3))
+        Renderer::SetDrawMode(DrawMode::kWireFrame);
 }
 
 void SceneMgr::Render()

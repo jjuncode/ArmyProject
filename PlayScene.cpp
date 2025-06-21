@@ -25,6 +25,7 @@ void PlayScene::Init()
     player->SetScript(std::move(script));
     player->SetMesh("square");
     player->SetTexutre("player.png");
+    player->SetColor(sf::Color::Yellow);
     
     auto camera = Object::CreateObject();
     auto script_camera = Script::CreateScript<CameraScript>(player->GetObjectID());
