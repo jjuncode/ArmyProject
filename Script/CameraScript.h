@@ -6,6 +6,10 @@ class CameraScript : public Script {
     private:
         uint32_t m_target;
         uint32_t m_speed{100};
+        uint32_t m_fov{60};
+        
+        float m_near{5.f};
+        float m_far{5000.f}; 
 
     public:
         CameraScript(uint32_t _target) : m_target(_target) {}
@@ -14,8 +18,9 @@ class CameraScript : public Script {
         void SetTarget(const uint32_t _target) { m_target = _target; }
         uint32_t GetTarget() { return m_target; }
         
-        Vec2 GetMainCameraPos();
+        Vec3 GetMainCameraPos();
 
         void FollowTargetPos(float dt);
-        const Mat3 GetViewMatrix() const;
+        const Mat4 GetViewMatrix() const;
+        const Mat4 GetProjectionMatrix() const;
 };

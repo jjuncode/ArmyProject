@@ -62,11 +62,11 @@ public:
     const auto &GetMeshKey() { return m_mesh_key; };
     const auto& GetComponentsID(){ return m_vec_component_id; }
 
-    static std::unique_ptr<Object> CreateObject(Vec2 _pos = Vec2(), Vec2 _scale = Vec2()) {
+    static std::unique_ptr<Object> CreateObject(Vec3 _pos = Vec3(), Vec3 _scale = Vec3()) {
         return std::unique_ptr<Object>(new Object(_pos, _scale));
     }
 
 private:
-    virtual void Init(Vec2 _pos, Vec2 _scale);
-    Object(Vec2 _pos = Vec2(), Vec2 _scale = Vec2());
+    virtual void Init(Vec3 _pos, Vec3 _scale);
+    Object(Vec3 _pos = Vec3(), Vec3 _scale = Vec3());
 };

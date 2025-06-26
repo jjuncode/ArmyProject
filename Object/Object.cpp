@@ -20,7 +20,7 @@ void Object::SetScript(std::unique_ptr<Script> &&_script)
     m_script = std::move(_script);
 }
 
-void Object::Init(Vec2 _pos, Vec2 _scale)
+void Object::Init(Vec3 _pos, Vec3 _scale)
 {
     m_transform = std::make_unique<Transform>();
     m_transform->SetOwner(m_id);
@@ -31,7 +31,7 @@ void Object::Init(Vec2 _pos, Vec2 _scale)
     m_renderer->SetOwner(m_id);
 }
 
-Object::Object(Vec2 _pos, Vec2 _scale)
+Object::Object(Vec3 _pos, Vec3 _scale)
         : m_status{ObjectStatus::kActive}
         , m_transform{nullptr}
         , m_renderer{nullptr}

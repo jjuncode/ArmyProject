@@ -34,5 +34,5 @@ public:
     void Render();
 };
 
-void VertexShader(std::vector<Vertex> &_v, const Mat3 &_matrix);
-void FragmentShader(sf::Vertex &_point, Vec2 pos_object, Mat3 &_view_matrix_inv);
+void VertexShader(std::vector<Vertex> &_v, const Mat4 &_matrix);
+void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4 &_view_matrix_inv);

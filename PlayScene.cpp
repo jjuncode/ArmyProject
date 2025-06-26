@@ -16,9 +16,10 @@
 
 void PlayScene::Init()
 {
-    int size = 100;
+    Vec3 size = Vec3(50,50,50);
 
-    auto player = Object::CreateObject(Vec2(0,0), Vec2(size,size));
+    auto player = Object::CreateObject(Vec3(0,0,-300), Vec3(size));
+  //  player->GetTransform().AddRotate(Vec3(45.f,45.f,45.f));
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
     auto script = Script::CreateScript<PlayerScript>();
@@ -31,24 +32,24 @@ void PlayScene::Init()
     auto script_camera = Script::CreateScript<CameraScript>(player->GetObjectID());
     camera->SetVisible(false);
     camera->SetScript(std::move(script_camera));
-    
-    for (int i=0; i<10; ++i){
-        auto pos = Vec2(GetRandomInt(0, 1600), GetRandomInt(0,1600));
-        auto obj = Object::CreateObject(pos, Vec2(size,size));
-        obj->SetMesh("circle");
-        obj->SetColor(sf::Color::Blue);
-        SceneMgr::AddObject(std::move(obj));
-    }
 
-    auto light = Object::CreateObject(Vec2(0,0),Vec2(size,size));
-    auto script_light = Script::CreateScript<LightScript>(sf::Color::Red);
-    script_light->SetRange(400.f);
-    light->SetScript(std::move(script_light));
-    light->SetVisible(true);
-    light->SetMesh("circle");
-    light->SetColor(sf::Color::Red);
-    light->SetShading(false);
-    SceneMgr::AddLight(std::move(light));
+    // for (int i=0; i<10; ++i){
+    //     auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(0,500));
+    //     auto obj = Object::CreateObject(pos, size);
+    //     obj->SetMesh("circle");
+    //     obj->SetColor(sf::Color::Blue);
+    //     SceneMgr::AddObject(std::move(obj));
+    // }
+
+    // auto light = Object::CreateObject(Vec3(0,150,0),size);
+    // auto script_light = Script::CreateScript<LightScript>(sf::Color::Red);
+    // script_light->SetRange(400.f);
+    // light->SetScript(std::move(script_light));
+    // light->SetVisible(true);
+    // light->SetMesh("circle");
+    // light->SetColor(sf::Color::Red);
+    // light->SetShading(false);
+    // SceneMgr::AddLight(std::move(light));
     
     SceneMgr::SetMainCamera(camera);
     SceneMgr::AddObject(std::move(player));

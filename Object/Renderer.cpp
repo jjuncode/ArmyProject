@@ -33,10 +33,11 @@ void Renderer::Render()
 	
 	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
 	auto view_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetViewMatrix();
+	auto projection_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetProjectionMatrix();
 	auto view_matrix_inv = view_matrix.Inverse();
 	auto model_matrix = transform.GetModelMatrix();
 	// Vertex Shader 
-	VertexShader(vec_vertexs, view_matrix * model_matrix);
+	VertexShader(vec_vertexs, projection_matrix * view_matrix * model_matrix);
 
 	if ( m_draw_mode != DrawMode::kWireFrame){
 		for (int i =0; i < triangle_count; ++i ) {
@@ -49,8 +50,8 @@ void Renderer::Render()
 			Vec2 min {std::min({v1.v.x, v2.v.x, v3.v.x}) , std::min({v1.v.y, v2.v.y, v3.v.y})};
 			Vec2 max {std::max({v1.v.x, v2.v.x, v3.v.x}) , std::max({v1.v.y, v2.v.y, v3.v.y})};
 		
-			Vec2 u = tri[1].v - tri[0].v;
-			Vec2 v = tri[2].v - tri[0].v;
+			Vec3 u = tri[1].v.ToVec3() - tri[0].v.ToVec3();
+			Vec3 v = tri[2].v.ToVec3() - tri[0].v.ToVec3();
 
 			// 공통분모
 			float udotv = Vec::Dot(u, v);
@@ -78,8 +79,8 @@ void Renderer::Render()
 				for (int y = screen_right_top.y; y <=screen_left_bot.y; ++y) {
 					Vec2 frag = Vec2(x, y);
 
-					Vec2 test_pt = Vec::ConvertToCartesian(frag);
-					Vec2 w = test_pt - tri[0].v;
+					Vec3 test_pt = Vec::ConvertToCartesian(Vec3(frag.x, frag.y, 0));
+					Vec3 w = test_pt - (tri[0].v).ToVec3();
 					float wdotu = Vec::Dot(w,u);
 					float wdotv = Vec::Dot(w,v);
 
@@ -125,19 +126,19 @@ void Renderer::Render()
 			auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
 			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
 
-			v1.v = Vec::ConvertToScreenCoord(v1.v);
-			v2.v = Vec::ConvertToScreenCoord(v2.v);
-			v3.v = Vec::ConvertToScreenCoord(v3.v);
+			Vec2 v1_screen = Vec::ConvertToScreenCoord(v1.v.ToVec3());
+			Vec2 v2_screen = Vec::ConvertToScreenCoord(v2.v.ToVec3());
+			Vec2 v3_screen = Vec::ConvertToScreenCoord(v3.v.ToVec3());
 
 			sf::Vertex lines[] = {
-				sf::Vertex(sf::Vector2f(v1.v.x, v1.v.y), m_color),
-				sf::Vertex(sf::Vector2f(v2.v.x, v2.v.y), m_color),
+				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), m_color),
+				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), m_color),
 
-				sf::Vertex(sf::Vector2f(v2.v.x, v2.v.y), m_color),
-				sf::Vertex(sf::Vector2f(v3.v.x, v3.v.y), m_color),
+				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), m_color),
+				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), m_color),
 
-				sf::Vertex(sf::Vector2f(v3.v.x, v3.v.y), m_color),
-				sf::Vertex(sf::Vector2f(v1.v.x, v1.v.y), m_color),
+				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), m_color),
+				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), m_color),
 			};
 
 			window->draw(lines, 6, sf::Lines);
@@ -145,51 +146,59 @@ void Renderer::Render()
 	}
 }
 
-void VertexShader(std::vector<Vertex> &_v, const Mat3 &_matrix)
+void VertexShader(std::vector<Vertex> &_v, const Mat4 &_matrix)
 {
+	auto resolution = Core::GetWindowSize();
+
 	for (auto& v : _v ){
-		v.v = (_matrix * v.v).ToVec2();
+		v.v = _matrix * v.v;
+	
+		// To NDC 
+		v.v = v.v / v.v.w;
+
+		v.v.x *= resolution.x * 0.5f;
+		v.v.y *= resolution.y * 0.5f;
 	}
 }
 
-void FragmentShader(sf::Vertex &_point, Vec2 pos_object, Mat3& _view_matrix_inv)
+void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4& _view_matrix_inv)
 {
-	Vec2 v{_point.position.x, _point.position.y};
-	v = (_view_matrix_inv * Vec::ConvertToCartesian(v)).ToVec2();
+	// Vec3 v{_point.position.x, _point.position.y, _point.position.z};
+	// v = (_view_matrix_inv * Vec::ConvertToCartesian(v)).ToVec3();
 
-	Vec2 v_normal = Vec::Normalize(v - pos_object);
+	// Vec3 v_normal = Vec::Normalize(v - pos_object);
 
-	auto& vec_light_id = SceneMgr::GetLightIDs();
-	for (const auto& light_id : vec_light_id){
-		auto& light = SceneMgr::GetObject(light_id);
-		auto light_script =  static_cast<LightScript*>(&light.GetScript());
+	// auto& vec_light_id = SceneMgr::GetLightIDs();
+	// for (const auto& light_id : vec_light_id){
+	// 	auto& light = SceneMgr::GetObject(light_id);
+	// 	auto light_script =  static_cast<LightScript*>(&light.GetScript());
 		
-		auto light_pos = light.GetTransform().GetPos();
-		auto light_dir = Vec::Normalize(light_pos - v);
-		auto light_color = light_script->GetLightColor();
+	// 	auto light_pos = light.GetTransform().GetPos();
+	// 	auto light_dir = Vec::Normalize(light_pos - v);
+	// 	auto light_color = light_script->GetLightColor();
 
-		auto shading = Vec::Dot(v_normal, light_dir);
-		shading = std::clamp(shading, 0.f, 1.f);
+	// 	auto shading = Vec::Dot(v_normal, light_dir);
+	// 	shading = std::clamp(shading, 0.f, 1.f);
 
-		float distance = Vec::Length(light_pos - v);
-		float attenuation = std::clamp(1.f - distance / light_script->GetRange(), 0.f, 1.f);
+	// 	float distance = Vec::Length(light_pos - v);
+	// 	float attenuation = std::clamp(1.f - distance / light_script->GetRange(), 0.f, 1.f);
 
-		// 감쇠 적용
-		shading *= attenuation;
+	// 	// 감쇠 적용
+	// 	shading *= attenuation;
 
-		sf::Color shading_light {
-			static_cast<sf::Uint8>(light_color.r * shading),
-			static_cast<sf::Uint8>(light_color.g * shading),
-			static_cast<sf::Uint8>(light_color.b * shading)
-		};
+	// 	sf::Color shading_light {
+	// 		static_cast<sf::Uint8>(light_color.r * shading),
+	// 		static_cast<sf::Uint8>(light_color.g * shading),
+	// 		static_cast<sf::Uint8>(light_color.b * shading)
+	// 	};
 
-		sf::Color shading_color {
-			static_cast<sf::Uint8>( _point.color.r * shading),
-			static_cast<sf::Uint8>( _point.color.g * shading),
-			static_cast<sf::Uint8>( _point.color.b * shading)
-		};
+	// 	sf::Color shading_color {
+	// 		static_cast<sf::Uint8>( _point.color.r * shading),
+	// 		static_cast<sf::Uint8>( _point.color.g * shading),
+	// 		static_cast<sf::Uint8>( _point.color.b * shading)
+	// 	};
 
-		_point.color = shading_color + shading_light;
-		// _point.color += shading_light;
-	}
+	// 	_point.color = shading_color + shading_light;
+	// 	// _point.color += shading_light;
+	// }
 }

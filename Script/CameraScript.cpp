@@ -7,10 +7,10 @@
 
 void CameraScript::Execute(float dt)
 {
-    FollowTargetPos(dt);
+   // FollowTargetPos(dt);
 }
 
-Vec2 CameraScript::GetMainCameraPos()
+Vec3 CameraScript::GetMainCameraPos()
 {
     auto &camera_transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
     return camera_transform.GetPos();
@@ -36,23 +36,50 @@ void CameraScript::FollowTargetPos(float dt)
     camera_transform.SetPos(camera_pos);
 }
 
-const Mat3 CameraScript::GetViewMatrix() const
+const Mat4 CameraScript::GetViewMatrix() const
 {
     auto& transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
 
-    Vec2 pos = transform.GetPos();
-    float rotate = transform.GetRotate();
+    auto pos = transform.GetPos();
 
-    Mat3 t_inverse{
-        Vec3(1, 0, -pos.x),
-        Vec3(0, 1, -pos.y),
-        Vec3(0, 0, 1),
-    };
-    Mat3 r_inverse{
-        Vec3(cos(rotate), sin(rotate), 0),
-        Vec3(-sin(rotate), cos(rotate), 0),
-        Vec3(0, 0, 1),
+    Mat4 t_inverse{
+        Vec4(1, 0, 0, -pos.x),
+        Vec4(0, 1, 0, -pos.y),
+        Vec4(0, 0, 1, -pos.z),
+        Vec4(0, 0, 0, 1),
     };
 
-    return r_inverse * t_inverse; // View Matrix
+    // Mat4 r_inverse{
+    //     Vec3(cos(rotate), sin(rotate), 0),
+    //     Vec3(-sin(rotate), cos(rotate), 0),
+    //     Vec3(0, 0, 1),
+    // };
+
+    // return r_inverse * t_inverse; // View Matrix
+    return t_inverse;
+}
+
+const Mat4 CameraScript::GetProjectionMatrix() const
+{
+    float focal_length = 1/tanf(Vec::GetRadian(m_fov * 0.5f));
+    auto window = Core::GetWindowSize();
+    auto aspect = window.x / window.y;
+
+    // Mat4 projection_matrix {
+    //     Vec4( focal_length/aspect, 0, 0, 0),
+    //     Vec4(0,  focal_length, 0, 0),
+    //     Vec4( 0, 0, -1, 0),
+    //     Vec4(0, 0, 0, 1)
+    // };
+
+    auto denom = m_near - m_far;
+
+    Mat4 projection_matrix {
+        Vec4( focal_length/aspect, 0, 0, 0),
+        Vec4(0,  focal_length, 0, 0),
+        Vec4( 0, 0, (m_near+m_far) / denom, 2*m_near*m_far / denom),
+        Vec4(0, 0, -1, 0)
+    };
+
+    return projection_matrix;
 }

@@ -103,58 +103,60 @@ std::pair<bool, MTV>  CollisionMgr::CollisionLogic(ColliderComponent *left, Coll
 
 std::pair<bool, MTV>  CollisionMgr::OBBCollision_Logic(ColliderComponent *left, ColliderComponent *right)
 {
-    auto& transform_left = SceneMgr::GetObject(left->GetOwnerID()).GetTransform();
-    auto& transform_right = SceneMgr::GetObject(right->GetOwnerID()).GetTransform();
+    return std::make_pair(true, MTV());
 
-    auto left_obb = left->GetOBB();
-    auto right_obb = right->GetOBB();
+    // auto& transform_left = SceneMgr::GetObject(left->GetOwnerID()).GetTransform();
+    // auto& transform_right = SceneMgr::GetObject(right->GetOwnerID()).GetTransform();
 
-    MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
+    // auto left_obb = left->GetOBB();
+    // auto right_obb = right->GetOBB();
 
-    std::vector<Vec2> vec_check{left_obb.width_half, left_obb.height_half
-                                , right_obb.width_half, right_obb.height_half};
+    // MTV mtv{Vec2{}, std::numeric_limits<float>::max()};
 
-    for(const auto& v : vec_check){
-        // standard vector
-        auto vec_unit = Vec::Normalize(v);
-        vec_unit = Vec::Normal(vec_unit);
+    // std::vector<Vec2> vec_check{left_obb.width_half, left_obb.height_half
+    //                             , right_obb.width_half, right_obb.height_half};
+
+    // for(const auto& v : vec_check){
+    //     // standard vector
+    //     auto vec_unit = Vec::Normalize(v);
+    //     vec_unit = Vec::Normal(vec_unit);
         
-        // center Proj vec
-        Vec2 center_vec = transform_left.GetPos() - transform_right.GetPos();
-        Vec2 center_vec_proj= Vec::Projection(vec_unit,center_vec);   // right is fixed
+    //     // center Proj vec
+    //     Vec2 center_vec = transform_left.GetPos() - transform_right.GetPos();
+    //     Vec2 center_vec_proj= Vec::Projection(vec_unit,center_vec);   // right is fixed
 
-        // Get Corner Proj Vec
-        // left projection
-        auto left_proj_width = Vec::Projection(vec_unit, left_obb.width_half);
-        auto left_proj_height = Vec::Projection(vec_unit, left_obb.height_half);
+    //     // Get Corner Proj Vec
+    //     // left projection
+    //     auto left_proj_width = Vec::Projection(vec_unit, left_obb.width_half);
+    //     auto left_proj_height = Vec::Projection(vec_unit, left_obb.height_half);
 
-        // right projection
-        auto right_proj_width = Vec::Projection(vec_unit, right_obb.width_half);
-        auto right_proj_height = Vec::Projection(vec_unit, right_obb.height_half);
+    //     // right projection
+    //     auto right_proj_width = Vec::Projection(vec_unit, right_obb.width_half);
+    //     auto right_proj_height = Vec::Projection(vec_unit, right_obb.height_half);
 
-        float corner_proj_left = Vec::Length(left_proj_width) +  Vec::Length(left_proj_height);
-        float corner_proj_right =  Vec::Length(right_proj_width) +  Vec::Length(right_proj_height);
-        float sum_corner = corner_proj_left + corner_proj_right;
+    //     float corner_proj_left = Vec::Length(left_proj_width) +  Vec::Length(left_proj_height);
+    //     float corner_proj_right =  Vec::Length(right_proj_width) +  Vec::Length(right_proj_height);
+    //     float sum_corner = corner_proj_left + corner_proj_right;
 
-        auto length = sqrt(Vec::LengthSquare(center_vec_proj)) - sum_corner;
+    //     auto length = sqrt(Vec::LengthSquare(center_vec_proj)) - sum_corner;
 
-        // Not Collision
-        if ( length >= 0){
-            return std::make_pair(false,MTV());
-        }
+    //     // Not Collision
+    //     if ( length >= 0){
+    //         return std::make_pair(false,MTV());
+    //     }
         
-        // Collision 
-        if (mtv.length > abs(length)){
-            mtv.length = abs(length);
+    //     // Collision 
+    //     if (mtv.length > abs(length)){
+    //         mtv.length = abs(length);
 
-            // Set MTV correct direction
-            auto result = Vec::Dot(vec_unit, center_vec_proj);
-            if ( result < 0 )
-                mtv.vec = Vec::Reverse(vec_unit);
-            else
-                mtv.vec = vec_unit;
-        }
-    }
+    //         // Set MTV correct direction
+    //         auto result = Vec::Dot(vec_unit, center_vec_proj);
+    //         if ( result < 0 )
+    //             mtv.vec = Vec::Reverse(vec_unit);
+    //         else
+    //             mtv.vec = vec_unit;
+    //     }
+    // }
 
-    return std::make_pair(true, mtv);
+    // return std::make_pair(true, mtv);
 }

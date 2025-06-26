@@ -96,40 +96,40 @@ void ColliderComponent::Render()
     //     scale_value = camera_script->GetZoomValue();
 
     // pos scaling
-    pos *= scale_value;
+    // pos *= scale_value;
     auto resolution = Core::GetWindowSize();
 
-    Vec2 camera_pos = Vec2(0, 0);
+    Vec3 camera_pos = Vec3();
     // camera_pos = (camera_transform.GetPos() * scale_value) - (resolution / 2);
 
     auto render_pos = pos - camera_pos;
 
-    Vec2 left_top = (Vec2(0,0)-m_obb.width_half  + m_obb.height_half ) * scale_value;
-    Vec2 right_bottom = ( m_obb.width_half - m_obb.height_half) * scale_value;
-    Vec2 right_top = ( m_obb.width_half + m_obb.height_half) * scale_value;
-    Vec2 left_bottom = (Vec2(0,0)-m_obb.width_half - m_obb.height_half) * scale_value;
+    // Vec2 left_top = (Vec2(0,0)-m_obb.width_half  + m_obb.height_half ) * scale_value;
+    // Vec2 right_bottom = ( m_obb.width_half - m_obb.height_half) * scale_value;
+    // Vec2 right_top = ( m_obb.width_half + m_obb.height_half) * scale_value;
+    // Vec2 left_bottom = (Vec2(0,0)-m_obb.width_half - m_obb.height_half) * scale_value;
 
-    left_top += render_pos;
-    right_bottom += render_pos;
-    right_top += render_pos;
-    left_bottom += render_pos;
+    // left_top += render_pos;
+    // right_bottom += render_pos;
+    // right_top += render_pos;
+    // left_bottom += render_pos;
 
-    sf::Vertex line[] = {
-        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), m_obb.m_color),
-        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y),        m_obb.m_color),
+    // sf::Vertex line[] = {
+    //     sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y), m_obb.m_color),
+    //     sf::Vertex(sf::Vector2f(left_top.x ,left_top.y),        m_obb.m_color),
 
-        sf::Vertex(sf::Vector2f(left_top.x ,left_top.y),        m_obb.m_color),
-        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y),      m_obb.m_color),
+    //     sf::Vertex(sf::Vector2f(left_top.x ,left_top.y),        m_obb.m_color),
+    //     sf::Vertex(sf::Vector2f(right_top.x ,right_top.y),      m_obb.m_color),
 
-        sf::Vertex(sf::Vector2f(right_top.x ,right_top.y),      m_obb.m_color),
-        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y),m_obb.m_color),
+    //     sf::Vertex(sf::Vector2f(right_top.x ,right_top.y),      m_obb.m_color),
+    //     sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y),m_obb.m_color),
 
-        sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y),m_obb.m_color),
-        sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y),  m_obb.m_color)
-    };
+    //     sf::Vertex(sf::Vector2f(right_bottom.x ,right_bottom.y),m_obb.m_color),
+    //     sf::Vertex(sf::Vector2f(left_bottom.x ,left_bottom.y),  m_obb.m_color)
+    // };
   
-    auto window = Core::GetWindowContext();
-    window->draw(line, 8, sf::Lines);
+    // auto window = Core::GetWindowContext();
+    // window->draw(line, 8, sf::Lines);
 }
 
 void ColliderComponent::Collision(uint32_t coll_entity_id, MTV _mtv, float dt)

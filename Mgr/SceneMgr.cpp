@@ -33,52 +33,99 @@ void SceneMgr::Exit()
 void SceneMgr::LoadResource()
 {
     Texture::CreateTexture("player.png");
+    Mesh::CreateMesh("square", {
+        // 앞면 (+Z) - 얼굴
+        // 테스트용 앞면 (UV 전체)
+        Vertex{{-0.5f, -0.5f,  0.5f}, {}, Vec2(0.0f, 0.0f)},
+        Vertex{{ 0.5f, -0.5f,  0.5f}, {}, Vec2(1.0f, 0.0f)},
+        Vertex{{ 0.5f,  0.5f,  0.5f}, {}, Vec2(1.0f, 1.0f)},
+        Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.0f, 1.0f)},
+        
+        // 뒷면 (-Z)
+        Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 0.75f)},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.5f,   0.75f)},
+        Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.5f,   0.875f)},
+        Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.375f, 0.875f)},
 
-    Mesh::CreateMesh( "square",
-    {
-        Vertex{ Vec3{ -0.5f, -0.5f, 0.0f }, RGBA{ 255, 0, 0 }, Vec2(0.125f, 0.75f) },
-        Vertex{ Vec3{  0.5f, -0.5f, 0.0f }, RGBA{ 0, 255, 0 },Vec2(0.25f, 0.75f) },
-        Vertex{ Vec3{  0.5f,  0.5f, 0.0f }, RGBA{ 0, 0, 255 }, Vec2(0.25f, 0.875f) },
-        Vertex{ Vec3{ -0.5f,  0.5f, 0.0f }, RGBA{ 255, 255, 255 }, Vec2(0.125f, 0.875f) }
-    }, 
-    {
-        0, 1, 2, 
-        0, 2, 3
+        // 왼쪽 (-X)
+        Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.0f,   0.75f)},
+        Vertex{{-0.5f, -0.5f,  0.5f}, {}, Vec2(0.125f, 0.75f)},
+        Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 0.875f)},
+        Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.0f,   0.875f)},
+
+        // 오른쪽 (+X)
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.25f,  0.75f)},
+        Vertex{{ 0.5f, -0.5f,  0.5f}, {}, Vec2(0.375f, 0.75f)},
+        Vertex{{ 0.5f,  0.5f,  0.5f}, {}, Vec2(0.375f, 0.875f)},
+        Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.25f,  0.875f)},
+
+        // 윗면 (+Y)
+        Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 1.0f)},
+        Vertex{{ 0.5f,  0.5f,  0.5f}, {}, Vec2(0.25f,  1.0f)},
+        Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.25f,  0.875f)},
+        Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.125f, 0.875f)},
+
+        // 아랫면 (-Y)
+        Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.25f,  0.75f)},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 0.75f)},
+        Vertex{{ 0.5f, -0.5f,  0.5f}, {}, Vec2(0.375f, 0.875f)},
+        Vertex{{-0.5f, -0.5f,  0.5f}, {}, Vec2(0.25f,  0.875f)},
+    }, {
+        0, 1, 2, 0, 2, 3,     // 앞 (+Z)
+        4, 5, 6, 4, 6, 7,     // 뒤 (-Z)
+        8, 9,10, 8,10,11,     // 왼 (-X)
+        12,13,14,12,14,15,   // 오 (+X)
+        16,17,18,16,18,19,   // 위 (+Y)
+        20,21,22,20,22,23    // 아래 (-Y)
     });
 
-    std::vector<Vertex> circleVertices;
-    std::vector<uint32_t> circleIndices;
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
 
-    const int segments = 32;
-    const float radius = 0.5f;
+    auto latitudeSegments = 16;
+    auto longitudeSegments = 32;
+    auto radius = 0.5f;
 
-    // 중심 정점
-    circleVertices.push_back(Vertex{
-        Vec3{0.0f, 0.0f, 0.0f},
-        RGBA{0, 0, 0, 0},
-        Vec2{0, 0}});
 
-    // 원 둘레 정점들
-    for (int i = 0; i <= segments; ++i)
+    for (int lat = 0; lat <= latitudeSegments; ++lat)
     {
-        float angle = 2.0f * M_PI * i / segments;
-        float x = std::cos(angle) * radius;
-        float y = std::sin(angle) * radius;
+        float v = (float)lat / latitudeSegments;
+        float theta = v * M_PI; // 0 ~ PI
 
-        circleVertices.push_back(Vertex{
-            Vec3{x, y, 0.0f},
-            RGBA{0, 0, 0, 0},
-            Vec2{0,0}});
+        for (int lon = 0; lon <= longitudeSegments; ++lon)
+        {
+            float u = (float)lon / longitudeSegments;
+            float phi = u * 2.0f * M_PI; // 0 ~ 2PI
+
+            float x = std::sin(theta) * std::cos(phi);
+            float y = std::cos(theta);
+            float z = std::sin(theta) * std::sin(phi);
+
+            Vec3 temp = Vec3(x, y, z)*radius;
+            Vec4 position = Vec4(temp.x,temp.y,temp.z, 1.0f);
+            Vec2 uv = Vec2{u, v}; // UV 좌표 (spherical mapping)
+
+            vertices.push_back(Vertex{position, RGBA{}, uv});
+        }
     }
 
-    // 인덱스 생성 (Triangle Fan)
-    for (uint32_t i = 1; i <= segments; ++i)
+    // 인덱스 생성
+    for (int lat = 0; lat < latitudeSegments; ++lat)
     {
-        circleIndices.push_back(0);     // 중심점
-        circleIndices.push_back(i);     // 현재 둘레점
-        circleIndices.push_back(i + 1); // 다음 둘레점
+        for (int lon = 0; lon < longitudeSegments; ++lon)
+        {
+            int curr = lat * (longitudeSegments + 1) + lon;
+            int next = curr + longitudeSegments + 1;
+
+            indices.push_back(curr);
+            indices.push_back(next);
+            indices.push_back(curr + 1);
+
+            indices.push_back(curr + 1);
+            indices.push_back(next);
+            indices.push_back(next + 1);
+        }
     }
 
-    // Mesh 생성
-    Mesh::CreateMesh("circle", std::move(circleVertices), std::move(circleIndices));
+    Mesh::CreateMesh("circle", std::move(vertices), std::move(indices));
 }
