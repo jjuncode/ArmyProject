@@ -31,6 +31,7 @@ docker compose up -d
 // 5901:5901 → ❌ 컨테이너 안에서 VNC가 5901에서 안 뜨면 작동 안 함
 
 Display Set ) 
+
 export DISPLAY=:1
 
 if Error occur ) // Container Restart 

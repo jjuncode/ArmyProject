@@ -49,14 +49,19 @@ const Mat4 CameraScript::GetViewMatrix() const
         Vec4(0, 0, 0, 1),
     };
 
-    // Mat4 r_inverse{
-    //     Vec3(cos(rotate), sin(rotate), 0),
-    //     Vec3(-sin(rotate), cos(rotate), 0),
-    //     Vec3(0, 0, 1),
-    // };
+    auto right = transform.GetRight();
+    auto up = transform.GetUp();
+    auto forward = transform.GetForward();
 
-    // return r_inverse * t_inverse; // View Matrix
-    return t_inverse;
+    Mat4 r_inverse{
+        Vec4(right.x, right.y, right.z, 0),
+        Vec4(up.x, up.y, up.z, 0),
+        Vec4(forward.x, forward.y, forward.z, 0),
+        Vec4(0,0,0,1)
+    };
+
+    Mat4 view_matrix = r_inverse * t_inverse;
+    return view_matrix; // View Matrix
 }
 
 const Mat4 CameraScript::GetProjectionMatrix() const
@@ -64,13 +69,6 @@ const Mat4 CameraScript::GetProjectionMatrix() const
     float focal_length = 1/tanf(Vec::GetRadian(m_fov * 0.5f));
     auto window = Core::GetWindowSize();
     auto aspect = window.x / window.y;
-
-    // Mat4 projection_matrix {
-    //     Vec4( focal_length/aspect, 0, 0, 0),
-    //     Vec4(0,  focal_length, 0, 0),
-    //     Vec4( 0, 0, -1, 0),
-    //     Vec4(0, 0, 0, 1)
-    // };
 
     auto denom = m_near - m_far;
 

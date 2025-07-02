@@ -34,5 +34,9 @@ class Transform {
         Vec3 GetScale(){return m_scale;}
         void SetScale(const Vec3 _scale) { m_scale =_scale;}
 
+        const Vec3 GetForward() const { return m_forward; }
+        const Vec3 GetUp() const { return m_up; }
+        const Vec3 GetRight() const { return m_right; }
+
         const Mat4 GetModelMatrix() const;
 };

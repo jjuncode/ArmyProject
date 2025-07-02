@@ -45,12 +45,21 @@ float Vec::Dot(const Vec2 &lhs, const Vec2 &rhs)
 
 float Vec::Dot(const Vec3 &lhs, const Vec3 &rhs)
 {
-    return lhs.x * rhs.x + lhs.y * rhs.y +lhs.z* lhs.z;
+    return lhs.x * rhs.x + lhs.y * rhs.y +lhs.z* rhs.z;
 }
 
 float Vec::Cross(const Vec2 &lhs, const Vec2 &rhs)
 {
     return lhs.x * rhs.y - lhs.y * rhs.x;
+}
+
+Vec3 Vec::Cross(const Vec3 &lhs, const Vec3 &rhs)
+{
+    return Vec3(
+        lhs.y * rhs.z - lhs.z * rhs.y,
+        lhs.z * rhs.x - lhs.x * rhs.z,
+        lhs.x * rhs.y - lhs.y * rhs.x
+    );
 }
 
 Vec2 Vec::Normal(const Vec2 &vec)

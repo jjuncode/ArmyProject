@@ -12,6 +12,25 @@
 
 DrawMode Renderer::m_draw_mode{DrawMode::kDefault_Shading};
 
+bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
+{
+	auto vec1 = _tri[1].v.ToVec3() - _tri[0].v.ToVec3();
+	auto vec2 = _tri[2].v.ToVec3() - _tri[0].v.ToVec3();
+	auto normal = Vec::Cross(vec1, vec2);
+
+	// auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
+	// auto camera_forward = camera.GetTransform().GetForward();
+
+	auto camera_forward = Vec3(0,0,-1);
+
+	if ( Vec::Dot(normal, camera_forward) >= 0.f ) {
+		// Backface Culling
+		return true; // Do not render this triangle
+	}
+
+	return false;
+}
+
 void Renderer::Render()
 {
 	if ( !m_is_visible ) return;
@@ -36,8 +55,9 @@ void Renderer::Render()
 	auto projection_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetProjectionMatrix();
 	auto view_matrix_inv = view_matrix.Inverse();
 	auto model_matrix = transform.GetModelMatrix();
+	
 	// Vertex Shader 
-	VertexShader(vec_vertexs, projection_matrix * view_matrix * model_matrix);
+	VertexShader(vec_vertexs, view_matrix * model_matrix);
 
 	if ( m_draw_mode != DrawMode::kWireFrame){
 		for (int i =0; i < triangle_count; ++i ) {
@@ -46,9 +66,21 @@ void Renderer::Render()
 			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
 		
 			std::array<Vertex, 3> tri {v1,v2,v3};
-		
-			Vec2 min {std::min({v1.v.x, v2.v.x, v3.v.x}) , std::min({v1.v.y, v2.v.y, v3.v.y})};
-			Vec2 max {std::max({v1.v.x, v2.v.x, v3.v.x}) , std::max({v1.v.y, v2.v.y, v3.v.y})};
+			if ( BackFaceCulling(tri)){
+				continue;
+			}
+			VertexShader(tri, projection_matrix);
+
+			// To NDC
+			for ( auto& v : tri ) {
+				v.v = v.v / v.v.w;
+	
+				v.v.x *= resolution.x * 0.5f;
+				v.v.y *= resolution.y * 0.5f;
+			}
+
+			Vec2 min {std::min({tri[0].v.x, tri[1].v.x, tri[2].v.x}), std::min({tri[0].v.y, tri[1].v.y, tri[2].v.y})};
+			Vec2 max {std::max({tri[0].v.x, tri[1].v.x, tri[2].v.x}), std::max({tri[0].v.y, tri[1].v.y, tri[2].v.y})};
 		
 			Vec3 u = tri[1].v.ToVec3() - tri[0].v.ToVec3();
 			Vec3 v = tri[2].v.ToVec3() - tri[0].v.ToVec3();
@@ -126,9 +158,21 @@ void Renderer::Render()
 			auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
 			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
 
-			Vec2 v1_screen = Vec::ConvertToScreenCoord(v1.v.ToVec3());
-			Vec2 v2_screen = Vec::ConvertToScreenCoord(v2.v.ToVec3());
-			Vec2 v3_screen = Vec::ConvertToScreenCoord(v3.v.ToVec3());
+			std::array<Vertex, 3> tri {v1,v2,v3};
+
+			VertexShader(tri, projection_matrix);
+
+			// To NDC
+			for ( auto& v : tri ) {
+				v.v = v.v / v.v.w;
+	
+				v.v.x *= resolution.x * 0.5f;
+				v.v.y *= resolution.y * 0.5f;
+			}
+
+			Vec2 v1_screen = Vec::ConvertToScreenCoord(tri[0].v.ToVec3());
+			Vec2 v2_screen = Vec::ConvertToScreenCoord(tri[1].v.ToVec3());
+			Vec2 v3_screen = Vec::ConvertToScreenCoord(tri[2].v.ToVec3());
 
 			sf::Vertex lines[] = {
 				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), m_color),
@@ -148,20 +192,31 @@ void Renderer::Render()
 
 void VertexShader(std::vector<Vertex> &_v, const Mat4 &_matrix)
 {
-	auto resolution = Core::GetWindowSize();
-
 	for (auto& v : _v ){
 		v.v = _matrix * v.v;
-	
-		// To NDC 
-		v.v = v.v / v.v.w;
-
-		v.v.x *= resolution.x * 0.5f;
-		v.v.y *= resolution.y * 0.5f;
 	}
 }
 
-void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4& _view_matrix_inv)
+void VertexShader(std::array<Vertex,3> &_v, const Mat4 &_matrix)
+{
+	for (auto& v : _v ){
+		v.v = _matrix * v.v;
+	}
+}
+
+// void VertexShader(std::vector<Vertex> &_v, const Mat4 &_view, const Mat4 &_transform)
+// {
+// 	auto resolution = Core::GetWindowSize();
+
+// 	auto view_matrix = _view * _transform;
+
+// 	// To view space
+// 	for (auto& v : _v ){
+// 		v.v = view_matrix * v.v;
+// 	}
+// }
+
+void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4 &_view_matrix_inv)
 {
 	// Vec3 v{_point.position.x, _point.position.y, _point.position.z};
 	// v = (_view_matrix_inv * Vec::ConvertToCartesian(v)).ToVec3();

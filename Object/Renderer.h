@@ -31,8 +31,13 @@ public:
     void SetFragment(bool _v) { m_is_shading = _v; }
     static void SetDrawMode(DrawMode _v){m_draw_mode = _v;}
 
+    bool BackFaceCulling(std::array<Vertex, 3> _tri);
+
     void Render();
 };
 
 void VertexShader(std::vector<Vertex> &_v, const Mat4 &_matrix);
+void VertexShader(std::array<Vertex,3> &_v, const Mat4 &_matrix);
+
+void PrimitiveShader(std::array<Vertex,3> &_v, const Mat4& _proj);
 void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4 &_view_matrix_inv);

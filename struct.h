@@ -115,6 +115,7 @@ inline constexpr Vec3 operator-(const Vec3& lhs, const Vec3& rhs);
 inline constexpr Vec3 operator*(const Vec3& lhs, float rhs);
 inline constexpr Vec3 operator*(float lhs, const Vec3& rhs);
 inline constexpr Vec3 operator/(const Vec3& lhs, float rhs);
+inline constexpr Vec3 operator-(const Vec3& v);
 
 inline constexpr Vec3 operator*(const Mat3& lhs, const Vec3& rhs);
 inline constexpr Vec3 operator*(const Mat3& lhs, const Vec2& rhs);
@@ -195,6 +196,7 @@ inline constexpr Vec4 operator-(const Vec4& lhs, const Vec4& rhs);
 inline constexpr Vec4 operator*(const Vec4& lhs, float rhs);
 inline constexpr Vec4 operator*(float lhs, const Vec4& rhs);
 inline constexpr Vec4 operator/(const Vec4& lhs, float rhs);
+inline constexpr Vec4 operator-(const Vec4& v);
 
 // Mat4 × Vec 연산자
 inline constexpr Vec4 operator*(const Mat4& lhs, const Vec4& rhs);
@@ -243,6 +245,8 @@ namespace Vec{
     float Dot(const Vec3& lhs, const Vec3& rhs);
 
     float Cross(const Vec2 &lhs, const Vec2 &rhs);
+    Vec3 Cross(const Vec3& lhs, const Vec3& rhs);
+
     Vec2 Projection(Vec2 vec_unit, Vec2 rhs);
 
     Vec2 Normal(const Vec2& vec);
@@ -284,6 +288,10 @@ inline constexpr Vec3 operator/(const Vec3& lhs, float rhs) {
     return Vec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs);
 }
 
+inline constexpr Vec3 operator-(const Vec3 &v)
+{
+    return Vec3(v * -1.0f);
+}
 
 inline constexpr Mat3 operator+(const Mat3 &lhs, const Mat3 &rhs)
 {
@@ -362,6 +370,10 @@ inline constexpr Mat4 operator+(const Mat4& lhs, const Mat4& rhs) {
         lhs[2] + rhs[2],
         lhs[3] + rhs[3]
     );
+}
+
+inline constexpr Vec4 operator-(const Vec4& v){
+    return Vec4(-v.x, -v.y, -v.z, -v.w);
 }
 
 inline constexpr Mat4 operator-(const Mat4& lhs, const Mat4& rhs) {
