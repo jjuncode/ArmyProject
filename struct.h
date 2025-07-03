@@ -24,10 +24,6 @@ struct Vec2
     // 복사 생성자
     Vec2(const Vec2& other): x{other.x}, y{other.y} {}
 
-    bool IsValid(){
-        return (x!= 0) && (y!= 0);
-    }
-
     Vec2 operator- (const Vec2& rhs){return Vec2(x-rhs.x, y-rhs.y);}
     Vec2 operator+ (const Vec2& rhs){return Vec2(x+rhs.x, y+rhs.y);}
     Vec2 operator* (float rhs){return Vec2(x*rhs, y*rhs);}
@@ -227,7 +223,7 @@ struct Vertex{
         : v{_v.x , _v.y,_v.z,_v.w }, color{_color}, uv{_uv} {}
 
     bool IsUV(){
-        if ( uv.IsValid()) return true;
+        if ( uv.x >=0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1) return true;
         return false;
     }
 };
