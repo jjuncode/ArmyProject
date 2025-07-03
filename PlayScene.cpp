@@ -32,11 +32,13 @@ void PlayScene::Init()
     auto script_camera = Script::CreateScript<CameraScript>(player->GetObjectID());
     camera->SetVisible(false);
     camera->SetScript(std::move(script_camera));
+    camera->GetTransform().SetLocalAxis(Vec3(0, 0, -1), Vec3(0, 1, 0), Vec3(-1, 0, 0));
 
     // for (int i=0; i<10; ++i){
-    //     auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(0,500));
+    //     auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(-500, 0));
     //     auto obj = Object::CreateObject(pos, size);
-    //     obj->SetMesh("circle");
+    //     obj->SetMesh("square");
+    //     obj->SetTexutre("player.png");
     //     obj->SetColor(sf::Color::Blue);
     //     SceneMgr::AddObject(std::move(obj));
     // }

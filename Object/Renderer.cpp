@@ -16,17 +16,26 @@ bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
 {
 	auto vec1 = _tri[1].v.ToVec3() - _tri[0].v.ToVec3();
 	auto vec2 = _tri[2].v.ToVec3() - _tri[0].v.ToVec3();
-	auto normal = Vec::Cross(vec1, vec2);
+	auto normal = Vec::Normalize(Vec::Cross(vec1, vec2));
 
-	// auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
-	// auto camera_forward = camera.GetTransform().GetForward();
+	// // view좌표계니까..
+	// auto camera_forward = Vec3(0,0,1);
 
-	auto camera_forward = Vec3(0,0,-1);
+	// // CCW
+	// if ( Vec::Dot(normal, camera_forward) > 0.f ) {
+	// 	// Backface Culling
+	// 	return true; // Do not render this triangle
+	// }
+	
+ 	// 삼각형 중심 위치
+    auto center = (_tri[0].v.ToVec3() + _tri[1].v.ToVec3() + _tri[2].v.ToVec3()) / 3.f;
 
-	if ( Vec::Dot(normal, camera_forward) >= 0.f ) {
-		// Backface Culling
-		return true; // Do not render this triangle
-	}
+	// 시선벡터를 이용해야한다 병신새끼야 
+    auto to_face = Vec::Normalize(center * -1.f); // == -center
+
+    if (Vec::Dot(normal, to_face) > 0.f) {
+        return true; // Backface → culled
+    }
 
 	return false;
 }
@@ -64,7 +73,16 @@ void Renderer::Render()
 			auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
 			auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
 			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
-		
+
+			auto inv_z_1 = 1.f / v1.v.z;
+			auto inv_z_2 = 1.f / v2.v.z;
+			auto inv_z_3 = 1.f / v3.v.z;
+
+			if ( inv_z_1 >=0.f || inv_z_2 >=0.f || inv_z_3 >=0.f ) {
+				// If any vertex is behind the camera, skip this triangle
+				continue;
+			}
+
 			std::array<Vertex, 3> tri {v1,v2,v3};
 			if ( BackFaceCulling(tri)){
 				continue;
@@ -127,8 +145,14 @@ void Renderer::Render()
 
 						if ( v1.IsUV() && texture.IsValid()) {
 							// 한점만 있어도 다 있다는거니까 ㅇㅇ
-							Vec2 target_uv( v1.uv.x * one_minus_s_t + v2.uv.x * s + v3.uv.x * t,
-															   v1.uv.y * one_minus_s_t + v2.uv.y * s + v3.uv.y * t);
+
+							//  보정
+							float z = inv_z_1 * one_minus_s_t + inv_z_2 * s + inv_z_3 * t;
+							float inv_z = 1.f / z;
+
+							Vec2 target_uv( (v1.uv * one_minus_s_t * inv_z_1
+											+ v2.uv * s * inv_z_2
+											+ v3.uv * t * inv_z_3) * inv_z );
 							
 							sf::Vertex point {sf::Vector2f(frag.x, frag.y)
 												,texture.GetPixel(target_uv)};
@@ -158,10 +182,17 @@ void Renderer::Render()
 			auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
 			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
 
+			if ( v1.v.z >= 0.f || v2.v.z >= 0.f || v3.v.z >= 0.f ) {
+				// If any vertex is behind the camera, skip this triangle
+				continue;
+			}
+
 			std::array<Vertex, 3> tri {v1,v2,v3};
 
+			if (BackFaceCulling(tri)){
+				continue;
+			}
 			VertexShader(tri, projection_matrix);
-
 			// To NDC
 			for ( auto& v : tri ) {
 				v.v = v.v / v.v.w;

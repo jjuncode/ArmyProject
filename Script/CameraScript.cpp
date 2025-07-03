@@ -2,12 +2,70 @@
 
 #include "../Mgr/SceneMgr.h"
 #include "../Mgr/InputMgr.h"
+#include "../Object/Transform.h"
 
 #include "../Core.h"
 
 void CameraScript::Execute(float dt)
 {
    // FollowTargetPos(dt);
+
+    auto mouse_pos = InputMgr::GetMousePos();
+    auto mouse_state = InputMgr::GetMouseState();
+
+    static Vec2 prev_mouse_pos{};
+
+    auto &camera_transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
+    auto camera_forward = camera_transform.GetForward();
+
+    if (mouse_state == MouseState::kLeftTap){
+        // move start
+        prev_mouse_pos = mouse_pos;
+    }
+    else if (mouse_state == MouseState::kLeftHold){
+        Vec2 dir = mouse_pos - prev_mouse_pos;
+        auto length = Vec::Length(dir);
+        dir = Vec::Normalize(dir);
+
+        if ( length > 1.f ){
+
+            // 각도 변화량 (마우스 민감도 조절)
+            float yaw_delta = dir.x * dt * 3.f;    // 좌우
+            float pitch_delta = -dir.y * dt * 3.f; // 위아래 (화면 y축은 반대라서 - 붙임)
+
+            Mat3 rotation_matrix_yaw{
+                Vec3(cosf(yaw_delta), 0, sinf(yaw_delta)),
+                Vec3(0, 1, 0),
+                Vec3(-sinf(yaw_delta), 0, cosf(yaw_delta))};
+            Mat3 rotation_matrix_pitch{
+                Vec3(1, 0, 0),
+                Vec3(0, cosf(pitch_delta), -sinf(pitch_delta)),
+                Vec3(0, sinf(pitch_delta), cosf(pitch_delta))};
+
+            auto forward = rotation_matrix_pitch * rotation_matrix_yaw * camera_forward;
+
+            auto right = Vec::Normalize(Vec::Cross(Vec3(0,1,0), forward));
+            auto up = Vec::Cross(forward, right);
+
+            camera_transform.SetForward(forward);
+            camera_transform.SetRight(right);
+            camera_transform.SetUp(up);
+        }
+        prev_mouse_pos = mouse_pos;
+    }
+
+    if ( InputMgr::IsTap(sf::Keyboard::Key::W) || InputMgr::IsHold(sf::Keyboard::Key::W) ) {
+        camera_transform.AddPos(camera_transform.GetForward() * dt * m_speed);
+    }
+    if ( InputMgr::IsTap(sf::Keyboard::Key::S) || InputMgr::IsHold(sf::Keyboard::Key::S) ) {
+        camera_transform.AddPos(-camera_transform.GetForward() * dt * m_speed);
+    }
+    if ( InputMgr::IsTap(sf::Keyboard::Key::A) || InputMgr::IsHold(sf::Keyboard::Key::A) ) {
+        camera_transform.AddPos(-camera_transform.GetRight() * dt * m_speed);
+    }
+    if ( InputMgr::IsTap(sf::Keyboard::Key::D) || InputMgr::IsHold(sf::Keyboard::Key::D) ) {
+        camera_transform.AddPos(camera_transform.GetRight() * dt * m_speed);
+    }
 }
 
 Vec3 CameraScript::GetMainCameraPos()
@@ -56,7 +114,7 @@ const Mat4 CameraScript::GetViewMatrix() const
     Mat4 r_inverse{
         Vec4(right.x, right.y, right.z, 0),
         Vec4(up.x, up.y, up.z, 0),
-        Vec4(forward.x, forward.y, forward.z, 0),
+        Vec4(-forward.x, -forward.y, -forward.z, 0),
         Vec4(0,0,0,1)
     };
 

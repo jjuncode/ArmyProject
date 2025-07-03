@@ -38,5 +38,14 @@ class Transform {
         const Vec3 GetUp() const { return m_up; }
         const Vec3 GetRight() const { return m_right; }
 
+        void SetLocalAxis(const Vec3& _forward, const Vec3& _up, const Vec3& _right) {
+            m_forward = _forward;
+            m_up = _up;
+            m_right = _right;
+        }
+        void SetForward(const Vec3& _forward){m_forward = _forward;};
+        void SetUp(const Vec3& _up){m_up = _up;};
+        void SetRight(const Vec3& _right){m_right = _right;};
+
         const Mat4 GetModelMatrix() const;
 };
