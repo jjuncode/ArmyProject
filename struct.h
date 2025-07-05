@@ -203,6 +203,34 @@ inline constexpr Mat4 operator+(const Mat4& lhs, const Mat4& rhs);
 inline constexpr Mat4 operator-(const Mat4& lhs, const Mat4& rhs);
 inline constexpr Mat4 operator*(const Mat4& lhs, const Mat4& rhs);
 
+struct Plane{
+    Vec3 normal;
+    float d;
+
+    Plane(const Vec3& _normal = Vec3(0, 1, 0), float _d = 0)
+        : normal{_normal}, d{_d} {}
+
+    Plane(const Vec4& _v);
+
+    float DistanceToPoint(const Vec3& point) const;
+    bool IsOutside(const Vec3& point) const;
+};
+
+enum class BoundValue{
+    kInside,
+    kOutside,
+    kIntersect
+};
+
+struct Frustum{
+    std::array<Plane, 6> planes;
+
+    Frustum(const std::array<Plane, 6>& _planes = {})
+        : planes{_planes} {}
+
+    BoundValue CheckBound(const Vec3& point) const;
+};
+
 
 struct RGBA{
     uint8_t r;
@@ -258,6 +286,8 @@ namespace Vec{
 
     Vec2 ConvertToCartesian(const Vec2& vec);
     Vec3 ConvertToCartesian(const Vec3& vec);
+
+    bool IsNearlyZero(float value);
 }
 
 struct MTV{

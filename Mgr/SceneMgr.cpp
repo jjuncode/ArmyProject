@@ -17,11 +17,16 @@ void SceneMgr::Update(float dt)
         Renderer::SetDrawMode(DrawMode::kDefault_Shading_None);
     else if (InputMgr::IsTap(sf::Keyboard::F3))
         Renderer::SetDrawMode(DrawMode::kWireFrame);
+    else if (InputMgr::IsTap(sf::Keyboard::F4))
+        Renderer::SetDrawMode(DrawMode::kDepthBuffer);
 }
 
 void SceneMgr::Render()
 {
     m_cur_scene->Render();
+
+    // Clear Depth Buffer
+    Renderer::ClearDepthBuffer();
 }
 
 void SceneMgr::Exit()

@@ -128,6 +128,11 @@ Vec3 Vec::ConvertToCartesian(const Vec3& vec)
     );
 }
 
+bool Vec::IsNearlyZero(float value)
+{
+    static constexpr float epsilon = 1e-6f; // 작은 값
+    return std::abs(value) < epsilon;
+}
 
 Mat3 Mat3::Inverse() const
 {
@@ -375,4 +380,51 @@ bool Vec3::operator==(const Vec3& rhs) const {
 bool Vec3::operator!=(const Vec3& rhs) const {
     if ( *this == rhs)  return false;
     return true;
+}
+
+BoundValue Frustum::CheckBound(const Vec3 &point) const
+{
+    for (const auto &plane : planes){
+        if (plane.IsOutside(point)){
+            return BoundValue::kOutside;
+        }
+        else{
+            // Check Intersect
+            auto distn = plane.DistanceToPoint(point);
+            if (Vec::IsNearlyZero(distn)){
+                return BoundValue::kIntersect; // Point is on the plane
+            }
+        }
+    }
+    std::cout << "밖이요 ㅋㅋ " << std::endl;
+    return BoundValue::kInside;
+}
+
+Plane::Plane(const Vec4 &_v)
+{
+    if ( _v.w != 0.f )
+        normal = _v.ToVec3();
+    else
+        normal = Vec3(_v.x, _v.y, _v.z);
+    d = _v.w;
+    
+    auto length = Vec::Length(normal);
+    normal /= length;
+    d /= length;
+
+    normal *= -1.0f; // Invert the normal direction
+    d *= -1.0f; // Invert the distance
+}
+
+float Plane::DistanceToPoint(const Vec3 &point) const
+{
+    return Vec::Dot(normal, point) + d;
+}
+
+bool Plane::IsOutside(const Vec3 &point) const
+{
+    if (DistanceToPoint(point) > 0) {
+        return true; // Point is outside the plane
+    }
+    return false; // Point is inside or on the plane    
 }

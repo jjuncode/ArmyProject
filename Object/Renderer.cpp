@@ -11,6 +11,7 @@
 #include "Texture.h"
 
 DrawMode Renderer::m_draw_mode{DrawMode::kDefault_Shading};
+std::vector<std::vector<float>> Renderer::m_vec_depth_buffer{}; // 렌더링 포인트 벡터
 
 bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
 {
@@ -18,19 +19,10 @@ bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
 	auto vec2 = _tri[2].v.ToVec3() - _tri[0].v.ToVec3();
 	auto normal = Vec::Normalize(Vec::Cross(vec1, vec2));
 
-	// // view좌표계니까..
-	// auto camera_forward = Vec3(0,0,1);
-
-	// // CCW
-	// if ( Vec::Dot(normal, camera_forward) > 0.f ) {
-	// 	// Backface Culling
-	// 	return true; // Do not render this triangle
-	// }
-	
  	// 삼각형 중심 위치
     auto center = (_tri[0].v.ToVec3() + _tri[1].v.ToVec3() + _tri[2].v.ToVec3()) / 3.f;
 
-	// 시선벡터를 이용해야한다 병신새끼야 
+	// 시선벡터를 이용해야한다 병신아 
     auto to_face = Vec::Normalize(center * -1.f); // == -center
 
     if (Vec::Dot(normal, to_face) > 0.f) {
@@ -38,6 +30,27 @@ bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
     }
 
 	return false;
+}
+
+bool Renderer::FrustumCulling(const Frustum &_frustum, const Vec3 &_pos)
+{
+	auto bound_value = _frustum.CheckBound(_pos);
+
+	if ( bound_value != BoundValue::kInside)
+		return false;
+	return true;
+}
+
+void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
+{
+	m_vec_depth_buffer[_v.x][_v.y] = _depth;
+}
+
+void Renderer::ClearDepthBuffer()
+{
+	for (auto &vec : m_vec_depth_buffer)	{
+		std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::lowest());
+	}
 }
 
 void Renderer::Render()
@@ -60,13 +73,38 @@ void Renderer::Render()
 	auto vec_vertexs = mesh.GetVertexs();
 	
 	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
-	auto view_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetViewMatrix();
-	auto projection_matrix = static_cast<CameraScript*>(&camera.GetScript())->GetProjectionMatrix();
+	auto& camera_script = *static_cast<CameraScript*>(&camera.GetScript());
+
+	auto near_plane = camera_script.GetNearPlane();
+	auto far_plane = camera_script.GetFarPlane();
+	auto view_matrix = camera_script.GetViewMatrix();
+	auto projection_matrix = camera_script.GetProjectionMatrix();
+
 	auto view_matrix_inv = view_matrix.Inverse();
 	auto model_matrix = transform.GetModelMatrix();
 	
+	std::array<Plane,6> frustum_planes{
+		projection_matrix[3]+ projection_matrix[0],
+		projection_matrix[3]- projection_matrix[0],
+		projection_matrix[3]+ projection_matrix[1],
+		projection_matrix[3]- projection_matrix[1],
+		projection_matrix[3]+ projection_matrix[2],
+		projection_matrix[3]- projection_matrix[2]
+	};
+
+	Frustum frustum{frustum_planes};
+
+	auto VM_matrix = view_matrix * model_matrix;
+
+	// Frustum Culling
+	if ( FrustumCulling(frustum, (VM_matrix * transform.GetPos()).ToVec3()) ) {
+		// If the object is outside the frustum, skip rendering
+		std::cout << "CULLED" << std::endl;
+		return;
+	}
+
 	// Vertex Shader 
-	VertexShader(vec_vertexs, view_matrix * model_matrix);
+	VertexShader(vec_vertexs, VM_matrix);
 
 	if ( m_draw_mode != DrawMode::kWireFrame){
 		for (int i =0; i < triangle_count; ++i ) {
@@ -143,39 +181,73 @@ void Renderer::Render()
 						 && one_minus_s_t >= 0.f && one_minus_s_t <= 1.f) {
 						// Inside the triangle
 
-						if ( v1.IsUV() && texture.IsValid()) {
-							// 한점만 있어도 다 있다는거니까 ㅇㅇ
+						// Get Depth
+						float depth = v1.v.z * one_minus_s_t
+									+ v2.v.z * s
+									+ v3.v.z * t;
 
-							//  보정
-							float z = inv_z_1 * one_minus_s_t + inv_z_2 * s + inv_z_3 * t;
-							float inv_z = 1.f / z;
+						// //  보정
+						float z = inv_z_1 * one_minus_s_t + inv_z_2 * s + inv_z_3 * t;
+						float inv_z = 1.f / z;
+						// depth *= inv_z; // Apply perspective correction
+
+						// float denom = one_minus_s_t * inv_z_1 + s * inv_z_2 + t * inv_z_3;
+
+						// float depth = (v1.v.z * inv_z_1 * one_minus_s_t +
+						// 			   v2.v.z * inv_z_2 * s +
+						// 			   v3.v.z * inv_z_3 * t) /
+						// 			  denom;
+
+						// Set Depth Buffer
+						if ( m_vec_depth_buffer[frag.x][frag.y] >= depth ) {
+							continue; // If the current pixel is not closer, skip
+						}
+
+						SetDepthBuffer(Vec2(frag.x, frag.y ), depth);
+
+						sf::Vertex point{}; 	// to draw 
+
+						if ( m_draw_mode == DrawMode::kDepthBuffer){
+							auto color_depth = (abs(depth) - near_plane)/(far_plane - near_plane);
+
+							auto color = sf::Color{
+								static_cast<sf::Uint8>(255.f * color_depth), 
+								static_cast<sf::Uint8>(255.f * color_depth),
+								static_cast<sf::Uint8>(255.f * color_depth),
+								255u
+							};
+							point = sf::Vertex{sf::Vector2f(frag.x, frag.y),color};
+						}
+						else if ( v1.IsUV() && texture.IsValid()) {
+							// 한점만 있어도 다 있다는거니까 ㅇㅇ
 
 							Vec2 target_uv( (v1.uv * one_minus_s_t * inv_z_1
 											+ v2.uv * s * inv_z_2
 											+ v3.uv * t * inv_z_3) * inv_z );
 							
-							sf::Vertex point {sf::Vector2f(frag.x, frag.y)
+							point = sf::Vertex{sf::Vector2f(frag.x, frag.y)
 												,texture.GetPixel(target_uv)};
 							if ( m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
 								FragmentShader(point, transform.GetPos(),view_matrix_inv);
-							window->draw(&point, 1, sf::Points);
 						}
 						else{
 							sf::Color color = sf::Color(
 								static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
 								static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
 								static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
-							sf::Vertex point{sf::Vector2f(frag.x, frag.y), color+ m_color};
+							point = sf::Vertex{sf::Vector2f(frag.x, frag.y), color+ m_color};
 							if ( m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
 								FragmentShader(point, transform.GetPos(),view_matrix_inv);
-							window->draw(&point, 1, sf::Points);
 						}
+
+						
+						window->draw(&point, 1, sf::Points);
 					}
 				}
 			}
 		}
 	}
-	else{
+	else if ( m_draw_mode == DrawMode::kWireFrame ) {
 		// WireFrame
 		for (int i =0; i < triangle_count; ++i ) {
 			auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
@@ -218,6 +290,15 @@ void Renderer::Render()
 
 			window->draw(lines, 6, sf::Lines);
 		}
+	}
+}
+
+void Renderer::CreateRenderingBuffer()
+{
+	auto window_size = Core::GetWindowSize();
+	m_vec_depth_buffer.resize(window_size.x+1);
+	for(auto& v : m_vec_depth_buffer){
+		v.resize(window_size.y+1, std::numeric_limits<float>::lowest());
 	}
 }
 

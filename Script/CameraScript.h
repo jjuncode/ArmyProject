@@ -23,4 +23,7 @@ class CameraScript : public Script {
         void FollowTargetPos(float dt);
         const Mat4 GetViewMatrix() const;
         const Mat4 GetProjectionMatrix() const;
+
+        const float GetNearPlane() const { return m_near; }
+        const float GetFarPlane() const { return m_far; }
 };

@@ -6,13 +6,16 @@ enum class DrawMode
 {
     kWireFrame,
     kDefault_Shading,
-    kDefault_Shading_None
+    kDefault_Shading_None,
+    kDepthBuffer
 };
 
 class Renderer
 {
 private:
     static DrawMode m_draw_mode;
+    static std::vector<std::vector<float>> m_vec_depth_buffer; // depth buffer
+
     uint32_t m_id_owner;
     bool m_is_visible; // 렌더링 여부
     bool m_is_shading; // Fragmentshader 적용여부
@@ -23,6 +26,7 @@ public:
     Renderer()
         : m_is_visible{true}, m_color{sf::Color::Black}, m_is_shading{true}
     {
+
     }
     void SetOwner(uint32_t _id) { m_id_owner = _id; }
 
@@ -32,8 +36,13 @@ public:
     static void SetDrawMode(DrawMode _v){m_draw_mode = _v;}
 
     bool BackFaceCulling(std::array<Vertex, 3> _tri);
+    bool FrustumCulling(const Frustum& _frustum, const Vec3& _pos);
+    void SetDepthBuffer(const Vec2& _v, float _depth);
+    static void ClearDepthBuffer();
 
     void Render();
+
+    static void CreateRenderingBuffer();
 };
 
 void VertexShader(std::vector<Vertex> &_v, const Mat4 &_matrix);

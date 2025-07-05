@@ -20,6 +20,7 @@ void Core::Init(int x, int y)
     view.setSize(m_window_size.x, m_window_size.y); 
     window.setView(view);
 
+    Renderer::CreateRenderingBuffer();
     SceneMgr::LoadResource();
     SceneMgr::ChangeScene<PlayScene>();
 }

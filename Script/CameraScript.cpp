@@ -26,28 +26,49 @@ void CameraScript::Execute(float dt)
         Vec2 dir = mouse_pos - prev_mouse_pos;
         auto length = Vec::Length(dir);
         dir = Vec::Normalize(dir);
+        dir.y = -dir.y;
 
         if ( length > 1.f ){
+            // set direction
+            // right is opposite of right axis
+            auto right_dir =Vec::Normalize( Vec::Cross(Vec3(0,1,0),camera_forward));
 
-            // 각도 변화량 (마우스 민감도 조절)
-            float yaw_delta = dir.x * dt * 3.f;    // 좌우
-            float pitch_delta = -dir.y * dt * 3.f; // 위아래 (화면 y축은 반대라서 - 붙임)
+            if ( dir.x > 0 ) {
+                // look at right
+                camera_forward += right_dir * dt; 
+            }
+            else if ( dir.x < 0 ) {
+                // look at left
+                camera_forward -= right_dir * dt; 
+            }
 
-            Mat3 rotation_matrix_yaw{
-                Vec3(cosf(yaw_delta), 0, sinf(yaw_delta)),
-                Vec3(0, 1, 0),
-                Vec3(-sinf(yaw_delta), 0, cosf(yaw_delta))};
-            Mat3 rotation_matrix_pitch{
-                Vec3(1, 0, 0),
-                Vec3(0, cosf(pitch_delta), -sinf(pitch_delta)),
-                Vec3(0, sinf(pitch_delta), cosf(pitch_delta))};
+            if (dir.y > 0){
+                // look at up
+                camera_forward += Vec3(0, 1, 0) * dt;
+            }
+            else if (dir.y < 0){
+                // look at down
+                camera_forward -= Vec3(0, 1, 0) * dt;
+            }
+            camera_forward = Vec::Normalize(camera_forward);
+            // float yaw_delta = dir.x * dt * 3.f;    // 좌우
+            // float pitch_delta = dir.y * dt * 3.f; // 위아래 (화면 y축은 반대라서 - 붙임)
 
-            auto forward = rotation_matrix_pitch * rotation_matrix_yaw * camera_forward;
+            // Mat3 rotation_matrix_yaw{
+            //     Vec3(cosf(yaw_delta), 0, sinf(yaw_delta)),
+            //     Vec3(0, 1, 0),
+            //     Vec3(-sinf(yaw_delta), 0, cosf(yaw_delta))};
+            // Mat3 rotation_matrix_pitch{
+            //     Vec3(1, 0, 0),
+            //     Vec3(0, cosf(pitch_delta), -sinf(pitch_delta)),
+            //     Vec3(0, sinf(pitch_delta), cosf(pitch_delta))};
 
-            auto right = Vec::Normalize(Vec::Cross(Vec3(0,1,0), forward));
-            auto up = Vec::Cross(forward, right);
+            // auto forward = rotation_matrix_pitch * rotation_matrix_yaw * camera_forward;
 
-            camera_transform.SetForward(forward);
+            auto right = Vec::Normalize(Vec::Cross(Vec3(0,1,0), camera_forward));
+            auto up = Vec::Cross(camera_forward, right);
+
+            camera_transform.SetForward(camera_forward);
             camera_transform.SetRight(right);
             camera_transform.SetUp(up);
         }
