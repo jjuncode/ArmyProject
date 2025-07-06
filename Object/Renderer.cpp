@@ -37,8 +37,8 @@ bool Renderer::FrustumCulling(const Frustum &_frustum, const Vec3 &_pos)
 	auto bound_value = _frustum.CheckBound(_pos);
 
 	if ( bound_value != BoundValue::kInside)
-		return false;
-	return true;
+		return true;
+	return false;
 }
 
 void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
@@ -94,17 +94,13 @@ void Renderer::Render()
 
 	Frustum frustum{frustum_planes};
 
-	auto VM_matrix = view_matrix * model_matrix;
-
 	// Frustum Culling
-	if ( FrustumCulling(frustum, (VM_matrix * transform.GetPos()).ToVec3()) ) {
-		// If the object is outside the frustum, skip rendering
-		std::cout << "CULLED" << std::endl;
+	if ( FrustumCulling(frustum, (view_matrix * transform.GetPos()).ToVec3()) ) {
 		return;
 	}
 
 	// Vertex Shader 
-	VertexShader(vec_vertexs, VM_matrix);
+	VertexShader(vec_vertexs,  view_matrix * model_matrix);
 
 	if ( m_draw_mode != DrawMode::kWireFrame){
 		for (int i =0; i < triangle_count; ++i ) {

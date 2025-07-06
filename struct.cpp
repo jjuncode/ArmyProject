@@ -396,16 +396,13 @@ BoundValue Frustum::CheckBound(const Vec3 &point) const
             }
         }
     }
-    std::cout << "밖이요 ㅋㅋ " << std::endl;
+
     return BoundValue::kInside;
 }
 
 Plane::Plane(const Vec4 &_v)
 {
-    if ( _v.w != 0.f )
-        normal = _v.ToVec3();
-    else
-        normal = Vec3(_v.x, _v.y, _v.z);
+    normal = Vec3(_v.x, _v.y, _v.z);
     d = _v.w;
     
     auto length = Vec::Length(normal);
