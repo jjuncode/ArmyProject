@@ -147,8 +147,11 @@ struct Vec4 {
 
     Vec3 ToVec3() const {
         assert(w != 0);
+        if ( w== 1 ) return Vec3(x, y, z);
         return Vec3(x / w, y / w, z / w);
     }
+
+    inline constexpr Vec4& operator+=(const Vec4& rhs);
 };
 
 struct Mat4
@@ -216,6 +219,18 @@ struct Plane{
     bool IsOutside(const Vec3& point) const;
 };
 
+struct Sphere{
+    Vec3 center;
+    float radius;
+
+    Sphere(const Vec3& _center = Vec3(), float _radius = 1.0f)
+        : center{_center}, radius{_radius} {}
+
+    bool IsInside(const Vec3& point) const;
+
+    bool Intersect(const Sphere& other) const;
+};
+
 enum class BoundValue{
     kInside,
     kOutside,
@@ -228,7 +243,7 @@ struct Frustum{
     Frustum(const std::array<Plane, 6>& _planes = {})
         : planes{_planes} {}
 
-    BoundValue CheckBound(const Vec3& point) const;
+    BoundValue CheckBound(const Sphere& point) const;
 };
 
 
@@ -441,4 +456,13 @@ inline constexpr Vec4 operator*(const Mat4& m, const Vec4& v) {
 inline constexpr Vec4 operator*(const Mat4& lhs, const Vec3& rhs) {
     Vec4 v = lhs * Vec4(rhs.x, rhs.y, rhs.z, 1.0f);
     return v;
+}
+
+inline constexpr Vec4 & Vec4::operator+=(const Vec4 & rhs)
+{
+    x += rhs.x;
+    y += rhs.y;
+    z += rhs.z;
+    w += rhs.w;
+    return *this;
 }

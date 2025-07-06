@@ -32,13 +32,9 @@ bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
 	return false;
 }
 
-bool Renderer::FrustumCulling(const Frustum &_frustum, const Vec3 &_pos)
+BoundValue Renderer::FrustumCulling(const Frustum &_frustum, const Sphere &_sphere)
 {
-	auto bound_value = _frustum.CheckBound(_pos);
-
-	if ( bound_value != BoundValue::kInside)
-		return true;
-	return false;
+	return _frustum.CheckBound(_sphere);
 }
 
 void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
@@ -77,30 +73,38 @@ void Renderer::Render()
 
 	auto near_plane = camera_script.GetNearPlane();
 	auto far_plane = camera_script.GetFarPlane();
+
+	auto model_matrix = transform.GetModelMatrix();
 	auto view_matrix = camera_script.GetViewMatrix();
 	auto projection_matrix = camera_script.GetProjectionMatrix();
 
 	auto view_matrix_inv = view_matrix.Inverse();
-	auto model_matrix = transform.GetModelMatrix();
+	auto VM_matrix = view_matrix * model_matrix;
+	auto PVM_matrix = projection_matrix * VM_matrix;
 	
 	std::array<Plane,6> frustum_planes{
-		projection_matrix[3]+ projection_matrix[0],
-		projection_matrix[3]- projection_matrix[0],
-		projection_matrix[3]+ projection_matrix[1],
-		projection_matrix[3]- projection_matrix[1],
-		projection_matrix[3]+ projection_matrix[2],
-		projection_matrix[3]- projection_matrix[2]
+		PVM_matrix[3] + PVM_matrix[0], // Left
+		PVM_matrix[3] - PVM_matrix[0], // Right
+		PVM_matrix[3] + PVM_matrix[1], // Bottom
+		PVM_matrix[3] - PVM_matrix[1], // Top
+		PVM_matrix[3] + PVM_matrix[2], // Near
+		PVM_matrix[3] - PVM_matrix[2]  // Far
 	};
-
 	Frustum frustum{frustum_planes};
+	
+	sf::Color color_additional{};
 
 	// Frustum Culling
-	if ( FrustumCulling(frustum, (view_matrix * transform.GetPos()).ToVec3()) ) {
-		return;
+	auto bound_value = FrustumCulling(frustum, mesh.GetSphere());
+	if ( bound_value == BoundValue::kIntersect){
+		color_additional = sf::Color::Red;
+	}
+	else if ( bound_value == BoundValue::kOutside) {
+		return; // If the mesh is outside the frustum, skip rendering
 	}
 
 	// Vertex Shader 
-	VertexShader(vec_vertexs,  view_matrix * model_matrix);
+	VertexShader(vec_vertexs, VM_matrix);
 
 	if ( m_draw_mode != DrawMode::kWireFrame){
 		for (int i =0; i < triangle_count; ++i ) {
@@ -222,7 +226,7 @@ void Renderer::Render()
 											+ v3.uv * t * inv_z_3) * inv_z );
 							
 							point = sf::Vertex{sf::Vector2f(frag.x, frag.y)
-												,texture.GetPixel(target_uv)};
+												,texture.GetPixel(target_uv) + color_additional};
 							if ( m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
 								FragmentShader(point, transform.GetPos(),view_matrix_inv);
 						}
@@ -231,9 +235,10 @@ void Renderer::Render()
 								static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
 								static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
 								static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
-							point = sf::Vertex{sf::Vector2f(frag.x, frag.y), color+ m_color};
-							if ( m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
-								FragmentShader(point, transform.GetPos(),view_matrix_inv);
+							point = sf::Vertex{sf::Vector2f(frag.x, frag.y), color + m_color + color_additional};
+
+							if (m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
+								FragmentShader(point, transform.GetPos(), view_matrix_inv);
 						}
 
 						
@@ -273,15 +278,20 @@ void Renderer::Render()
 			Vec2 v2_screen = Vec::ConvertToScreenCoord(tri[1].v.ToVec3());
 			Vec2 v3_screen = Vec::ConvertToScreenCoord(tri[2].v.ToVec3());
 
+			auto self_color = m_color;
+			if (color_additional != sf::Color{}){
+				self_color = sf::Color{};
+			}
+
 			sf::Vertex lines[] = {
-				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), m_color),
-				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), m_color),
+				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
+				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
 
-				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), m_color),
-				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), m_color),
+				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
+				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), self_color + color_additional),
 
-				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), m_color),
-				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), m_color),
+				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), self_color + color_additional),
+				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
 			};
 
 			window->draw(lines, 6, sf::Lines);

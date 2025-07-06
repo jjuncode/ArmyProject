@@ -382,18 +382,16 @@ bool Vec3::operator!=(const Vec3& rhs) const {
     return true;
 }
 
-BoundValue Frustum::CheckBound(const Vec3 &point) const
+BoundValue Frustum::CheckBound(const Sphere &_sphere) const
 {
     for (const auto &plane : planes){
-        if (plane.IsOutside(point)){
+        auto distn = plane.DistanceToPoint(_sphere.center);
+
+        if (distn > _sphere.radius) {
             return BoundValue::kOutside;
         }
-        else{
-            // Check Intersect
-            auto distn = plane.DistanceToPoint(point);
-            if (Vec::IsNearlyZero(distn)){
-                return BoundValue::kIntersect; // Point is on the plane
-            }
+        else if(abs(distn) <=_sphere.radius) {
+            return BoundValue::kIntersect; // Point is on the plane
         }
     }
 
@@ -424,4 +422,16 @@ bool Plane::IsOutside(const Vec3 &point) const
         return true; // Point is outside the plane
     }
     return false; // Point is inside or on the plane    
+}
+
+bool Sphere::IsInside(const Vec3 & point) const
+{
+    return (Vec::LengthSquare(point - center) <= radius * radius);
+}
+
+bool Sphere::Intersect(const Sphere & other) const
+{
+    float distance_square = Vec::LengthSquare(other.center - center);
+    float radius_sum = radius + other.radius;
+    return (distance_square <= radius_sum * radius_sum);
 }

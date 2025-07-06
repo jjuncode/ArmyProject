@@ -10,6 +10,8 @@ private:
     std::string m_name; // mesh name
     std::vector<Vertex> m_vertexs;  // vertexs
     std::vector<uint32_t> m_indexs; // index
+    
+    Sphere m_bound_sphere; // bound sphere
 
     static std::unordered_map<std::size_t, std::unique_ptr<Mesh>> map_meshes;
 
@@ -23,8 +25,11 @@ public:
 
     const auto& GetVertexs() const { return m_vertexs; }
     const auto& GetIndexs() const { return m_indexs; }
+    const auto& GetSphere() const { return m_bound_sphere; }
 
     static const Mesh& GetMesh(std::size_t _key);
 
     const bool IsValid() const;
+
+    void CreateBound();
 };
