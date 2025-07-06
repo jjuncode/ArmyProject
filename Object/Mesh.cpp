@@ -66,4 +66,19 @@ void Mesh::CreateBound()
         );
 
     m_bound_sphere.radius = Vec::Length(point_max.v.ToVec3() - center);
+
+    // Create Box
+    Vec3 min{}, max{};
+    for ( const auto& v : m_vertexs){
+        min.x = std::min(min.x, v.v.x);
+        min.y = std::min(min.y, v.v.y);
+        min.z = std::min(min.z, v.v.z);
+        
+        max.x = std::max(max.x, v.v.x);
+        max.y = std::max(max.y, v.v.y);
+        max.z = std::max(max.z, v.v.z);
+    }
+
+    m_bound_box.min = min;
+    m_bound_box.max = max;
 }

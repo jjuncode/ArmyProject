@@ -32,11 +32,6 @@ bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
 	return false;
 }
 
-BoundValue Renderer::FrustumCulling(const Frustum &_frustum, const Sphere &_sphere)
-{
-	return _frustum.CheckBound(_sphere);
-}
-
 void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
 {
 	m_vec_depth_buffer[_v.x][_v.y] = _depth;
@@ -58,8 +53,8 @@ void Renderer::Render()
 	
 	auto& obj = SceneMgr::GetObject(m_id_owner); 
 	auto& transform = obj.GetTransform();
-	auto texture = Texture::GetTexture(obj.GetTextureKey());
-	auto mesh = Mesh::GetMesh(obj.GetMeshKey());
+	auto& texture = Texture::GetTexture(obj.GetTextureKey());
+	auto& mesh = Mesh::GetMesh(obj.GetMeshKey());
 	
 	if ( !mesh.IsValid() ) {
 		return; // If transform or mesh is not available, exit the function
@@ -95,7 +90,7 @@ void Renderer::Render()
 	sf::Color color_additional{};
 
 	// Frustum Culling
-	auto bound_value = FrustumCulling(frustum, mesh.GetSphere());
+	auto bound_value = FrustumCulling(frustum, mesh.GetBox());
 	if ( bound_value == BoundValue::kIntersect){
 		color_additional = sf::Color::Red;
 	}

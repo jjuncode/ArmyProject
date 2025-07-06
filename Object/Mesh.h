@@ -12,6 +12,7 @@ private:
     std::vector<uint32_t> m_indexs; // index
     
     Sphere m_bound_sphere; // bound sphere
+    Box m_bound_box; // bound box
 
     static std::unordered_map<std::size_t, std::unique_ptr<Mesh>> map_meshes;
 
@@ -26,6 +27,7 @@ public:
     const auto& GetVertexs() const { return m_vertexs; }
     const auto& GetIndexs() const { return m_indexs; }
     const auto& GetSphere() const { return m_bound_sphere; }
+    const auto& GetBox() const { return m_bound_box; }
 
     static const Mesh& GetMesh(std::size_t _key);
 

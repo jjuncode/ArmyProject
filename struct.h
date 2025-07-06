@@ -227,8 +227,18 @@ struct Sphere{
         : center{_center}, radius{_radius} {}
 
     bool IsInside(const Vec3& point) const;
-
     bool Intersect(const Sphere& other) const;
+};
+
+struct Box{
+    Vec3 min; // 최소 좌표
+    Vec3 max; // 최대 좌표
+
+    Box(const Vec3& _min = Vec3(), const Vec3& _max = Vec3())
+        : min{_min}, max{_max} {}
+
+    bool IsInside(const Vec3& point) const;
+    bool Intersect(const Box& other) const;
 };
 
 enum class BoundValue{
@@ -243,7 +253,8 @@ struct Frustum{
     Frustum(const std::array<Plane, 6>& _planes = {})
         : planes{_planes} {}
 
-    BoundValue CheckBound(const Sphere& point) const;
+    BoundValue CheckBound(const Sphere& _sphere) const;
+    BoundValue CheckBound(const Box& _box) const;
 };
 
 

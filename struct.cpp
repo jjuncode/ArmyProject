@@ -398,6 +398,49 @@ BoundValue Frustum::CheckBound(const Sphere &_sphere) const
     return BoundValue::kInside;
 }
 
+BoundValue Frustum::CheckBound(const Box &_box) const
+{
+    for (const auto& plane : planes) {
+        Vec3 check{};
+        Vec3 check_opposite{};
+
+        if ( plane.normal.x > 0 ) {
+            check.x = _box.min.x;
+            check_opposite.x = _box.max.x;
+        }
+        else{
+            check.x = _box.max.x;
+            check_opposite.x = _box.min.x;
+        }
+        if ( plane.normal.y > 0 ) {
+            check.y = _box.min.y;
+            check_opposite.y = _box.max.y;
+        }
+        else{
+            check.y = _box.max.y;
+            check_opposite.y = _box.min.y;
+        }
+        if ( plane.normal.z > 0 ) {
+            check.z = _box.min.z;
+            check_opposite.z = _box.max.z;
+        }
+        else{
+            check.z = _box.max.z;
+            check_opposite.z = _box.min.z;
+        }
+
+        auto distn = plane.DistanceToPoint(check);
+        if ( distn > 0 ){
+            return BoundValue::kOutside; // Box is outside the plane
+        }
+        else if (distn <= 0 && plane.DistanceToPoint(check_opposite) >= 0) {
+            return BoundValue::kIntersect; // Box intersects the plane
+        }
+    }
+
+    return BoundValue::kInside; // Box is inside the frustum
+}
+
 Plane::Plane(const Vec4 &_v)
 {
     normal = Vec3(_v.x, _v.y, _v.z);

@@ -36,7 +36,9 @@ public:
     static void SetDrawMode(DrawMode _v){m_draw_mode = _v;}
 
     bool BackFaceCulling(std::array<Vertex, 3> _tri);
-    BoundValue FrustumCulling(const Frustum& _frustum, const Sphere& _pos);
+    BoundValue FrustumCulling(const Frustum& _frustum, const Sphere& _sphere){ return _frustum.CheckBound(_sphere); }
+    BoundValue FrustumCulling(const Frustum& _frustum, const Box& _box){ return _frustum.CheckBound(_box); }
+
     void SetDepthBuffer(const Vec2& _v, float _depth);
     static void ClearDepthBuffer();
 
