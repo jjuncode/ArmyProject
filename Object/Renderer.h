@@ -25,27 +25,25 @@ private:
 public:
     Renderer()
         : m_is_visible{true}, m_color{sf::Color::Black}, m_is_shading{true}
-    {
-
-    }
+    {}
     void SetOwner(uint32_t _id) { m_id_owner = _id; }
 
     void SetVisible(bool _visible) { m_is_visible = _visible; }
     void SetColor(sf::Color _color) { m_color = _color; }
     void SetFragment(bool _v) { m_is_shading = _v; }
     static void SetDrawMode(DrawMode _v){m_draw_mode = _v;}
-
-    bool BackFaceCulling(std::array<Vertex, 3> _tri);
-    BoundValue FrustumCulling(const Frustum& _frustum, const Sphere& _sphere){ return _frustum.CheckBound(_sphere); }
-    BoundValue FrustumCulling(const Frustum& _frustum, const Box& _box){ return _frustum.CheckBound(_box); }
-
+    
     void SetDepthBuffer(const Vec2& _v, float _depth);
     static void ClearDepthBuffer();
-
+    
     void Render();
-
+    
     static void CreateRenderingBuffer();
 };
+
+bool BackFaceCulling(std::array<Vertex, 3> _tri);
+BoundValue FrustumCulling(const Frustum& _frustum, const Sphere& _sphere);
+BoundValue FrustumCulling(const Frustum& _frustum, const Box& _box);
 
 void VertexShader(std::vector<Vertex> &_v, const Mat4 &_matrix);
 void VertexShader(std::array<Vertex,3> &_v, const Mat4 &_matrix);

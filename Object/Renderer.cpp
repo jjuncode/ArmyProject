@@ -13,7 +13,7 @@
 DrawMode Renderer::m_draw_mode{DrawMode::kDefault_Shading};
 std::vector<std::vector<float>> Renderer::m_vec_depth_buffer{}; // 렌더링 포인트 벡터
 
-bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
+bool BackFaceCulling(std::array<Vertex, 3> _tri)
 {
 	auto vec1 = _tri[1].v.ToVec3() - _tri[0].v.ToVec3();
 	auto vec2 = _tri[2].v.ToVec3() - _tri[0].v.ToVec3();
@@ -30,6 +30,16 @@ bool Renderer::BackFaceCulling(std::array<Vertex, 3> _tri)
     }
 
 	return false;
+}
+
+BoundValue FrustumCulling(const Frustum &_frustum, const Sphere &_sphere)
+{
+	return _frustum.CheckBound(_sphere); 
+}
+
+BoundValue FrustumCulling(const Frustum &_frustum, const Box &_box)
+{
+	return _frustum.CheckBound(_box);
 }
 
 void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
@@ -316,18 +326,6 @@ void VertexShader(std::array<Vertex,3> &_v, const Mat4 &_matrix)
 		v.v = _matrix * v.v;
 	}
 }
-
-// void VertexShader(std::vector<Vertex> &_v, const Mat4 &_view, const Mat4 &_transform)
-// {
-// 	auto resolution = Core::GetWindowSize();
-
-// 	auto view_matrix = _view * _transform;
-
-// 	// To view space
-// 	for (auto& v : _v ){
-// 		v.v = view_matrix * v.v;
-// 	}
-// }
 
 void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4 &_view_matrix_inv)
 {
