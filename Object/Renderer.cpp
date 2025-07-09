@@ -9,6 +9,7 @@
 #include "Object.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Perspective.h"
 
 DrawMode Renderer::m_draw_mode{DrawMode::kDefault_Shading};
 std::vector<std::vector<float>> Renderer::m_vec_depth_buffer{}; // 렌더링 포인트 벡터
@@ -47,6 +48,182 @@ void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
 	m_vec_depth_buffer[_v.x][_v.y] = _depth;
 }
 
+void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color_additional)
+{
+	auto window = Core::GetWindowContext();
+	auto resolution = Core::GetWindowSize();
+	
+	auto& obj = SceneMgr::GetObject(m_id_owner); 
+	auto& transform = obj.GetTransform();
+	auto& texture = Texture::GetTexture(obj.GetTextureKey());
+	
+	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
+	auto& camera_script = *static_cast<CameraScript*>(&camera.GetScript());
+
+	static auto near_plane = camera_script.GetNearPlane();
+	static auto far_plane = camera_script.GetFarPlane();
+
+	auto view_matrix = camera_script.GetViewMatrix();
+	auto view_matrix_inv = view_matrix.Inverse();
+
+	if ( m_draw_mode != DrawMode::kWireFrame){
+		auto v1 = _vertex[0];
+		auto v2 = _vertex[1];
+		auto v3 = _vertex[2];
+
+		auto inv_z_1 = 1.f / v1.v.z;
+		auto inv_z_2 = 1.f / v2.v.z;
+		auto inv_z_3 = 1.f / v3.v.z;
+
+		std::array<Vertex, 3> tri {v1,v2,v3};
+
+		// To NDC
+		for ( auto& v : tri ) {
+			v.v = v.v / v.v.w;
+	
+			v.v.x *= resolution.x * 0.5f;
+			v.v.y *= resolution.y * 0.5f;
+		}
+
+		Vec2 min {std::min({tri[0].v.x, tri[1].v.x, tri[2].v.x}), std::min({tri[0].v.y, tri[1].v.y, tri[2].v.y})};
+		Vec2 max {std::max({tri[0].v.x, tri[1].v.x, tri[2].v.x}), std::max({tri[0].v.y, tri[1].v.y, tri[2].v.y})};
+				Vec3 u = tri[1].v.ToVec3() - tri[0].v.ToVec3();
+		Vec3 v = tri[2].v.ToVec3() - tri[0].v.ToVec3();
+
+		// 공통분모
+		float udotv = Vec::Dot(u, v);
+		float vdotv = Vec::Dot(v,v);
+		float udotu = Vec::Dot(u,u);
+		float det = udotv * udotv - vdotv * udotu;
+		if (det == 0) {
+			return; // If denominator is zero, skip this triangle
+		}
+
+		float det_inv = 1.f / det;
+
+		// Get Screen Point
+		Vec2 screen_left_bot = Vec::ConvertToScreenCoord(min);
+		Vec2 screen_right_top = Vec::ConvertToScreenCoord(max);
+
+		// screen clamping 
+		screen_left_bot.x = std::clamp(screen_left_bot.x, 0.f, resolution.x);
+		screen_left_bot.y = std::clamp(screen_left_bot.y, 0.f, resolution.y);
+		screen_right_top.x = std::clamp(screen_right_top.x, 0.f, resolution.x);
+		screen_right_top.y = std::clamp(screen_right_top.y, 0.f, resolution.y);
+				// Get All the pixel in the triangle
+		for (int x =screen_left_bot.x; x<=screen_right_top.x; ++x) {
+			for (int y = screen_right_top.y; y <=screen_left_bot.y; ++y) {
+				Vec2 frag = Vec2(x, y);
+
+				Vec3 test_pt = Vec::ConvertToCartesian(Vec3(frag.x, frag.y, 0));
+				Vec3 w = test_pt - (tri[0].v).ToVec3();
+				float wdotu = Vec::Dot(w,u);
+				float wdotv = Vec::Dot(w,v);
+
+				float s= (wdotv * udotv - wdotu * vdotv ) * det_inv;
+				float t = (wdotu * udotv - wdotv * udotu ) * det_inv;
+				float one_minus_s_t = 1.f - s - t;
+
+				// Check if the pixel is inside the triangle using barycentric coordinates
+				if (s>=0.f && s<= 1.f && t>=0.f && t<=1.f
+					 && one_minus_s_t >= 0.f && one_minus_s_t <= 1.f) {
+					// Inside the triangle
+
+					// Get Depth
+					float depth = v1.v.z * one_minus_s_t
+								+ v2.v.z * s
+								+ v3.v.z * t;
+
+					// //  보정
+					float z = inv_z_1 * one_minus_s_t + inv_z_2 * s + inv_z_3 * t;
+					float inv_z = 1.f / z;
+
+					// Set Depth Buffer
+					if ( m_vec_depth_buffer[frag.x][frag.y] >= depth ) {
+						continue; // If the current pixel is not closer, skip
+					}
+
+					SetDepthBuffer(Vec2(frag.x, frag.y ), depth);
+
+					sf::Vertex point{}; 	// to draw 
+
+					if ( m_draw_mode == DrawMode::kDepthBuffer){
+						auto color_depth = (abs(depth) - near_plane)/(far_plane - near_plane);
+
+						auto color = sf::Color{
+							static_cast<sf::Uint8>(255.f * color_depth), 
+							static_cast<sf::Uint8>(255.f * color_depth),
+							static_cast<sf::Uint8>(255.f * color_depth),
+							255u
+						};
+						point = sf::Vertex{sf::Vector2f(frag.x, frag.y),color};
+					}
+					else if ( v1.IsUV() && texture.IsValid()) {
+						// 한점만 있어도 다 있다는거니까 ㅇㅇ
+
+						Vec2 target_uv( (v1.uv * one_minus_s_t * inv_z_1
+										+ v2.uv * s * inv_z_2
+										+ v3.uv * t * inv_z_3) * inv_z );
+						
+						point = sf::Vertex{sf::Vector2f(frag.x, frag.y)
+											,texture.GetPixel(target_uv) + color_additional};
+						if ( m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
+							FragmentShader(point, transform.GetPos(),view_matrix_inv);
+					}
+					else{
+						sf::Color color = sf::Color(
+							static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
+							static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
+							static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
+						point = sf::Vertex{sf::Vector2f(frag.x, frag.y), color + m_color + color_additional};
+
+						if (m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
+							FragmentShader(point, transform.GetPos(), view_matrix_inv);
+					}
+
+					
+					window->draw(&point, 1, sf::Points);
+				}
+			}
+		}
+	}
+	else if ( m_draw_mode == DrawMode::kWireFrame ) {
+		// WireFrame
+		auto v1 = _vertex[0];
+		auto v2 = _vertex[1];
+		auto v3 = _vertex[2];
+
+		std::array<Vertex, 3> tri {v1,v2,v3};
+		
+		// To NDC
+		for ( auto& v : tri ) {
+			v.v = v.v / v.v.w;
+			
+			v.v.x *= resolution.x * 0.5f;
+			v.v.y *= resolution.y * 0.5f;
+		}
+
+		Vec2 v1_screen = Vec::ConvertToScreenCoord(tri[0].v.ToVec3());
+		Vec2 v2_screen = Vec::ConvertToScreenCoord(tri[1].v.ToVec3());
+		Vec2 v3_screen = Vec::ConvertToScreenCoord(tri[2].v.ToVec3());
+
+		auto self_color = m_color;
+		if (color_additional != sf::Color{}){
+			self_color = sf::Color{};
+		}
+		
+		sf::Vertex lines[] = {
+			sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
+			sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
+			sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
+			sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), self_color + color_additional),
+			sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), self_color + color_additional),
+			sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
+		};
+		window->draw(lines, 6, sf::Lines);
+	}
+}
+
 void Renderer::ClearDepthBuffer()
 {
 	for (auto &vec : m_vec_depth_buffer)	{
@@ -58,32 +235,26 @@ void Renderer::Render()
 {
 	if ( !m_is_visible ) return;
 	
-	auto window = Core::GetWindowContext();
-	auto resolution = Core::GetWindowSize();
-	
 	auto& obj = SceneMgr::GetObject(m_id_owner); 
 	auto& transform = obj.GetTransform();
-	auto& texture = Texture::GetTexture(obj.GetTextureKey());
 	auto& mesh = Mesh::GetMesh(obj.GetMeshKey());
 	
 	if ( !mesh.IsValid() ) {
 		return; // If transform or mesh is not available, exit the function
 	}
 
-	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
 	auto vec_vertexs = mesh.GetVertexs();
 	
 	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
 	auto& camera_script = *static_cast<CameraScript*>(&camera.GetScript());
 
-	auto near_plane = camera_script.GetNearPlane();
-	auto far_plane = camera_script.GetFarPlane();
+	static auto near_plane = camera_script.GetNearPlane();
+	static auto far_plane = camera_script.GetFarPlane();
 
 	auto model_matrix = transform.GetModelMatrix();
 	auto view_matrix = camera_script.GetViewMatrix();
-	auto projection_matrix = camera_script.GetProjectionMatrix();
+	static auto projection_matrix = camera_script.GetProjectionMatrix();
 
-	auto view_matrix_inv = view_matrix.Inverse();
 	auto VM_matrix = view_matrix * model_matrix;
 	auto PVM_matrix = projection_matrix * VM_matrix;
 	
@@ -111,196 +282,20 @@ void Renderer::Render()
 	// Vertex Shader 
 	VertexShader(vec_vertexs, VM_matrix);
 
-	if ( m_draw_mode != DrawMode::kWireFrame){
-		for (int i =0; i < triangle_count; ++i ) {
-			auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
-			auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
-			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
+	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
 
-			auto inv_z_1 = 1.f / v1.v.z;
-			auto inv_z_2 = 1.f / v2.v.z;
-			auto inv_z_3 = 1.f / v3.v.z;
+	for (int i = 0; i < triangle_count; ++i){
+		auto v1 = vec_vertexs[mesh.GetIndexs()[i * 3]];
+		auto v2 = vec_vertexs[mesh.GetIndexs()[i * 3 + 1]];
+		auto v3 = vec_vertexs[mesh.GetIndexs()[i * 3 + 2]];
 
-			if ( inv_z_1 >=0.f || inv_z_2 >=0.f || inv_z_3 >=0.f ) {
-				// If any vertex is behind the camera, skip this triangle
-				continue;
-			}
-
-			std::array<Vertex, 3> tri {v1,v2,v3};
-			if ( BackFaceCulling(tri)){
-				continue;
-			}
-			VertexShader(tri, projection_matrix);
-
-			// To NDC
-			for ( auto& v : tri ) {
-				v.v = v.v / v.v.w;
-	
-				v.v.x *= resolution.x * 0.5f;
-				v.v.y *= resolution.y * 0.5f;
-			}
-
-			Vec2 min {std::min({tri[0].v.x, tri[1].v.x, tri[2].v.x}), std::min({tri[0].v.y, tri[1].v.y, tri[2].v.y})};
-			Vec2 max {std::max({tri[0].v.x, tri[1].v.x, tri[2].v.x}), std::max({tri[0].v.y, tri[1].v.y, tri[2].v.y})};
-		
-			Vec3 u = tri[1].v.ToVec3() - tri[0].v.ToVec3();
-			Vec3 v = tri[2].v.ToVec3() - tri[0].v.ToVec3();
-
-			// 공통분모
-			float udotv = Vec::Dot(u, v);
-			float vdotv = Vec::Dot(v,v);
-			float udotu = Vec::Dot(u,u);
-			float det = udotv * udotv - vdotv * udotu;
-			if (det == 0) {
-				continue; // If denominator is zero, skip this triangle
-			}
-
-			float det_inv = 1.f / det;
-
-			// Get Screen Point
-			Vec2 screen_left_bot = Vec::ConvertToScreenCoord(min);
-			Vec2 screen_right_top = Vec::ConvertToScreenCoord(max);
-
-			// screen clamping 
-			screen_left_bot.x = std::clamp(screen_left_bot.x, 0.f, resolution.x);
-			screen_left_bot.y = std::clamp(screen_left_bot.y, 0.f, resolution.y);
-			screen_right_top.x = std::clamp(screen_right_top.x, 0.f, resolution.x);
-			screen_right_top.y = std::clamp(screen_right_top.y, 0.f, resolution.y);
-		
-			// Get All the pixel in the triangle
-			for (int x =screen_left_bot.x; x<=screen_right_top.x; ++x) {
-				for (int y = screen_right_top.y; y <=screen_left_bot.y; ++y) {
-					Vec2 frag = Vec2(x, y);
-
-					Vec3 test_pt = Vec::ConvertToCartesian(Vec3(frag.x, frag.y, 0));
-					Vec3 w = test_pt - (tri[0].v).ToVec3();
-					float wdotu = Vec::Dot(w,u);
-					float wdotv = Vec::Dot(w,v);
-
-					float s= (wdotv * udotv - wdotu * vdotv ) * det_inv;
-					float t = (wdotu * udotv - wdotv * udotu ) * det_inv;
-					float one_minus_s_t = 1.f - s - t;
-
-					// Check if the pixel is inside the triangle using barycentric coordinates
-					if (s>=0.f && s<= 1.f && t>=0.f && t<=1.f
-						 && one_minus_s_t >= 0.f && one_minus_s_t <= 1.f) {
-						// Inside the triangle
-
-						// Get Depth
-						float depth = v1.v.z * one_minus_s_t
-									+ v2.v.z * s
-									+ v3.v.z * t;
-
-						// //  보정
-						float z = inv_z_1 * one_minus_s_t + inv_z_2 * s + inv_z_3 * t;
-						float inv_z = 1.f / z;
-						// depth *= inv_z; // Apply perspective correction
-
-						// float denom = one_minus_s_t * inv_z_1 + s * inv_z_2 + t * inv_z_3;
-
-						// float depth = (v1.v.z * inv_z_1 * one_minus_s_t +
-						// 			   v2.v.z * inv_z_2 * s +
-						// 			   v3.v.z * inv_z_3 * t) /
-						// 			  denom;
-
-						// Set Depth Buffer
-						if ( m_vec_depth_buffer[frag.x][frag.y] >= depth ) {
-							continue; // If the current pixel is not closer, skip
-						}
-
-						SetDepthBuffer(Vec2(frag.x, frag.y ), depth);
-
-						sf::Vertex point{}; 	// to draw 
-
-						if ( m_draw_mode == DrawMode::kDepthBuffer){
-							auto color_depth = (abs(depth) - near_plane)/(far_plane - near_plane);
-
-							auto color = sf::Color{
-								static_cast<sf::Uint8>(255.f * color_depth), 
-								static_cast<sf::Uint8>(255.f * color_depth),
-								static_cast<sf::Uint8>(255.f * color_depth),
-								255u
-							};
-							point = sf::Vertex{sf::Vector2f(frag.x, frag.y),color};
-						}
-						else if ( v1.IsUV() && texture.IsValid()) {
-							// 한점만 있어도 다 있다는거니까 ㅇㅇ
-
-							Vec2 target_uv( (v1.uv * one_minus_s_t * inv_z_1
-											+ v2.uv * s * inv_z_2
-											+ v3.uv * t * inv_z_3) * inv_z );
-							
-							point = sf::Vertex{sf::Vector2f(frag.x, frag.y)
-												,texture.GetPixel(target_uv) + color_additional};
-							if ( m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
-								FragmentShader(point, transform.GetPos(),view_matrix_inv);
-						}
-						else{
-							sf::Color color = sf::Color(
-								static_cast<sf::Uint8>(v1.color.r * one_minus_s_t + v2.color.r * s + v3.color.r * t),
-								static_cast<sf::Uint8>(v1.color.g * one_minus_s_t + v2.color.g * s + v3.color.g * t),
-								static_cast<sf::Uint8>(v1.color.b * one_minus_s_t + v2.color.b * s + v3.color.b * t));
-							point = sf::Vertex{sf::Vector2f(frag.x, frag.y), color + m_color + color_additional};
-
-							if (m_is_shading && m_draw_mode == DrawMode::kDefault_Shading)
-								FragmentShader(point, transform.GetPos(), view_matrix_inv);
-						}
-
-						
-						window->draw(&point, 1, sf::Points);
-					}
-				}
-			}
+		std::array<Vertex, 3> tri{v1, v2, v3};
+		if (BackFaceCulling(tri)){
+			continue;
 		}
-	}
-	else if ( m_draw_mode == DrawMode::kWireFrame ) {
-		// WireFrame
-		for (int i =0; i < triangle_count; ++i ) {
-			auto v1 = vec_vertexs[mesh.GetIndexs()[i*3]];
-			auto v2 = vec_vertexs[mesh.GetIndexs()[i*3 + 1]];
-			auto v3 = vec_vertexs[mesh.GetIndexs()[i*3 + 2]];
+		VertexShader(tri, projection_matrix);
 
-			if ( v1.v.z >= 0.f || v2.v.z >= 0.f || v3.v.z >= 0.f ) {
-				// If any vertex is behind the camera, skip this triangle
-				continue;
-			}
-
-			std::array<Vertex, 3> tri {v1,v2,v3};
-
-			if (BackFaceCulling(tri)){
-				continue;
-			}
-			VertexShader(tri, projection_matrix);
-			// To NDC
-			for ( auto& v : tri ) {
-				v.v = v.v / v.v.w;
-	
-				v.v.x *= resolution.x * 0.5f;
-				v.v.y *= resolution.y * 0.5f;
-			}
-
-			Vec2 v1_screen = Vec::ConvertToScreenCoord(tri[0].v.ToVec3());
-			Vec2 v2_screen = Vec::ConvertToScreenCoord(tri[1].v.ToVec3());
-			Vec2 v3_screen = Vec::ConvertToScreenCoord(tri[2].v.ToVec3());
-
-			auto self_color = m_color;
-			if (color_additional != sf::Color{}){
-				self_color = sf::Color{};
-			}
-
-			sf::Vertex lines[] = {
-				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
-				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
-
-				sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
-				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), self_color + color_additional),
-
-				sf::Vertex(sf::Vector2f(v3_screen.x, v3_screen.y), self_color + color_additional),
-				sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
-			};
-
-			window->draw(lines, 6, sf::Lines);
-		}
+		DrawTriangle(tri, color_additional);
 	}
 }
 

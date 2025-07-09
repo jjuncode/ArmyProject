@@ -24,11 +24,11 @@ struct Vec2
     // 복사 생성자
     Vec2(const Vec2& other): x{other.x}, y{other.y} {}
 
-    Vec2 operator- (const Vec2& rhs){return Vec2(x-rhs.x, y-rhs.y);}
-    Vec2 operator+ (const Vec2& rhs){return Vec2(x+rhs.x, y+rhs.y);}
-    Vec2 operator* (float rhs){return Vec2(x*rhs, y*rhs);}
-    Vec2 operator/(float rhs){return Vec2(x / rhs, y / rhs);}
-    Vec2 operator* (const Vec2& rhs){return Vec2(x*rhs.x, y*rhs.y);}
+    Vec2 operator- (const Vec2& rhs)    const {return Vec2(x-rhs.x, y-rhs.y);}
+    Vec2 operator+ (const Vec2& rhs)    const {return Vec2(x+rhs.x, y+rhs.y);}
+    Vec2 operator* (float rhs)          const {return Vec2(x*rhs, y*rhs);}
+    Vec2 operator/ (float rhs)          const {return Vec2(x / rhs, y / rhs);}
+    Vec2 operator* (const Vec2& rhs)    const {return Vec2(x*rhs.x, y*rhs.y);}
     Vec2& operator -= (const Vec2& rhs){x -= rhs.x; y -= rhs.y;return *this;}
     Vec2& operator += (const Vec2& rhs){x += rhs.x; y += rhs.y; return *this;}
     Vec2& operator *= (const float rhs){x*= rhs; y*= rhs; return *this;}
@@ -266,6 +266,24 @@ struct RGBA{
 
     RGBA(uint8_t _r = 255u, uint8_t _g = 255u, uint8_t _b = 255u, uint8_t _a = 1)
         : r{_r}, g{_g}, b{_b}, a{_a} {}
+
+    RGBA operator* (float v) const {
+        return RGBA(
+            static_cast<uint8_t>(r * v),
+            static_cast<uint8_t>(g * v),
+            static_cast<uint8_t>(b * v),
+            static_cast<uint8_t>(a * v)
+        );
+    } 
+
+    RGBA operator+ (const RGBA& rhs) const {
+        return RGBA(
+            static_cast<uint8_t>(std::min(r + rhs.r, 255)),
+            static_cast<uint8_t>(std::min(g + rhs.g, 255)),
+            static_cast<uint8_t>(std::min(b + rhs.b, 255)),
+            static_cast<uint8_t>(std::min(a + rhs.a, 255))
+        );
+    }
 };
 
 struct Vertex{

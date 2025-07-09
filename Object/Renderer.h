@@ -33,12 +33,14 @@ public:
     void SetFragment(bool _v) { m_is_shading = _v; }
     static void SetDrawMode(DrawMode _v){m_draw_mode = _v;}
     
-    void SetDepthBuffer(const Vec2& _v, float _depth);
-    static void ClearDepthBuffer();
-    
     void Render();
     
     static void CreateRenderingBuffer();
+    static void ClearDepthBuffer();
+
+private:
+    void SetDepthBuffer(const Vec2& _v, float _depth);
+    void DrawTriangle(const std::array<Vertex,3>& _vertex, sf::Color color_additional);
 };
 
 bool BackFaceCulling(std::array<Vertex, 3> _tri);
