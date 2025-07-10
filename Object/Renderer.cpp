@@ -48,6 +48,105 @@ void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
 	m_vec_depth_buffer[_v.x][_v.y] = _depth;
 }
 
+void Renderer::ClearDepthBuffer()
+{
+	for (auto &vec : m_vec_depth_buffer)	{
+		std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::lowest());
+	}
+}
+
+void Renderer::Render()
+{
+	if ( !m_is_visible ) return;
+	
+	auto& obj = SceneMgr::GetObject(m_id_owner); 
+	auto& transform = obj.GetTransform();
+	auto& mesh = Mesh::GetMesh(obj.GetMeshKey());
+	
+	if ( !mesh.IsValid() ) {
+		return; // If transform or mesh is not available, exit the function
+	}
+
+	auto vec_vertexs = mesh.GetVertexs();
+	
+	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
+	auto& camera_script = *static_cast<CameraScript*>(&camera.GetScript());
+
+	static auto near_plane = camera_script.GetNearPlane();
+	static auto far_plane = camera_script.GetFarPlane();
+
+	auto model_matrix = transform.GetModelMatrix();
+	auto view_matrix = camera_script.GetViewMatrix();
+	static auto projection_matrix = camera_script.GetProjectionMatrix();
+
+	auto VM_matrix = view_matrix * model_matrix;
+	auto PVM_matrix = projection_matrix * VM_matrix;
+	
+	std::array<Plane,6> frustum_planes{
+		PVM_matrix[3] + PVM_matrix[0], // Left
+		PVM_matrix[3] - PVM_matrix[0], // Right
+		PVM_matrix[3] + PVM_matrix[1], // Bottom
+		PVM_matrix[3] - PVM_matrix[1], // Top
+		PVM_matrix[3] + PVM_matrix[2], // Near
+		PVM_matrix[3] - PVM_matrix[2]  // Far
+	};
+	Frustum frustum{frustum_planes};
+	
+	sf::Color color_additional{};
+
+	// Frustum Culling
+	auto bound_value = FrustumCulling(frustum, mesh.GetBox());
+	if ( bound_value == BoundValue::kIntersect){
+		color_additional = sf::Color::Red;
+	}
+	else if ( bound_value == BoundValue::kOutside) {
+		return; // If the mesh is outside the frustum, skip rendering
+	}
+
+	// Vertex Shader 
+	VertexShader(vec_vertexs, VM_matrix);
+
+	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
+
+	for (int i = 0; i < triangle_count; ++i){
+		auto v1 = vec_vertexs[mesh.GetIndexs()[i * 3]];
+		auto v2 = vec_vertexs[mesh.GetIndexs()[i * 3 + 1]];
+		auto v3 = vec_vertexs[mesh.GetIndexs()[i * 3 + 2]];
+
+		std::array<Vertex, 3> tri{v1, v2, v3};
+		if (BackFaceCulling(tri)){
+			continue;
+		}
+		VertexShader(tri, projection_matrix);
+
+		std::vector<PerspectiveTest> vec_planes{
+			{IsPointOutsideW0, ProjectionToPlaneW0},
+			{IsPointOutsidePY, ProjectionToPlanePY},
+			{IsPointOutsideMY, ProjectionToPlaneMY},
+			{IsPointOutsidePX, ProjectionToPlanePX},
+			{IsPointOutsideMX, ProjectionToPlaneMX},
+			{IsPointOutsidePZ, ProjectionToPlanePZ},
+			{IsPointOutsideMZ, ProjectionToPlaneMZ}
+		};
+
+		std::vector<Vertex> vec_clipping{ tri[0], tri[1], tri[2] };
+
+		for (auto& plane : vec_planes){
+			plane.Clipping(vec_clipping);
+		}
+
+		auto triangle_cnt_clipping = vec_clipping.size() / 3;
+		for ( auto j=0; j<triangle_cnt_clipping; ++j ){
+			auto v1 = vec_clipping[j*3];
+			auto v2 = vec_clipping[j*3 + 1];
+			auto v3 = vec_clipping[j*3 + 2];
+
+			std::array<Vertex, 3> tri_cliiping{v1, v2, v3};
+			DrawTriangle(tri_cliiping, color_additional);
+		}
+	}
+}
+
 void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color_additional)
 {
 	auto window = Core::GetWindowContext();
@@ -211,7 +310,7 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 		if (color_additional != sf::Color{}){
 			self_color = sf::Color{};
 		}
-		
+
 		sf::Vertex lines[] = {
 			sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
 			sf::Vertex(sf::Vector2f(v2_screen.x, v2_screen.y), self_color + color_additional),
@@ -221,81 +320,6 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 			sf::Vertex(sf::Vector2f(v1_screen.x, v1_screen.y), self_color + color_additional),
 		};
 		window->draw(lines, 6, sf::Lines);
-	}
-}
-
-void Renderer::ClearDepthBuffer()
-{
-	for (auto &vec : m_vec_depth_buffer)	{
-		std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::lowest());
-	}
-}
-
-void Renderer::Render()
-{
-	if ( !m_is_visible ) return;
-	
-	auto& obj = SceneMgr::GetObject(m_id_owner); 
-	auto& transform = obj.GetTransform();
-	auto& mesh = Mesh::GetMesh(obj.GetMeshKey());
-	
-	if ( !mesh.IsValid() ) {
-		return; // If transform or mesh is not available, exit the function
-	}
-
-	auto vec_vertexs = mesh.GetVertexs();
-	
-	auto& camera = SceneMgr::GetObject(SceneMgr::GetMainCamera());
-	auto& camera_script = *static_cast<CameraScript*>(&camera.GetScript());
-
-	static auto near_plane = camera_script.GetNearPlane();
-	static auto far_plane = camera_script.GetFarPlane();
-
-	auto model_matrix = transform.GetModelMatrix();
-	auto view_matrix = camera_script.GetViewMatrix();
-	static auto projection_matrix = camera_script.GetProjectionMatrix();
-
-	auto VM_matrix = view_matrix * model_matrix;
-	auto PVM_matrix = projection_matrix * VM_matrix;
-	
-	std::array<Plane,6> frustum_planes{
-		PVM_matrix[3] + PVM_matrix[0], // Left
-		PVM_matrix[3] - PVM_matrix[0], // Right
-		PVM_matrix[3] + PVM_matrix[1], // Bottom
-		PVM_matrix[3] - PVM_matrix[1], // Top
-		PVM_matrix[3] + PVM_matrix[2], // Near
-		PVM_matrix[3] - PVM_matrix[2]  // Far
-	};
-	Frustum frustum{frustum_planes};
-	
-	sf::Color color_additional{};
-
-	// Frustum Culling
-	auto bound_value = FrustumCulling(frustum, mesh.GetBox());
-	if ( bound_value == BoundValue::kIntersect){
-		color_additional = sf::Color::Red;
-	}
-	else if ( bound_value == BoundValue::kOutside) {
-		return; // If the mesh is outside the frustum, skip rendering
-	}
-
-	// Vertex Shader 
-	VertexShader(vec_vertexs, VM_matrix);
-
-	uint32_t triangle_count = mesh.GetIndexs().size() / 3;
-
-	for (int i = 0; i < triangle_count; ++i){
-		auto v1 = vec_vertexs[mesh.GetIndexs()[i * 3]];
-		auto v2 = vec_vertexs[mesh.GetIndexs()[i * 3 + 1]];
-		auto v3 = vec_vertexs[mesh.GetIndexs()[i * 3 + 2]];
-
-		std::array<Vertex, 3> tri{v1, v2, v3};
-		if (BackFaceCulling(tri)){
-			continue;
-		}
-		VertexShader(tri, projection_matrix);
-
-		DrawTriangle(tri, color_additional);
 	}
 }
 

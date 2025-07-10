@@ -34,14 +34,18 @@ void PlayScene::Init()
     camera->SetScript(std::move(script_camera));
     camera->GetTransform().SetLocalAxis(Vec3(0, 0, -1), Vec3(0, 1, 0), Vec3(-1, 0, 0));
 
-    // for (int i=0; i<100; ++i){
-    //     auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(-1000, 0));
-    //     auto obj = Object::CreateObject(pos, size);
-    //     obj->SetMesh("square");
-    //     obj->SetTexutre("player.png");
-    //     obj->SetColor(sf::Color::Blue);
-    //     SceneMgr::AddObject(std::move(obj));
-    // }
+    auto plane = Object::CreateObject(Vec3(0,0,-100), Vec3(size*2));
+    plane->SetMesh("plane");
+    plane->SetColor(sf::Color::Blue);
+
+    for (int i=0; i<100; ++i){
+        auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(-1000, 0));
+        auto obj = Object::CreateObject(pos, size);
+        obj->SetMesh("square");
+        obj->SetTexutre("player.png");
+        obj->SetColor(sf::Color::Blue);
+        SceneMgr::AddObject(std::move(obj));
+    }
 
     // auto light = Object::CreateObject(Vec3(0,150,0),size);
     // auto script_light = Script::CreateScript<LightScript>(sf::Color::Red);
@@ -56,6 +60,7 @@ void PlayScene::Init()
     SceneMgr::SetMainCamera(camera);
     SceneMgr::AddObject(std::move(player));
     SceneMgr::AddObject(std::move(camera));
+    SceneMgr::AddObject(std::move(plane));
 
     SetCollisionLayer(CollisionObjectType::kPlayer, CollisionObjectType::kBox, true);
     SetCollisionLayer(CollisionObjectType::kBox, CollisionObjectType::kBox, true);

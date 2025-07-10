@@ -88,6 +88,7 @@ void SceneMgr::LoadResource()
         Vertex{{ -1.f , 0.f, -1.f}, {}, {}},
         Vertex{{ 1.f , 0.f, -1.f}, {}, {}},
         Vertex{{ 1.f , 0.f, 1.f}, {}, {}}
+
     }, {
         0,2,1,
         0,3,2

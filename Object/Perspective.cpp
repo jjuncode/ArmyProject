@@ -67,13 +67,13 @@ void PerspectiveTest::DivideToTwoTriangles(std::vector<Vertex> &_vertexs, std::s
 
 void PerspectiveTest::ClipTriangle(std::vector<Vertex> &_vertexs, std::size_t _start_idx)
 {
-    std::size_t idx{};
+    std::size_t idx{0};
     if ( result_point[0] ) {
-        idx = 0;
-    } else if ( result_point[1] ) {
-        idx = 1;
-    } else {
-        idx = 2;
+        // Inside point
+        if ( result_point[1])
+            idx = 2;
+        else
+            idx = 1;
     }
 
     std::size_t idx_v1 = _start_idx + (idx + 1) % 3;

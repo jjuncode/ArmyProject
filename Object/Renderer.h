@@ -40,7 +40,7 @@ public:
 
 private:
     void SetDepthBuffer(const Vec2& _v, float _depth);
-    void DrawTriangle(const std::array<Vertex,3>& _vertex, sf::Color color_additional);
+    void DrawTriangle(const std::array<Vertex, 3>& _vertex, sf::Color color_additional);
 };
 
 bool BackFaceCulling(std::array<Vertex, 3> _tri);
