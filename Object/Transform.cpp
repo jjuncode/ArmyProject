@@ -13,6 +13,10 @@ void Transform::AddRotate(Vec3 _offset)
     // }
 
     // pitch / yaw / roll
+    _offset.x = Vec::GetRadian(_offset.x);
+    _offset.y = Vec::GetRadian(_offset.y);
+    _offset.z = Vec::GetRadian(_offset.z);
+
     m_rotate += _offset;
 
     if (m_rotate.x > 360.f ) m_rotate.x -= 360.f;
@@ -23,30 +27,12 @@ void Transform::AddRotate(Vec3 _offset)
     if ( m_rotate.y < 0.f ) m_rotate.y += 360.f;
     if ( m_rotate.z < 0.f ) m_rotate.z += 360.f;
 
-    float cos_pitch = cos(Vec::GetRadian(m_rotate.x));
-    float sin_pitch = sin(Vec::GetRadian(m_rotate.x));
+    Quaternion quaternion{};
+    quaternion.CreateQuaternion(m_rotate);
 
-    float cos_yaw = cos(Vec::GetRadian(m_rotate.y));
-    float sin_yaw = sin(Vec::GetRadian(m_rotate.y));
-
-    float cos_roll = cos(Vec::GetRadian( m_rotate.z) );
-    float sin_roll = sin(Vec::GetRadian( m_rotate.z) );
-
-    // 오른손 좌표계, Yaw → Pitch → Roll 기준 방향 벡터
-    m_right = Vec3(
-        cos_yaw * cos_roll + sin_yaw * sin_pitch * sin_roll,
-        cos_pitch * sin_roll,
-        -sin_yaw * cos_roll + cos_yaw * sin_pitch * sin_roll);
-
-    m_up = Vec3(
-        -cos_yaw * sin_roll + sin_yaw * sin_pitch * cos_roll,
-        cos_pitch * cos_roll,
-        sin_yaw * sin_roll + cos_yaw * sin_pitch * cos_roll);
-
-    m_forward = Vec3(
-        sin_yaw * cos_pitch,
-        -sin_pitch,
-        cos_yaw * cos_pitch);
+    m_right = quaternion.RotateVector(Vec3(1,0,0));
+    m_up = quaternion.RotateVector(Vec3(0,1,0));
+    m_forward = quaternion.RotateVector(Vec3(0,0,1));
 }
 
 const Mat4 Transform::GetModelMatrix() const

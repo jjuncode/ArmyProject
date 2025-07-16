@@ -31,7 +31,8 @@ void CameraScript::Execute(float dt)
         if ( length > 1.f ){
             // set direction
             // right is opposite of right axis
-            auto right_dir =Vec::Normalize( Vec::Cross(Vec3(0,1,0),camera_forward));
+            // At Camera Perspective
+            auto right_dir =Vec::Normalize( Vec::Cross(camera_forward,Vec3(0,1,0)));
 
             if ( dir.x > 0 ) {
                 // look at right
@@ -51,19 +52,6 @@ void CameraScript::Execute(float dt)
                 camera_forward -= Vec3(0, 1, 0) * dt;
             }
             camera_forward = Vec::Normalize(camera_forward);
-            // float yaw_delta = dir.x * dt * 3.f;    // 좌우
-            // float pitch_delta = dir.y * dt * 3.f; // 위아래 (화면 y축은 반대라서 - 붙임)
-
-            // Mat3 rotation_matrix_yaw{
-            //     Vec3(cosf(yaw_delta), 0, sinf(yaw_delta)),
-            //     Vec3(0, 1, 0),
-            //     Vec3(-sinf(yaw_delta), 0, cosf(yaw_delta))};
-            // Mat3 rotation_matrix_pitch{
-            //     Vec3(1, 0, 0),
-            //     Vec3(0, cosf(pitch_delta), -sinf(pitch_delta)),
-            //     Vec3(0, sinf(pitch_delta), cosf(pitch_delta))};
-
-            // auto forward = rotation_matrix_pitch * rotation_matrix_yaw * camera_forward;
 
             auto right = Vec::Normalize(Vec::Cross(Vec3(0,1,0), camera_forward));
             auto up = Vec::Cross(camera_forward, right);
@@ -82,10 +70,12 @@ void CameraScript::Execute(float dt)
         camera_transform.AddPos(-camera_transform.GetForward() * dt * m_speed);
     }
     if ( InputMgr::IsTap(sf::Keyboard::Key::A) || InputMgr::IsHold(sf::Keyboard::Key::A) ) {
-        camera_transform.AddPos(-camera_transform.GetRight() * dt * m_speed);
+        auto right_dir =Vec::Normalize( Vec::Cross(camera_forward,Vec3(0,1,0)));
+        camera_transform.AddPos(-right_dir * dt * m_speed);
     }
     if ( InputMgr::IsTap(sf::Keyboard::Key::D) || InputMgr::IsHold(sf::Keyboard::Key::D) ) {
-        camera_transform.AddPos(camera_transform.GetRight() * dt * m_speed);
+        auto right_dir =Vec::Normalize( Vec::Cross(camera_forward,Vec3(0,1,0)));
+        camera_transform.AddPos(right_dir * dt * m_speed);
     }
 }
 
@@ -133,7 +123,7 @@ const Mat4 CameraScript::GetViewMatrix() const
     auto forward = transform.GetForward();
 
     Mat4 r_inverse{
-        Vec4(right.x, right.y, right.z, 0),
+        Vec4(-right.x, -right.y, -right.z, 0),
         Vec4(up.x, up.y, up.z, 0),
         Vec4(-forward.x, -forward.y, -forward.z, 0),
         Vec4(0,0,0,1)

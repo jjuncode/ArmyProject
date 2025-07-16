@@ -24,7 +24,7 @@ bool BackFaceCulling(std::array<Vertex, 3> _tri)
     auto center = (_tri[0].v.ToVec3() + _tri[1].v.ToVec3() + _tri[2].v.ToVec3()) / 3.f;
 
 	// 시선벡터를 이용해야한다 병신아 
-    auto to_face = Vec::Normalize(center * -1.f); // == -center
+    auto to_face = Vec::Normalize(center);
 
     if (Vec::Dot(normal, to_face) > 0.f) {
         return true; // Backface → culled
@@ -169,10 +169,16 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 		auto v1 = _vertex[0];
 		auto v2 = _vertex[1];
 		auto v3 = _vertex[2];
+		
+		if (v1.v.z < 0.f || v2.v.z < 0.f || v3.v.z < 0.f)
+		{
+			return; // 카메라 뒤쪽에 있는 삼각형은 건너뛰기
+		}
 
 		auto inv_z_1 = 1.f / v1.v.z;
 		auto inv_z_2 = 1.f / v2.v.z;
 		auto inv_z_3 = 1.f / v3.v.z;
+
 
 		std::array<Vertex, 3> tri {v1,v2,v3};
 

@@ -41,6 +41,9 @@ void PlayerScript::Execute(float dt)
         transform.AddRotate(Vec3(0, 1, 0) * speed); // Y축 회전 (Yaw)
     }
 
+    if (InputMgr::IsTap(sf::Keyboard::O)) {
+        transform.AddRotate(Vec3(0, 90, 0)); // Y축 회전 (Yaw)
+    }
 
     if ( InputMgr::IsTap(sf::Keyboard::T)){
         static bool toogle{false};

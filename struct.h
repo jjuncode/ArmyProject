@@ -257,7 +257,6 @@ struct Frustum{
     BoundValue CheckBound(const Box& _box) const;
 };
 
-
 struct RGBA{
     uint8_t r;
     uint8_t g;
@@ -300,6 +299,26 @@ struct Vertex{
     }
 };
 
+struct Quaternion{
+    float real_part;    // real part
+    Vec3 imaginary_part;     // imaginary part
+
+    Vec3 RotateVector(const Vec3& _vec) const;
+    void CreateQuaternion(const Vec3& _euler);
+    void CreateQuaternion(const Mat4& _mat);
+
+    Quaternion Slerp(const Quaternion& _q1, const Quaternion& _q2, float ratio);
+
+    Vec3 GetEuler() const;
+    Mat4 GetRotationMatrix() const;
+
+    Quaternion& operator-();
+
+};
+
+inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);
+inline Quaternion operator* (const Quaternion& _q1, const Quaternion& _q2);
+
 namespace Vec{
     float LengthSquare(Vec2 _vec);
     float LengthSquare(Vec3 _vec);
@@ -323,6 +342,7 @@ namespace Vec{
     Vec3 Reverse(const Vec3& vec);
 
     float GetDegree(Vec2 _v1, Vec2 _v2);
+    float RadToDegree(float radian);
     float GetRadian(float _v);
 
     Vec2 ConvertToScreenCoord(const Vec2& vec);
@@ -471,6 +491,23 @@ inline constexpr Mat4 operator*(const Mat4& lhs, const Mat4& rhs) {
     return result;
 }
 
+inline Vec3 operator*(const Quaternion &_q, const Vec3 &_v)
+{
+    return _q.RotateVector(_v);
+}
+
+inline Quaternion operator*(const Quaternion &_q1, const Quaternion &_q2)
+{
+    Quaternion result{};
+    result.real_part = _q1.real_part * _q2.real_part - Vec::Dot(_q1.imaginary_part, _q2.imaginary_part);
+    Vec3 v = _q2.imaginary_part * _q1.real_part + _q1.imaginary_part * _q2.real_part + Vec::Cross(_q1.imaginary_part, _q2.imaginary_part);
+
+    result.imaginary_part.x = v.x;
+    result.imaginary_part.y = v.y;
+    result.imaginary_part.z = v.z;
+
+    return result;
+}
 
 inline constexpr Vec4 operator*(const Mat4& m, const Vec4& v) {
     return Vec4(
