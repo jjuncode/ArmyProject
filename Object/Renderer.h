@@ -43,6 +43,36 @@ private:
     void DrawTriangle(const std::array<Vertex, 3>& _vertex, sf::Color color_additional);
 };
 
+enum class BoundValue{
+    kInside,
+    kOutside,
+    kIntersect
+};
+
+struct Plane{
+    Vec3 normal;
+    float d;
+
+    Plane(const Vec3& _normal = Vec3(0, 1, 0), float _d = 0)
+        : normal{_normal}, d{_d} {}
+
+    Plane(const Vec4& _v);
+
+    float DistanceToPoint(const Vec3& point) const;
+    bool IsOutside(const Vec3& point) const;
+};
+
+struct Frustum{
+    std::array<Plane, 6> planes;
+
+    Frustum(const std::array<Plane, 6>& _planes = {})
+        : planes{_planes} {}
+
+    BoundValue CheckBound(const Sphere& _sphere) const;
+    BoundValue CheckBound(const Box& _box) const;
+};
+
+
 bool BackFaceCulling(std::array<Vertex, 3> _tri);
 BoundValue FrustumCulling(const Frustum& _frustum, const Sphere& _sphere);
 BoundValue FrustumCulling(const Frustum& _frustum, const Box& _box);

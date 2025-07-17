@@ -18,7 +18,7 @@ class Transform {
         Transform() 
             : m_pos{Vec3()}
             , m_scale{1,1,1}
-            , m_rotate{Vec3()}
+            , m_rotate{}
             , m_forward{Vec3(0,0,1)}
             , m_up{Vec3(0,1,0)}
             , m_right{Vec3(1,0,0)}
@@ -49,3 +49,41 @@ class Transform {
 
         const Mat4 GetModelMatrix() const;
 };
+
+struct Quaternion{
+    float real_part;    // real part
+    Vec3 imaginary_part;     // imaginary part
+
+    Vec3 RotateVector(const Vec3& _vec) const;
+    void CreateQuaternion(const Vec3& _euler);
+    void CreateQuaternion(const Mat4& _mat);
+
+    Quaternion Slerp(const Quaternion& _q1, const Quaternion& _q2, float ratio);
+
+    Vec3 GetEuler() const;
+    Mat4 GetRotationMatrix() const;
+
+    Quaternion& operator-();
+
+};
+
+inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);
+inline Quaternion operator* (const Quaternion& _q1, const Quaternion& _q2);
+
+inline Vec3 operator*(const Quaternion &_q, const Vec3 &_v)
+{
+    return _q.RotateVector(_v);
+}
+
+inline Quaternion operator*(const Quaternion &_q1, const Quaternion &_q2)
+{
+    Quaternion result{};
+    result.real_part = _q1.real_part * _q2.real_part - Vec::Dot(_q1.imaginary_part, _q2.imaginary_part);
+    Vec3 v = _q2.imaginary_part * _q1.real_part + _q1.imaginary_part * _q2.real_part + Vec::Cross(_q1.imaginary_part, _q2.imaginary_part);
+
+    result.imaginary_part.x = v.x;
+    result.imaginary_part.y = v.y;
+    result.imaginary_part.z = v.z;
+
+    return result;
+}

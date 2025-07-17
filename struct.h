@@ -206,19 +206,6 @@ inline constexpr Mat4 operator+(const Mat4& lhs, const Mat4& rhs);
 inline constexpr Mat4 operator-(const Mat4& lhs, const Mat4& rhs);
 inline constexpr Mat4 operator*(const Mat4& lhs, const Mat4& rhs);
 
-struct Plane{
-    Vec3 normal;
-    float d;
-
-    Plane(const Vec3& _normal = Vec3(0, 1, 0), float _d = 0)
-        : normal{_normal}, d{_d} {}
-
-    Plane(const Vec4& _v);
-
-    float DistanceToPoint(const Vec3& point) const;
-    bool IsOutside(const Vec3& point) const;
-};
-
 struct Sphere{
     Vec3 center;
     float radius;
@@ -239,22 +226,6 @@ struct Box{
 
     bool IsInside(const Vec3& point) const;
     bool Intersect(const Box& other) const;
-};
-
-enum class BoundValue{
-    kInside,
-    kOutside,
-    kIntersect
-};
-
-struct Frustum{
-    std::array<Plane, 6> planes;
-
-    Frustum(const std::array<Plane, 6>& _planes = {})
-        : planes{_planes} {}
-
-    BoundValue CheckBound(const Sphere& _sphere) const;
-    BoundValue CheckBound(const Box& _box) const;
 };
 
 struct RGBA{
@@ -298,26 +269,6 @@ struct Vertex{
         return false;
     }
 };
-
-struct Quaternion{
-    float real_part;    // real part
-    Vec3 imaginary_part;     // imaginary part
-
-    Vec3 RotateVector(const Vec3& _vec) const;
-    void CreateQuaternion(const Vec3& _euler);
-    void CreateQuaternion(const Mat4& _mat);
-
-    Quaternion Slerp(const Quaternion& _q1, const Quaternion& _q2, float ratio);
-
-    Vec3 GetEuler() const;
-    Mat4 GetRotationMatrix() const;
-
-    Quaternion& operator-();
-
-};
-
-inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);
-inline Quaternion operator* (const Quaternion& _q1, const Quaternion& _q2);
 
 namespace Vec{
     float LengthSquare(Vec2 _vec);
@@ -487,24 +438,6 @@ inline constexpr Mat4 operator*(const Mat4& lhs, const Mat4& rhs) {
                 lhs[row][3] * rhs[3][col];
         }
     }
-
-    return result;
-}
-
-inline Vec3 operator*(const Quaternion &_q, const Vec3 &_v)
-{
-    return _q.RotateVector(_v);
-}
-
-inline Quaternion operator*(const Quaternion &_q1, const Quaternion &_q2)
-{
-    Quaternion result{};
-    result.real_part = _q1.real_part * _q2.real_part - Vec::Dot(_q1.imaginary_part, _q2.imaginary_part);
-    Vec3 v = _q2.imaginary_part * _q1.real_part + _q1.imaginary_part * _q2.real_part + Vec::Cross(_q1.imaginary_part, _q2.imaginary_part);
-
-    result.imaginary_part.x = v.x;
-    result.imaginary_part.y = v.y;
-    result.imaginary_part.z = v.z;
 
     return result;
 }

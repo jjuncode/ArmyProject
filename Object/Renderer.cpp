@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "../pch.h"
+#include <algorithm>
 #include "../Core.h"
 
 #include "../Mgr/SceneMgr.h"
@@ -392,4 +393,90 @@ void FragmentShader(sf::Vertex &_point, Vec3 pos_object, Mat4 &_view_matrix_inv)
 	// 	_point.color = shading_color + shading_light;
 	// 	// _point.color += shading_light;
 	// }
+}
+
+
+Plane::Plane(const Vec4 &_v)
+{
+    normal = Vec3(_v.x, _v.y, _v.z);
+    d = _v.w;
+    
+    auto length = Vec::Length(normal);
+    normal /= length;
+    d /= length;
+
+    normal *= -1.0f; // Invert the normal direction
+    d *= -1.0f; // Invert the distance
+}
+
+float Plane::DistanceToPoint(const Vec3 &point) const
+{
+    return Vec::Dot(normal, point) + d;
+}
+
+bool Plane::IsOutside(const Vec3 &point) const
+{
+    if (DistanceToPoint(point) > 0) {
+        return true; // Point is outside the plane
+    }
+    return false; // Point is inside or on the plane    
+}
+
+BoundValue Frustum::CheckBound(const Sphere &_sphere) const
+{
+    for (const auto &plane : planes){
+        auto distn = plane.DistanceToPoint(_sphere.center);
+
+        if (distn > _sphere.radius) {
+            return BoundValue::kOutside;
+        }
+        else if(abs(distn) <=_sphere.radius) {
+            return BoundValue::kIntersect; // Point is on the plane
+        }
+    }
+
+    return BoundValue::kInside;
+}
+
+BoundValue Frustum::CheckBound(const Box &_box) const
+{
+    for (const auto& plane : planes) {
+        Vec3 check{};
+        Vec3 check_opposite{};
+
+        if ( plane.normal.x > 0 ) {
+            check.x = _box.min.x;
+            check_opposite.x = _box.max.x;
+        }
+        else{
+            check.x = _box.max.x;
+            check_opposite.x = _box.min.x;
+        }
+        if ( plane.normal.y > 0 ) {
+            check.y = _box.min.y;
+            check_opposite.y = _box.max.y;
+        }
+        else{
+            check.y = _box.max.y;
+            check_opposite.y = _box.min.y;
+        }
+        if ( plane.normal.z > 0 ) {
+            check.z = _box.min.z;
+            check_opposite.z = _box.max.z;
+        }
+        else{
+            check.z = _box.max.z;
+            check_opposite.z = _box.min.z;
+        }
+
+        auto distn = plane.DistanceToPoint(check);
+        if ( distn > 0 ){
+            return BoundValue::kOutside; // Box is outside the plane
+        }
+        else if (distn <= 0 && plane.DistanceToPoint(check_opposite) >= 0) {
+            return BoundValue::kIntersect; // Box intersects the plane
+        }
+    }
+
+    return BoundValue::kInside; // Box is inside the frustum
 }
