@@ -52,7 +52,7 @@ void Renderer::SetDepthBuffer(const Vec2& _v, float _depth)
 void Renderer::ClearDepthBuffer()
 {
 	for (auto &vec : m_vec_depth_buffer)	{
-		std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::lowest());
+		std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::max());
 	}
 }
 
@@ -245,8 +245,9 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 					float inv_z = 1.f / z;
 
 					// Set Depth Buffer
-					if ( m_vec_depth_buffer[frag.x][frag.y] >= depth ) {
-						continue; // If the current pixel is not closer, skip
+					if ( m_vec_depth_buffer[frag.x][frag.y] <= depth ) {
+						continue; 	// If the current pixel is not closer, skip
+									// +Z is Far
 					}
 
 					SetDepthBuffer(Vec2(frag.x, frag.y ), depth);
@@ -254,7 +255,9 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 					sf::Vertex point{}; 	// to draw 
 
 					if ( m_draw_mode == DrawMode::kDepthBuffer){
-						auto color_depth = (abs(depth) - near_plane)/(far_plane - near_plane);
+
+						// White is Close one, Black is far 
+						auto color_depth = (depth - near_plane)/(far_plane - near_plane);
 
 						auto color = sf::Color{
 							static_cast<sf::Uint8>(255.f * color_depth), 
@@ -287,7 +290,6 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 							FragmentShader(point, transform.GetPos(), view_matrix_inv);
 					}
 
-					
 					window->draw(&point, 1, sf::Points);
 				}
 			}
@@ -335,7 +337,7 @@ void Renderer::CreateRenderingBuffer()
 	auto window_size = Core::GetWindowSize();
 	m_vec_depth_buffer.resize(window_size.x+1);
 	for(auto& v : m_vec_depth_buffer){
-		v.resize(window_size.y+1, std::numeric_limits<float>::lowest());
+		v.resize(window_size.y+1, std::numeric_limits<float>::max());
 	}
 }
 

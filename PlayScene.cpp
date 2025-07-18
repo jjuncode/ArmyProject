@@ -61,7 +61,7 @@ void PlayScene::Init()
     SceneMgr::SetMainCamera(camera);
     SceneMgr::AddObject(std::move(player));
     SceneMgr::AddObject(std::move(camera));
-    SceneMgr::AddObject(std::move(plane));
+    // SceneMgr::AddObject(std::move(plane));
 
     SetCollisionLayer(CollisionObjectType::kPlayer, CollisionObjectType::kBox, true);
     SetCollisionLayer(CollisionObjectType::kBox, CollisionObjectType::kBox, true);
