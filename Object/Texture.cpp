@@ -34,7 +34,6 @@ void Texture::CreateTexture(std::string&& _name)
         std::cout<< "Creating texture: " << texture->GetName() << std::endl;
         map_textures[key] = std::move(texture);
     }
-
 }
 
 const Texture& Texture::GetTexture(const std::size_t& _key) 

@@ -1,6 +1,7 @@
 #include "Object.h"
 
 #include "../Mgr/SceneMgr.h"
+#include "../Component/AnimationComponent.h"
 
 std::stack<uint32_t> Object::remain_id{};
 
@@ -18,6 +19,17 @@ void Object::SetScript(std::unique_ptr<Script> &&_script)
 {
     _script->SetOwner(m_id);
     m_script = std::move(_script);
+}
+
+void Object::SetAnimation(std::unique_ptr<Component> &&_comp)
+{
+    _comp->SetOwner(m_id);
+    m_animation = std::move(_comp);
+}
+
+AnimationComponent* Object::GetAnimation()
+{
+    return static_cast<AnimationComponent*>( m_animation.get());
 }
 
 void Object::Init(Vec3 _pos, Vec3 _scale)
@@ -38,6 +50,7 @@ Object::Object(Vec3 _pos, Vec3 _scale)
         , m_script{nullptr}
         , m_mesh_key{NO_KEY}
         , m_texture_key{NO_KEY}
+        , m_animation{nullptr}
 {
 	static uint id_cnt{};	
 

@@ -76,7 +76,7 @@ protected:
 		return map_component;
 	}
 	template<typename T>
-	void AddComponent(std::shared_ptr<T>&& _comp)
+	void AddComponent(std::unique_ptr<T>&& _comp)
 	{
 		auto idx{_comp->GetID()}; 
 		auto owner_id{_comp->GetOwnerID()};
@@ -85,10 +85,11 @@ protected:
 		if (m_vec_component.size() <= idx)
 			m_vec_component.resize(idx + 1 * 2);
 
-		m_vec_component[idx] = std::move(_comp);
+		std::shared_ptr<T> comp = std::move(_comp);
+		m_vec_component[idx] = comp;
 
 		auto& map = AccessComponentMap<T>();
-		map[owner_id] = _comp;
+		map[owner_id] =	comp;
 	}
 
 	template<typename T>

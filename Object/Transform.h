@@ -15,8 +15,8 @@ class Transform {
         Vec3 m_right;
 
     public:
-        Transform() 
-            : m_pos{Vec3()}
+        Transform(Vec3 _pos = Vec3()) 
+            : m_pos{_pos}
             , m_scale{1,1,1}
             , m_rotate{}
             , m_forward{Vec3(0,0,1)}
@@ -25,7 +25,7 @@ class Transform {
             {}
         void SetOwner(uint32_t _id) { m_owner_id = _id; }
 
-        Vec3 GetPos() { return m_pos; }
+        const Vec3 GetPos() const { return m_pos; }
         void SetPos(const Vec3& _pos){m_pos = _pos;}
         void AddPos(const Vec3& offset){m_pos += offset;}
 

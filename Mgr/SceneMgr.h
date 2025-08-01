@@ -37,7 +37,7 @@ class SceneMgr{
         // Component Method
         // =========================
         template <typename T>
-        static void AddComponent(std::shared_ptr<T>&& _comp){m_cur_scene->AddComponent<T>(std::move(_comp));};
+        static void AddComponent(std::unique_ptr<T>&& _comp){m_cur_scene->AddComponent<T>(std::move(_comp));};
         template <typename T>
         static std::shared_ptr<T> GetComponent(const uint32_t &_owner_id){return m_cur_scene->GetComponent<T>(_owner_id);};
         static void DeleteComponent(uint32_t _comp_id) noexcept{m_cur_scene->DeleteComponent(_comp_id);}

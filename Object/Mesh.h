@@ -5,6 +5,11 @@
 #include <unordered_map>
 #include <memory>
 
+enum class MeshType : uint32_t{
+    Normal = 0,
+    Skinned,
+};
+
 class Mesh{
 private:
     std::string m_name; // mesh name

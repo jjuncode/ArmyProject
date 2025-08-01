@@ -7,8 +7,9 @@
 #include "Transform.h"
 #include "Renderer.h"
 #include "../Script/Script.h"
+#include "../Component/Component.h"
 
-class Component;
+class AnimationComponent;
 
 enum class CollisionObjectType {
     kPlayer = 0,
@@ -40,6 +41,8 @@ private:
 
     std::vector<uint32_t> m_vec_component_id; // component id vector
 
+    std::unique_ptr<Component> m_animation;
+
 public:
     virtual ~Object(){remain_id.push(m_id);}
     void Render() const;
@@ -50,6 +53,8 @@ public:
     void SetTexutre(std::string &&_name);
     void SetMesh(std::string &&_name);
     void SetScript(std::unique_ptr<Script>&& _script);
+    void SetAnimation(std::unique_ptr<Component>&& _comp);
+
     void SetComponentID(const uint32_t& _id) {m_vec_component_id.emplace_back(_id);}
     void SetColor(sf::Color _color){ m_renderer->SetColor(_color); }
     void SetShading(bool _v){ m_renderer->SetFragment(_v);}
@@ -58,6 +63,7 @@ public:
     const auto &GetStatus() const { return m_status; }
     auto &GetTransform() { return *(m_transform.get()); }
     auto &GetScript() { return *(m_script.get());}
+    AnimationComponent* GetAnimation();
     const auto &GetTextureKey() { return m_texture_key; };
     const auto &GetMeshKey() { return m_mesh_key; };
     const auto& GetComponentsID(){ return m_vec_component_id; }

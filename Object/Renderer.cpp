@@ -12,6 +12,8 @@
 #include "Texture.h"
 #include "Perspective.h"
 
+#include "../Component/AnimationComponent.h"
+
 DrawMode Renderer::m_draw_mode{DrawMode::kDefault_Shading};
 std::vector<std::vector<float>> Renderer::m_vec_depth_buffer{}; // 렌더링 포인트 벡터
 
@@ -104,6 +106,27 @@ void Renderer::Render()
 		return; // If the mesh is outside the frustum, skip rendering
 	}
 
+	// Apply Animation
+	auto comp_ani = obj.GetAnimation();
+	
+	if (comp_ani){
+		const auto &vec_weight = comp_ani->GetWeight();
+
+		for (std::size_t v=0; v<vec_vertexs.size(); ++v){ // 각 정점별 수행된다.
+			const auto& weight = vec_weight[v];
+			
+			Vec3 delta_pos{};
+
+			for (std::size_t i = 0; i < weight.num_connected_bones; ++i){	// 정점별로 영향을 미치는 모든 bone
+				auto& bone = comp_ani->GetBone(weight.bones[i]); // bone을 가져와서
+
+				auto delta = (bone.bind_transform.GetPos() - bone.cur_transform.GetPos()) * weight.values[i];
+				delta_pos += delta;
+			}
+
+			vec_vertexs[v].v += delta_pos;
+		}
+	}
 	// Vertex Shader 
 	VertexShader(vec_vertexs, VM_matrix);
 

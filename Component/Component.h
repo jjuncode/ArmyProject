@@ -14,10 +14,11 @@ class Component{
         Component();
        
         virtual ~Component() {
-remain_id.push(m_id);
+            remain_id.push(m_id);
         };
 
         virtual void Update(float dt);
+        virtual void UpdateLate(float dt);
         virtual void Render();
 
         void SetOwner(uint32_t _id){m_owner_id = _id;}

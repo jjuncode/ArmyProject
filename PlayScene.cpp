@@ -8,6 +8,7 @@
 #include "Mgr/CollisionMgr.h"
 
 #include "Component/RigidbodyComponent.h"
+#include "Component/AnimationComponent.h"
 
 #include "Script/CameraScript.h"
 #include "Script/PlayerScript.h"
@@ -29,24 +30,27 @@ void PlayScene::Init()
     player->SetColor(sf::Color::Yellow);
     player->GetTransform().AddRotate(Vec3(0,180,0));
 
+    auto comp_ani = Component::CreateComponent<AnimationComponent>("animation_player");
+    player->SetAnimation(std::move(comp_ani));
+
     auto camera = Object::CreateObject();
     auto script_camera = Script::CreateScript<CameraScript>(player->GetObjectID());
     camera->SetVisible(false);
     camera->SetScript(std::move(script_camera));
 
-    auto plane = Object::CreateObject(Vec3(0,0,-100), Vec3(size*2));
-    plane->SetMesh("plane");
-    plane->SetColor(sf::Color::Blue);
+    // auto plane = Object::CreateObject(Vec3(0,0,-100), Vec3(size*2));
+    // plane->SetMesh("plane");
+    // plane->SetColor(sf::Color::Blue);
 
-    for (int i=0; i<100; ++i){
-        auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(0, 1000));
-        auto obj = Object::CreateObject(pos, size);
-        obj->SetMesh("square");
-        obj->SetTexutre("player.png");
-        obj->SetColor(sf::Color::Blue);
-        obj->GetTransform().AddRotate(Vec3(0,180,0));
-        SceneMgr::AddObject(std::move(obj));
-    }
+    // for (int i=0; i<100; ++i){
+    //     auto pos = Vec3(GetRandomInt(0, 500), GetRandomInt(0,500), GetRandomInt(0, 1000));
+    //     auto obj = Object::CreateObject(pos, size);
+    //     obj->SetMesh("square");
+    //     obj->SetTexutre("player.png");
+    //     obj->SetColor(sf::Color::Blue);
+    //     obj->GetTransform().AddRotate(Vec3(0,180,0));
+    //     SceneMgr::AddObject(std::move(obj));
+    // }
 
     // auto light = Object::CreateObject(Vec3(0,150,0),size);
     // auto script_light = Script::CreateScript<LightScript>(sf::Color::Red);
@@ -82,6 +86,19 @@ void PlayScene::Update(float dt)
         if ( obj ) 
             if (IsActiveObject(obj->GetObjectID()))
                 obj->Execute(dt);
+    }
+    
+    // Animation Update
+    for ( const auto& obj : m_vec_object){
+        if (obj){
+            if (IsActiveObject(obj->GetObjectID())){
+                auto ani_comp = obj->GetAnimation();
+
+                if ( ani_comp ) {
+                    ani_comp->Update(dt);
+                }
+            }
+        }
     }
 
     // Collision Check

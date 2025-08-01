@@ -6,6 +6,10 @@ void Component::Update(float dt)
 {
 }
 
+void Component::UpdateLate(float dt)
+{
+}
+
 void Component::Render()
 {
 }

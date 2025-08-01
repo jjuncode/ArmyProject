@@ -2,6 +2,7 @@
 
 #include "../Component/ColliderComponent.h"
 #include "../Component/RigidbodyComponent.h"
+#include "../Component/AnimationComponent.h"
 
 #include "../Mgr/InputMgr.h"
 #include "../Mgr/SceneMgr.h"
@@ -41,8 +42,18 @@ void PlayerScript::Execute(float dt)
         transform.AddRotate(Vec3(0, 1, 0) * speed); // Y축 회전 (Yaw)
     }
 
-    if (InputMgr::IsTap(sf::Keyboard::O)) {
-        transform.AddRotate(Vec3(0, 90, 0)); // Y축 회전 (Yaw)
+    if (InputMgr::IsTap(sf::Keyboard::O) || InputMgr::IsHold(sf::Keyboard::O)) {
+        auto comp_ani = SceneMgr::GetObject(GetOwnerID()).GetAnimation();
+        if (comp_ani) {
+        }
+        comp_ani->GetBone("left").cur_transform.AddPos(Vec3(dt,0,0));
+    }
+
+    if (InputMgr::IsTap(sf::Keyboard::P) || InputMgr::IsHold(sf::Keyboard::P)) {
+        auto comp_ani = SceneMgr::GetObject(GetOwnerID()).GetAnimation();
+        if (comp_ani) {
+            comp_ani->GetBone("right").cur_transform.AddPos(Vec3(-dt,0,0));
+        }
     }
 
     if ( InputMgr::IsTap(sf::Keyboard::T)){

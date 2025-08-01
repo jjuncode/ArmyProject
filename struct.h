@@ -152,6 +152,7 @@ struct Vec4 {
     }
 
     inline constexpr Vec4& operator+=(const Vec4& rhs);
+    inline constexpr Vec4& operator+=(const Vec3& rhs);
 };
 
 struct Mat4
@@ -463,5 +464,13 @@ inline constexpr Vec4 & Vec4::operator+=(const Vec4 & rhs)
     y += rhs.y;
     z += rhs.z;
     w += rhs.w;
+    return *this;
+}
+
+inline constexpr Vec4 & Vec4::operator+=(const Vec3 & rhs)
+{
+    x += rhs.x;
+    y += rhs.y;
+    z += rhs.z;
     return *this;
 }
