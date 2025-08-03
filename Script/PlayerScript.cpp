@@ -45,8 +45,8 @@ void PlayerScript::Execute(float dt)
     if (InputMgr::IsTap(sf::Keyboard::O) || InputMgr::IsHold(sf::Keyboard::O)) {
         auto comp_ani = SceneMgr::GetObject(GetOwnerID()).GetAnimation();
         if (comp_ani) {
+            comp_ani->GetBone("left").cur_transform.AddPos(Vec3(dt,0,0));
         }
-        comp_ani->GetBone("left").cur_transform.AddPos(Vec3(dt,0,0));
     }
 
     if (InputMgr::IsTap(sf::Keyboard::P) || InputMgr::IsHold(sf::Keyboard::P)) {

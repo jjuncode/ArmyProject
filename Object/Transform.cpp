@@ -35,6 +35,15 @@ void Transform::AddRotate(Vec3 _offset)
     m_forward = quaternion.RotateVector(Vec3(0,0,1));
 }
 
+void Transform::SetRotate(const Quaternion & _quaternion)
+{
+    m_quaternion = _quaternion;
+    
+    m_right = _quaternion.RotateVector(Vec3(1,0,0));
+    m_up = _quaternion.RotateVector(Vec3(0,1,0));
+    m_forward = _quaternion.RotateVector(Vec3(0,0,1));
+}
+
 const Mat4 Transform::GetModelMatrix() const
 {
     // Create a transformation matrix
@@ -63,6 +72,15 @@ const Mat4 Transform::GetModelMatrix() const
     return t*r*s;
 }
 
+Transform Transform::GetInverse() const
+{
+    Transform result;
+    result.SetScale(1/m_scale);
+    result.SetRotate(m_quaternion.GetInverse());
+    result.SetPos(result.GetScale() * ( result.GetRotate() * -m_pos ));
+
+    return result;
+}
 
 Vec3 Quaternion::RotateVector(const Vec3 &_vec) const
 {
@@ -210,6 +228,14 @@ Mat4 Quaternion::GetRotationMatrix() const
     };
 
     return rotate_matrix;
+}
+
+Quaternion Quaternion::GetInverse() const
+{
+    Quaternion result;
+    result.real_part = real_part;
+    result.imaginary_part = -imaginary_part;
+    return result;
 }
 
 Quaternion &Quaternion::operator-()

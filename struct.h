@@ -110,7 +110,9 @@ inline constexpr Vec3 operator+(const Vec3& lhs, const Vec3& rhs);
 inline constexpr Vec3 operator-(const Vec3& lhs, const Vec3& rhs);
 inline constexpr Vec3 operator*(const Vec3& lhs, float rhs);
 inline constexpr Vec3 operator*(float lhs, const Vec3& rhs);
+inline constexpr Vec3 operator*(const Vec3& lhs, const Vec3& rhs);
 inline constexpr Vec3 operator/(const Vec3& lhs, float rhs);
+inline constexpr Vec3 operator/(float lhs, const Vec3& rhs);
 inline constexpr Vec3 operator-(const Vec3& v);
 
 inline constexpr Vec3 operator*(const Mat3& lhs, const Vec3& rhs);
@@ -325,9 +327,20 @@ inline constexpr Vec3 operator*(const Vec3& lhs, float rhs) {
 inline constexpr Vec3 operator*(float lhs, const Vec3& rhs) {
     return Vec3(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z);
 }
-inline constexpr Vec3 operator/(const Vec3& lhs, float rhs) {
+inline constexpr Vec3 operator*(const Vec3 &lhs, const Vec3 &rhs)
+{
+    return Vec3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+}
+inline constexpr Vec3 operator/(const Vec3 &lhs, float rhs)
+{
     assert(rhs != 0); // 0으로 나누는 것을 방지
     return Vec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs);
+}
+
+inline constexpr Vec3 operator/(float lhs, const Vec3 &rhs)
+{
+    assert(rhs.x != 0 && rhs.y != 0 && rhs.z != 0); // 0으로 나누는 것을 방지
+    return Vec3(lhs / rhs.x, lhs / rhs.y, lhs / rhs.z);
 }
 
 inline constexpr Vec3 operator-(const Vec3 &v)

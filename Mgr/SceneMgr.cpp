@@ -47,42 +47,42 @@ void SceneMgr::LoadResource()
         Vertex{{ 0.5f,  0.5f,  0.5f}, {}, Vec2(0.25f, 0.875f)},
         Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 0.875f)},
         
-        // // 뒷면 (-Z)
-        // Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 0.75f)},
-        // Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.5f,   0.75f)},
-        // Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.5f,   0.875f)},
-        // Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.375f, 0.875f)},
+        // 뒷면 (-Z)
+        Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 0.75f)},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.5f,   0.75f)},
+        Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.5f,   0.875f)},
+        Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.375f, 0.875f)},
 
-        // // 왼쪽 (-X)
-        // Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.0f,   0.75f)},
-        // Vertex{{-0.5f, -0.5f,  0.5f}, {}, Vec2(0.125f, 0.75f)},
-        // Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 0.875f)},
-        // Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.0f,   0.875f)},
+        // 왼쪽 (-X)
+        Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.0f,   0.75f)},
+        Vertex{{-0.5f, -0.5f,  0.5f}, {}, Vec2(0.125f, 0.75f)},
+        Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 0.875f)},
+        Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.0f,   0.875f)},
 
-        // // 오른쪽 (+X)
-        // Vertex{{ 0.5f, -0.5f, 0.5f}, {}, Vec2(0.25f,  0.75f)},
-        // Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 0.75f)},
-        // Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.375f, 0.875f)},
-        // Vertex{{ 0.5f,  0.5f, 0.5f}, {}, Vec2(0.25f,  0.875f)},
+        // 오른쪽 (+X)
+        Vertex{{ 0.5f, -0.5f, 0.5f}, {}, Vec2(0.25f,  0.75f)},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 0.75f)},
+        Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.375f, 0.875f)},
+        Vertex{{ 0.5f,  0.5f, 0.5f}, {}, Vec2(0.25f,  0.875f)},
 
-        // // 윗면 (+Y)
-        // Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 0.875f)},
-        // Vertex{{ 0.5f,  0.5f,  0.5f}, {}, Vec2(0.25f,  0.875f)},
-        // Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.25f,  1.0f)},
-        // Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.125f, 1.0f)},
+        // 윗면 (+Y)
+        Vertex{{-0.5f,  0.5f,  0.5f}, {}, Vec2(0.125f, 0.875f)},
+        Vertex{{ 0.5f,  0.5f,  0.5f}, {}, Vec2(0.25f,  0.875f)},
+        Vertex{{ 0.5f,  0.5f, -0.5f}, {}, Vec2(0.25f,  1.0f)},
+        Vertex{{-0.5f,  0.5f, -0.5f}, {}, Vec2(0.125f, 1.0f)},
 
-        // // 아랫면 (-Y)
-        // Vertex{{-0.5f, -0.5f, 0.5f}, {}, Vec2(0.25f,  0.875f)},
-        // Vertex{{ 0.5f, -0.5f, 0.5f}, {}, Vec2(0.375f, 0.875f)},
-        // Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 1.0f)},
-        // Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.25f,  1.0f)},
+        // 아랫면 (-Y)
+        Vertex{{-0.5f, -0.5f, 0.5f}, {}, Vec2(0.25f,  0.875f)},
+        Vertex{{ 0.5f, -0.5f, 0.5f}, {}, Vec2(0.375f, 0.875f)},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {}, Vec2(0.375f, 1.0f)},
+        Vertex{{-0.5f, -0.5f, -0.5f}, {}, Vec2(0.25f,  1.0f)},
     }, {
         0, 1, 2, 0, 2, 3,     // 앞 (+Z)
-        // 4, 6, 5, 4, 7, 6,     // 뒤 (-Z)
-        // 8, 9,10, 8,10,11,     // 왼 (-X)
-        // 12,13,14,12,14,15,   // 오 (+X)
-        // 16,17,18,16,18,19,   // 위 (+Y)
-        // 20,22,21,20,23,22    // 아래 (-Y)
+        4, 6, 5, 4, 7, 6,     // 뒤 (-Z)
+        8, 9,10, 8,10,11,     // 왼 (-X)
+        12,13,14,12,14,15,   // 오 (+X)
+        16,17,18,16,18,19,   // 위 (+Y)
+        20,22,21,20,23,22    // 아래 (-Y)
     });
 
     Mesh::CreateMesh("plane", {
@@ -107,7 +107,32 @@ void SceneMgr::LoadResource()
         Weight(1, {"left"}, {1.f}),
         Weight(1, {"right"}, {1.f}),
         Weight(1, {"right"}, {1.f}),
-        Weight(1, {"left"}, {1.f})
+        Weight(1, {"left"}, {1.f}),
+
+        Weight(1, {"left"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"left"}, {1.f}),
+
+        Weight(1, {"left"}, {1.f}),
+        Weight(1, {"left"}, {1.f}),
+        Weight(1, {"left"}, {1.f}),
+        Weight(1, {"left"}, {1.f}),
+
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+
+        Weight(1, {"left"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"left"}, {1.f}),
+
+        Weight(1, {"left"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"right"}, {1.f}),
+        Weight(1, {"left"}, {1.f}),
     };
 
     AnimationComponent::CreateWeight("animation_player",std::move(vec_weight));

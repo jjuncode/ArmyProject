@@ -88,3 +88,51 @@ void AnimationComponent::Update(float dt)
 {
 
 }
+
+void NodeTransform::SetLocalPosition(const Vec3 &_pos)
+{
+    m_local_transform.SetPos(_pos);
+    UpdateWorldTransformFromLocal();
+    UpdateChildrenWorldTransform();
+}
+
+void NodeTransform::SetLocalScale(const Vec3 &_scale)
+{
+    m_local_transform.SetScale(_scale);
+    UpdateWorldTransformFromLocal();
+    UpdateChildrenWorldTransform();
+}
+
+Transform NodeTransform::UpdateWorldTransformFromLocal()
+{
+    Transform result;
+    Transform world_parent = m_parent->GetWorldTransform();
+    
+    result.SetScale(world_parent.GetScale() * m_local_transform.GetScale());
+    result.SetRotate(m_local_transform.GetRotate() * world_parent.GetRotate() );
+    result.SetPos(world_parent.GetRotate() * ( m_local_transform.GetPos() * world_parent.GetScale())
+                 + world_parent.GetPos());
+
+    return result;
+}
+
+Transform NodeTransform::UpdateLocalTransformFromWorld()
+{
+    Transform world_parent_inv = m_parent->GetWorldTransform().GetInverse();
+    Transform result;
+
+    result.SetScale(world_parent_inv.GetScale() * m_world_transform.GetScale());
+    result.SetRotate(world_parent_inv.GetRotate() * m_world_transform.GetRotate());
+    result.SetPos(world_parent_inv.GetRotate() * (m_world_transform.GetPos() * world_parent_inv.GetScale())
+                    + world_parent_inv.GetPos());
+    
+    return result;
+}
+
+void NodeTransform::UpdateChildrenWorldTransform()
+{
+    for (auto& child : m_children) {
+        child->SetWorldTransform(child->UpdateWorldTransformFromLocal());
+        child->UpdateChildrenWorldTransform();
+    }
+}
