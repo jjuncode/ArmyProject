@@ -3,7 +3,55 @@
 #include "../Component/ColliderComponent.h"
 #include "../Mgr/SceneMgr.h"
    
-void Transform::AddRotate(Vec3 _offset)
+void Transform::SetLocalPosition(const Vec3 &_pos)
+{
+    m_local_transform.m_pos = _pos;
+    UpdateWorldTransformFromLocal();
+    UpdateChildrenWorldTransform();
+}
+
+void Transform::SetLocalScale(const Vec3 &_scale)
+{
+    m_local_transform.m_scale = _scale;
+    UpdateWorldTransformFromLocal();
+    UpdateChildrenWorldTransform();
+}
+
+TransformInfo Transform::UpdateWorldTransformFromLocal()
+{
+    TransformInfo result;
+    TransformInfo world_parent = m_parent->GetWorldTransform();
+    
+    result.m_scale = (world_parent.m_scale * m_local_transform.m_scale);
+    result.SetRotate(m_local_transform.m_quaternion * world_parent.m_quaternion );
+    result.m_pos = (world_parent.m_quaternion * ( m_local_transform.m_pos * world_parent.m_scale)
+                 + world_parent.m_pos);
+
+    return result;
+}
+
+TransformInfo Transform::UpdateLocalTransformFromWorld()
+{
+    TransformInfo world_parent_inv = m_parent->GetWorldTransform().GetInverse();
+    TransformInfo result;
+
+    result.m_scale = (world_parent_inv.m_scale * m_world_transform.m_scale);
+    result.SetRotate(world_parent_inv.m_quaternion* m_world_transform.m_quaternion);
+    result.m_pos = (world_parent_inv.m_quaternion * (m_world_transform.m_pos * world_parent_inv.m_scale)
+                    + world_parent_inv.m_pos);
+    
+    return result;
+}
+
+void Transform::UpdateChildrenWorldTransform()
+{
+    for (auto& child : m_children) {
+        child->SetWorldTransform(child->UpdateWorldTransformFromLocal());
+        child->UpdateChildrenWorldTransform();
+    }
+}
+
+void TransformInfo::AddRotate(Vec3 _offset)
 {
     //  // Update OBB rotation
     // auto collider = SceneMgr::GetComponent<ColliderComponent>(m_owner_id);
@@ -35,7 +83,7 @@ void Transform::AddRotate(Vec3 _offset)
     m_forward = quaternion.RotateVector(Vec3(0,0,1));
 }
 
-void Transform::SetRotate(const Quaternion & _quaternion)
+void TransformInfo::SetRotate(const Quaternion & _quaternion)
 {
     m_quaternion = _quaternion;
     
@@ -44,7 +92,7 @@ void Transform::SetRotate(const Quaternion & _quaternion)
     m_forward = _quaternion.RotateVector(Vec3(0,0,1));
 }
 
-const Mat4 Transform::GetModelMatrix() const
+const Mat4 TransformInfo::GetModelMatrix() const
 {
     // Create a transformation matrix
     Mat4 t{
@@ -72,12 +120,12 @@ const Mat4 Transform::GetModelMatrix() const
     return t*r*s;
 }
 
-Transform Transform::GetInverse() const
+TransformInfo TransformInfo::GetInverse() const
 {
-    Transform result;
-    result.SetScale(1/m_scale);
+    TransformInfo result;
+    result.m_scale = (1/m_scale);
     result.SetRotate(m_quaternion.GetInverse());
-    result.SetPos(result.GetScale() * ( result.GetRotate() * -m_pos ));
+    result.m_pos = (result.m_scale * ( result.m_quaternion * -m_pos ));
 
     return result;
 }

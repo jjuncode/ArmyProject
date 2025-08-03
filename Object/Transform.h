@@ -18,57 +18,114 @@ struct Quaternion{
     Quaternion& operator-();
 };
 
+struct TransformInfo{
+    Vec3 m_pos;
+    Vec3 m_scale;
+
+    Quaternion m_quaternion; // quaternion for rotation
+    Vec3 m_rotate;           // pitch yaw roll
+
+    Vec3 m_forward;
+    Vec3 m_up;
+    Vec3 m_right;
+
+    TransformInfo(Vec3 _pos = Vec3())
+        : m_pos{_pos}, m_scale{1, 1, 1}, m_rotate{}, m_forward{Vec3(0, 0, 1)}, m_up{Vec3(0, 1, 0)}, m_right{Vec3(1, 0, 0)}
+    {}
+
+    void AddRotate(Vec3 _offset);
+    void SetRotate(const Quaternion &_quaternion);
+
+    const Mat4 GetModelMatrix() const;
+    TransformInfo GetInverse() const;
+};
+
 class Transform {
-    private:
-        uint32_t m_owner_id; // owner id
+private:
+    uint32_t m_owner_id; // owner id
 
-        Vec3 m_pos;
-        Vec3 m_scale;
+    TransformInfo m_local_transform;
+    TransformInfo m_world_transform;
 
-        Quaternion m_quaternion; // quaternion for rotation
-        Vec3 m_rotate;  // pitch yaw roll 
+public:
+    Transform(Vec3 _pos = Vec3())
+        : m_local_transform{_pos}
+        , m_world_transform{_pos}
+        , m_parent{nullptr}
+        , m_children{}
+    {}
 
-        Vec3 m_forward;
-        Vec3 m_up;
-        Vec3 m_right;
+    void SetOwner(uint32_t _id) { m_owner_id = _id; }
 
-    public:
-        Transform(Vec3 _pos = Vec3()) 
-            : m_pos{_pos}
-            , m_scale{1,1,1}
-            , m_rotate{}
-            , m_forward{Vec3(0,0,1)}
-            , m_up{Vec3(0,1,0)}
-            , m_right{Vec3(1,0,0)}
-            {}
-        void SetOwner(uint32_t _id) { m_owner_id = _id; }
+    const Vec3 GetPos() const { return m_world_transform.m_pos; }
+    void SetPos(const Vec3 &_pos) {    m_world_transform.m_pos = _pos; }
+    void AddPos(const Vec3 &offset) {  m_world_transform.m_pos += offset; }
 
-        const Vec3 GetPos() const { return m_pos; }
-        void SetPos(const Vec3& _pos){m_pos = _pos;}
-        void AddPos(const Vec3& offset){m_pos += offset;}
+    void AddRotate(Vec3 _offset){m_world_transform.AddRotate(_offset);};
+    Quaternion GetRotate() { return m_world_transform.m_quaternion; }
 
-        void AddRotate(Vec3 _offset);
-        Quaternion GetRotate() { return m_quaternion;}
+    Vec3 GetScale() { return m_world_transform.m_scale; }
+    void SetScale(const Vec3 _scale) { m_world_transform.m_scale = _scale; }
+    void SetRotate(const Quaternion &_quaternion){m_world_transform.SetRotate(_quaternion);};
 
-        Vec3 GetScale(){return m_scale;}
-        void SetScale(const Vec3 _scale) { m_scale =_scale;}
-        void SetRotate(const Quaternion& _quaternion);
+    const Vec3 GetForward() const { return m_world_transform.m_forward; }
+    const Vec3 GetUp() const { return m_world_transform.m_up; }
+    const Vec3 GetRight() const { return m_world_transform.m_right; }
 
-        const Vec3 GetForward() const { return m_forward; }
-        const Vec3 GetUp() const { return m_up; }
-        const Vec3 GetRight() const { return m_right; }
+    void SetForward(const Vec3 &_forward) { m_world_transform.m_forward = _forward; };
+    void SetUp(const Vec3 &_up) { m_world_transform.m_up = _up; };
+    void SetRight(const Vec3 &_right) { m_world_transform.m_right = _right; };
 
-        void SetLocalAxis(const Vec3& _forward, const Vec3& _up, const Vec3& _right) {
-            m_forward = _forward;
-            m_up = _up;
-            m_right = _right;
-        }
-        void SetForward(const Vec3& _forward){m_forward = _forward;};
-        void SetUp(const Vec3& _up){m_up = _up;};
-        void SetRight(const Vec3& _right){m_right = _right;};
+    const Mat4 GetModelMatrix() const{ return m_world_transform.GetModelMatrix();};
+    TransformInfo GetInverse() const{ return m_world_transform.GetInverse(); };
 
-        const Mat4 GetModelMatrix() const;
-        Transform GetInverse() const;
+    // ==============================
+    // Animation Hierarchy Structure
+    // ==============================
+private:
+    Transform *m_parent{nullptr};
+    std::vector<Transform*> m_children;
+
+public:
+    void SetParent(Transform *_parent)
+    {
+        m_parent = _parent;
+        _parent->AddChild(this);
+    }
+
+    auto &GetChildren() { return m_children; }
+
+    const TransformInfo &GetLocalTransform() { return m_local_transform; }
+    const TransformInfo &GetWorldTransform() { return m_world_transform; }
+
+    void SetLocalPosition(const Vec3 &_pos);
+    void SetLocalScale(const Vec3 &_scale);
+
+    void SetLocalTransform(const TransformInfo &_transform)
+    {
+        m_local_transform = _transform;
+        UpdateWorldTransformFromLocal();
+        UpdateChildrenWorldTransform();
+    }
+
+    void SetWorldTransform(const TransformInfo &_transform)
+    {
+        m_world_transform = _transform;
+        UpdateLocalTransformFromWorld();
+        UpdateChildrenWorldTransform();
+    }
+
+private:
+    TransformInfo UpdateWorldTransformFromLocal(); // by parent world
+    TransformInfo UpdateLocalTransformFromWorld(); // by parent world
+    void UpdateChildrenWorldTransform();
+
+    void AddChild(Transform *_child)
+    {
+        m_children.push_back(_child);
+        _child->SetParent(this);
+    }
+
 };
 
 inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);
