@@ -2,18 +2,28 @@
 #include "../pch.h"
 #include "../Component/ColliderComponent.h"
 #include "../Mgr/SceneMgr.h"
-   
+
+void Transform::SetParent(Transform *_parent)
+{
+    m_local_transform = m_world_transform;
+
+    m_parent = _parent;
+    _parent->m_children.push_back(this);
+
+    m_local_transform = UpdateLocalTransformFromWorld();
+}
+
 void Transform::SetLocalPosition(const Vec3 &_pos)
 {
     m_local_transform.m_pos = _pos;
-    UpdateWorldTransformFromLocal();
+    m_world_transform = UpdateWorldTransformFromLocal();
     UpdateChildrenWorldTransform();
 }
 
 void Transform::SetLocalScale(const Vec3 &_scale)
 {
     m_local_transform.m_scale = _scale;
-    UpdateWorldTransformFromLocal();
+    m_world_transform = UpdateWorldTransformFromLocal();
     UpdateChildrenWorldTransform();
 }
 

@@ -87,11 +87,7 @@ private:
     std::vector<Transform*> m_children;
 
 public:
-    void SetParent(Transform *_parent)
-    {
-        m_parent = _parent;
-        _parent->AddChild(this);
-    }
+    void SetParent(Transform *_parent);
 
     auto &GetChildren() { return m_children; }
 
@@ -104,28 +100,21 @@ public:
     void SetLocalTransform(const TransformInfo &_transform)
     {
         m_local_transform = _transform;
-        UpdateWorldTransformFromLocal();
+        m_world_transform = UpdateWorldTransformFromLocal();
         UpdateChildrenWorldTransform();
     }
 
     void SetWorldTransform(const TransformInfo &_transform)
     {
         m_world_transform = _transform;
-        UpdateLocalTransformFromWorld();
+        m_local_transform = UpdateLocalTransformFromWorld();
         UpdateChildrenWorldTransform();
     }
 
 private:
-    TransformInfo UpdateWorldTransformFromLocal(); // by parent world
-    TransformInfo UpdateLocalTransformFromWorld(); // by parent world
+    [[nodiscard]] TransformInfo UpdateWorldTransformFromLocal(); // by parent world
+    [[nodiscard]] TransformInfo UpdateLocalTransformFromWorld(); // by parent world
     void UpdateChildrenWorldTransform();
-
-    void AddChild(Transform *_child)
-    {
-        m_children.push_back(_child);
-        _child->SetParent(this);
-    }
-
 };
 
 inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);

@@ -14,12 +14,13 @@
 #include "Script/PlayerScript.h"
 #include "Script/BoxScript.h"
 #include "Script/LightScript.h"
+#include "Script/ObjectScript.h"
 
 void PlayScene::Init()
 {
-    Vec3 size = Vec3(50,50,50);
+    Vec3 size = Vec3(30,30,30);
 
-    auto player = Object::CreateObject(Vec3(0,0,300), Vec3(size));
+    auto player = Object::CreateObject(Vec3(0,0,0), Vec3(size/2));
   //  player->GetTransform().AddRotate(Vec3(45.f,45.f,45.f));
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
@@ -28,7 +29,7 @@ void PlayScene::Init()
     player->SetMesh("square");
     player->SetTexutre("player.png");
     player->SetColor(sf::Color::Yellow);
-    player->GetTransform().AddRotate(Vec3(0,180,0));
+    //player->GetTransform().AddRotate(Vec3(0,180,0));
 
     auto comp_ani = Component::CreateComponent<AnimationComponent>("animation_player");
     player->SetAnimation(std::move(comp_ani));
@@ -37,6 +38,33 @@ void PlayScene::Init()
     auto script_camera = Script::CreateScript<CameraScript>(player->GetObjectID());
     camera->SetVisible(false);
     camera->SetScript(std::move(script_camera));
+
+    auto sun = Object::CreateObject(Vec3(0,0,100), Vec3(size));
+    sun->SetMesh("square");
+    sun->SetTexutre("player.png");
+    sun->SetColor(sf::Color::Red);
+
+    auto script_sun = Script::CreateScript<ObjectScript>();
+    sun->SetScript(std::move(script_sun));
+
+    auto moon = Object::CreateObject(Vec3(0,0,0), Vec3(size/4));
+    moon->SetMesh("square");
+    moon->SetTexutre("player.png");
+    moon->SetColor(sf::Color::Blue);
+
+    auto script_moon = Script::CreateScript<ObjectScript>();
+    moon->SetScript(std::move(script_moon));
+
+    // set hierarchy 
+    auto& transform_player = player->GetTransform();
+    auto& transform_sun = sun->GetTransform();
+    auto& transform_moon = moon->GetTransform();
+
+    transform_player.SetParent(&transform_sun);
+    transform_moon.SetParent(&transform_player);
+
+    transform_player.SetLocalPosition(Vec3(0,0,4));
+    transform_moon.SetLocalPosition(Vec3(0,0,3));
 
     // auto plane = Object::CreateObject(Vec3(0,0,-100), Vec3(size*2));
     // plane->SetMesh("plane");
@@ -66,6 +94,8 @@ void PlayScene::Init()
     SceneMgr::AddObject(std::move(player));
     SceneMgr::AddObject(std::move(camera));
     // SceneMgr::AddObject(std::move(plane));
+    SceneMgr::AddObject(std::move(sun));
+    SceneMgr::AddObject(std::move(moon));
 
     SetCollisionLayer(CollisionObjectType::kPlayer, CollisionObjectType::kBox, true);
     SetCollisionLayer(CollisionObjectType::kBox, CollisionObjectType::kBox, true);
