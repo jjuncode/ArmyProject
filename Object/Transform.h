@@ -88,25 +88,26 @@ private:
 
 public:
     void SetParent(Transform *_parent);
-
     auto &GetChildren() { return m_children; }
 
     const TransformInfo &GetLocalTransform() { return m_local_transform; }
     const TransformInfo &GetWorldTransform() { return m_world_transform; }
 
-    void SetLocalPosition(const Vec3 &_pos);
-    void SetLocalScale(const Vec3 &_scale);
-
-    void SetLocalTransform(const TransformInfo &_transform);
-    void SetWorldTransform(const TransformInfo &_transform);
-
 private:
+    void UpdateWorld();
+    void UpdateLocal();
+
     [[nodiscard]] TransformInfo UpdateWorldTransformFromLocal(); // by parent world
     [[nodiscard]] TransformInfo UpdateLocalTransformFromWorld(); // by parent world
     void UpdateChildrenWorldTransform();
 
-    void UpdateWorld();
-    void UpdateLocal();
+public:
+    void SetLocalPosition(const Vec3 &_pos){ m_local_transform.m_pos = _pos; UpdateWorld(); };
+    void SetLocalScale(const Vec3 &_scale){ m_local_transform.m_scale = _scale; UpdateWorld(); };
+    void SetLocalRotate(const Quaternion &_quaternion) { m_local_transform.SetRotate(_quaternion); UpdateWorld(); };
+
+    void SetLocalTransform(const TransformInfo &_transform);
+    void SetWorldTransform(const TransformInfo &_transform);
 };
 
 inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);

@@ -13,18 +13,6 @@ void Transform::SetParent(Transform *_parent)
     m_local_transform = UpdateLocalTransformFromWorld();
 }
 
-void Transform::SetLocalPosition(const Vec3 &_pos)
-{
-    m_local_transform.m_pos = _pos;
-    UpdateWorld();
-}
-
-void Transform::SetLocalScale(const Vec3 &_scale)
-{
-    m_local_transform.m_scale = _scale;
-    UpdateWorld();
-}
-
 void Transform::SetLocalTransform(const TransformInfo &_transform)
 {
     m_local_transform = _transform;
