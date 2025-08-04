@@ -97,24 +97,16 @@ public:
     void SetLocalPosition(const Vec3 &_pos);
     void SetLocalScale(const Vec3 &_scale);
 
-    void SetLocalTransform(const TransformInfo &_transform)
-    {
-        m_local_transform = _transform;
-        m_world_transform = UpdateWorldTransformFromLocal();
-        UpdateChildrenWorldTransform();
-    }
-
-    void SetWorldTransform(const TransformInfo &_transform)
-    {
-        m_world_transform = _transform;
-        m_local_transform = UpdateLocalTransformFromWorld();
-        UpdateChildrenWorldTransform();
-    }
+    void SetLocalTransform(const TransformInfo &_transform);
+    void SetWorldTransform(const TransformInfo &_transform);
 
 private:
     [[nodiscard]] TransformInfo UpdateWorldTransformFromLocal(); // by parent world
     [[nodiscard]] TransformInfo UpdateLocalTransformFromWorld(); // by parent world
     void UpdateChildrenWorldTransform();
+
+    void UpdateWorld();
+    void UpdateLocal();
 };
 
 inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);

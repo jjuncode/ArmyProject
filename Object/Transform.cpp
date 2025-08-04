@@ -16,15 +16,25 @@ void Transform::SetParent(Transform *_parent)
 void Transform::SetLocalPosition(const Vec3 &_pos)
 {
     m_local_transform.m_pos = _pos;
-    m_world_transform = UpdateWorldTransformFromLocal();
-    UpdateChildrenWorldTransform();
+    UpdateWorld();
 }
 
 void Transform::SetLocalScale(const Vec3 &_scale)
 {
     m_local_transform.m_scale = _scale;
-    m_world_transform = UpdateWorldTransformFromLocal();
-    UpdateChildrenWorldTransform();
+    UpdateWorld();
+}
+
+void Transform::SetLocalTransform(const TransformInfo &_transform)
+{
+    m_local_transform = _transform;
+    UpdateWorld();
+}
+
+void Transform::SetWorldTransform(const TransformInfo &_transform)
+{
+    m_world_transform = _transform;
+    UpdateLocal();
 }
 
 TransformInfo Transform::UpdateWorldTransformFromLocal()
@@ -59,6 +69,18 @@ void Transform::UpdateChildrenWorldTransform()
         child->SetWorldTransform(child->UpdateWorldTransformFromLocal());
         child->UpdateChildrenWorldTransform();
     }
+}
+
+void Transform::UpdateWorld()
+{
+    m_world_transform = UpdateWorldTransformFromLocal();
+    UpdateChildrenWorldTransform();
+}
+
+void Transform::UpdateLocal()
+{
+    m_local_transform = UpdateLocalTransformFromWorld();
+    UpdateChildrenWorldTransform();
 }
 
 void TransformInfo::AddRotate(Vec3 _offset)
