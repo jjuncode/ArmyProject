@@ -199,10 +199,9 @@ void Renderer::DrawTriangle(const std::array<Vertex,3> &_vertex, sf::Color color
 			return; // 카메라 뒤쪽에 있는 삼각형은 건너뛰기
 		}
 
-		auto inv_z_1 = 1.f / v1.v.z;
-		auto inv_z_2 = 1.f / v2.v.z;
-		auto inv_z_3 = 1.f / v3.v.z;
-
+		auto inv_z_1 = 1.f / v1.v.w;
+		auto inv_z_2 = 1.f / v2.v.w;
+		auto inv_z_3 = 1.f / v3.v.w;
 
 		std::array<Vertex, 3> tri {v1,v2,v3};
 

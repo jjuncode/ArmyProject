@@ -61,12 +61,18 @@ void Transform::UpdateChildrenWorldTransform()
 
 void Transform::UpdateWorld()
 {
+    if (m_parent == nullptr) 
+        return;
+
     m_world_transform = UpdateWorldTransformFromLocal();
     UpdateChildrenWorldTransform();
 }
 
 void Transform::UpdateLocal()
 {
+    if (m_parent == nullptr) 
+        return;
+
     m_local_transform = UpdateLocalTransformFromWorld();
     UpdateChildrenWorldTransform();
 }
