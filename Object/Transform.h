@@ -2,7 +2,7 @@
 #include "../struct.h"
 
 struct Quaternion{
-    float real_part;    // real part
+    float real_part{1};    // real part
     Vec3 imaginary_part;     // imaginary part
 
     Vec3 RotateVector(const Vec3& _vec) const;
@@ -14,7 +14,8 @@ struct Quaternion{
     Vec3 GetEuler() const;
     Mat4 GetRotationMatrix() const;
     Quaternion GetInverse() const;
-
+    void Normalize();
+    
     Quaternion& operator-();
 };
 
@@ -91,23 +92,24 @@ private:
     void UpdateChildrenWorldTransform();
 
 public:
-    void SetLocalPosition(const Vec3 &_pos)             { m_local_transform.m_pos = _pos;           } // UpdateWorld(); };
-    void SetLocalScale(const Vec3 &_scale)              { m_local_transform.m_scale = _scale;       } // UpdateWorld(); };
-    void SetLocalRotate(const Quaternion &_quaternion)  { m_local_transform.SetRotate(_quaternion); } // UpdateWorld(); };
-    void AddLocalRotate(const Vec3& _offset)            { m_local_transform.AddRotate(_offset);     } // UpdateWorld(); };
+    void AddLocalPosition(const Vec3& _offset)          { m_local_transform.m_pos += _offset;       UpdateWorld(); }
+    void SetLocalPosition(const Vec3 &_pos)             { m_local_transform.m_pos = _pos;           UpdateWorld(); };
+    void SetLocalScale(const Vec3 &_scale)              { m_local_transform.m_scale = _scale;       UpdateWorld(); };
+    void SetLocalRotate(const Quaternion &_quaternion)  { m_local_transform.SetRotate(_quaternion); UpdateWorld(); };
+    void AddLocalRotate(const Vec3& _offset)            { m_local_transform.AddRotate(_offset);     UpdateWorld(); };
 
-    void SetPos(const Vec3 &_pos)                   { m_world_transform.m_pos = _pos;           } // UpdateLocal();}
-    void AddPos(const Vec3 &offset)                 { m_world_transform.m_pos += offset;        } // UpdateLocal();}
-    void AddRotate(Vec3 _offset)                    { m_world_transform.AddRotate(_offset);     } // UpdateLocal();}
-    void SetRotate(const Quaternion &_quaternion)   { m_world_transform.SetRotate(_quaternion); } // UpdateLocal();}
-    void SetScale(const Vec3 _scale)                { m_world_transform.m_scale = _scale;       } // UpdateLocal();}
- // 
-    void SetForward(const Vec3 &_forward)           { m_world_transform.m_forward = _forward;   } // UpdateLocal();}
-    void SetUp(const Vec3 &_up)                     { m_world_transform.m_up = _up;             } // UpdateLocal();}
-    void SetRight(const Vec3 &_right)               { m_world_transform.m_right = _right;       } // UpdateLocal();}
+    void SetPos(const Vec3 &_pos)                   { m_world_transform.m_pos = _pos;           UpdateLocal();}
+    void AddPos(const Vec3 &offset)                 { m_world_transform.m_pos += offset;        UpdateLocal();}
+    void AddRotate(Vec3 _offset)                    { m_world_transform.AddRotate(_offset);     UpdateLocal();}
+    void SetRotate(const Quaternion &_quaternion)   { m_world_transform.SetRotate(_quaternion); UpdateLocal();}
+    void SetScale(const Vec3 _scale)                { m_world_transform.m_scale = _scale;       UpdateLocal();}
+ 
+    void SetForward(const Vec3 &_forward)           { m_world_transform.m_forward = _forward;   UpdateLocal();}
+    void SetUp(const Vec3 &_up)                     { m_world_transform.m_up = _up;             UpdateLocal();}
+    void SetRight(const Vec3 &_right)               { m_world_transform.m_right = _right;       UpdateLocal();}
 
-    void SetLocalTransform(const TransformInfo &_transform);
-    void SetWorldTransform(const TransformInfo &_transform);
+    void SetLocalTransform(const TransformInfo &_transform) { m_local_transform = _transform;   UpdateWorld();}
+    void SetWorldTransform(const TransformInfo &_transform) { m_world_transform = _transform;   UpdateLocal();}
 };
 
 inline Vec3 operator* (const Quaternion& _q, const Vec3& _v);

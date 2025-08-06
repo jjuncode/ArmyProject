@@ -13,27 +13,14 @@ void Transform::SetParent(Transform *_parent)
     m_local_transform = UpdateLocalTransformFromWorld();
 }
 
-void Transform::SetLocalTransform(const TransformInfo &_transform)
-{
-    m_local_transform = _transform;
-    UpdateWorld();
-}
-
-void Transform::SetWorldTransform(const TransformInfo &_transform)
-{
-    m_world_transform = _transform;
-    UpdateLocal();
-}
-
 TransformInfo Transform::UpdateWorldTransformFromLocal()
 {
     TransformInfo result;
     TransformInfo world_parent = m_parent->GetWorldTransform();
     
     result.m_scale = (world_parent.m_scale * m_local_transform.m_scale);
-    result.SetRotate(m_local_transform.m_quaternion * world_parent.m_quaternion );
-    result.m_pos = (world_parent.m_quaternion * ( m_local_transform.m_pos * world_parent.m_scale)
-                 + world_parent.m_pos);
+    result.SetRotate( world_parent.m_quaternion * m_local_transform.m_quaternion);
+    result.m_pos = ( world_parent.m_pos + world_parent.m_quaternion * ( m_local_transform.m_pos * world_parent.m_scale));
 
     return result;
 }
@@ -45,8 +32,7 @@ TransformInfo Transform::UpdateLocalTransformFromWorld()
 
     result.m_scale = (world_parent_inv.m_scale * m_world_transform.m_scale);
     result.SetRotate(world_parent_inv.m_quaternion* m_world_transform.m_quaternion);
-    result.m_pos = (world_parent_inv.m_quaternion * (m_world_transform.m_pos * world_parent_inv.m_scale)
-                    + world_parent_inv.m_pos);
+    result.m_pos = ( world_parent_inv.m_pos + ( world_parent_inv.m_scale * (world_parent_inv.m_quaternion * m_world_transform.m_pos)));
     
     return result;
 }
@@ -61,8 +47,10 @@ void Transform::UpdateChildrenWorldTransform()
 
 void Transform::UpdateWorld()
 {
-    if (m_parent == nullptr) 
+    if (m_parent == nullptr) {
+        m_world_transform = m_local_transform;
         return;
+    }
 
     m_world_transform = UpdateWorldTransformFromLocal();
     UpdateChildrenWorldTransform();
@@ -70,9 +58,11 @@ void Transform::UpdateWorld()
 
 void Transform::UpdateLocal()
 {
-    if (m_parent == nullptr) 
+    if (m_parent == nullptr) {
+        m_local_transform = m_world_transform;
         return;
-
+    }
+    
     m_local_transform = UpdateLocalTransformFromWorld();
     UpdateChildrenWorldTransform();
 }
@@ -101,12 +91,11 @@ void TransformInfo::AddRotate(Vec3 _offset)
     if ( m_rotate.y < 0.f ) m_rotate.y += 360.f;
     if ( m_rotate.z < 0.f ) m_rotate.z += 360.f;
 
-    Quaternion quaternion{};
-    quaternion.CreateQuaternion(m_rotate);
+    m_quaternion.CreateQuaternion(m_rotate);
 
-    m_right = quaternion.RotateVector(Vec3(1,0,0));
-    m_up = quaternion.RotateVector(Vec3(0,1,0));
-    m_forward = quaternion.RotateVector(Vec3(0,0,1));
+    m_right = m_quaternion.RotateVector(Vec3(1,0,0));
+    m_up = m_quaternion.RotateVector(Vec3(0,1,0));
+    m_forward = m_quaternion.RotateVector(Vec3(0,0,1));
 }
 
 void TransformInfo::SetRotate(const Quaternion & _quaternion)
@@ -318,4 +307,13 @@ Quaternion &Quaternion::operator-()
     imaginary_part *= -1;
 
     return *this;
+}
+
+void Quaternion::Normalize()
+{
+    float norm = sqrt(real_part * real_part + Vec::LengthSquare(imaginary_part));
+    if (norm == 0.f) return; // or assert
+    float inv = 1.f / norm;
+    real_part *= inv;
+    imaginary_part *= inv;
 }

@@ -11,7 +11,7 @@ void PlayerScript::Execute(float dt)
 {
     int grid_offset{40};
 
-    uint32_t player_speed{500};
+    uint32_t player_speed{10};
     uint32_t player_jump{10};
     uint32_t player_rotate_speed{50};
 
@@ -20,26 +20,47 @@ void PlayerScript::Execute(float dt)
     auto pos = transform.GetPos();
 
     if ( InputMgr::IsTap(sf::Keyboard::Left) || InputMgr::IsHold(sf::Keyboard::Left)){
+        transform.AddLocalPosition(Vec3(-1, 0, 0) * dt * player_speed);
     }
 
     if (InputMgr::IsTap(sf::Keyboard::Right) || InputMgr::IsHold(sf::Keyboard::Right)){
+        transform.AddLocalPosition(Vec3(1, 0, 0) * dt * player_speed);
     }
 
     if (InputMgr::IsTap(sf::Keyboard::Up) || InputMgr::IsHold(sf::Keyboard::Up)){
+        transform.AddLocalPosition(Vec3(0, 1, 0) * dt * player_speed);
     }
 
     if (InputMgr::IsTap(sf::Keyboard::Down) || InputMgr::IsHold(sf::Keyboard::Down)) {
+        transform.AddLocalPosition(Vec3(0, -1, 0) * dt * player_speed);
     }
+
+    if (InputMgr::IsTap(sf::Keyboard::I) || InputMgr::IsHold(sf::Keyboard::I)) {
+        transform.AddPos(Vec3(0, 1, 0) * dt * player_speed);
+    }
+
+    if (InputMgr::IsTap(sf::Keyboard::J) || InputMgr::IsHold(sf::Keyboard::J)) {
+        transform.AddPos(Vec3(-1, 0, 0) * dt * player_speed);
+    }
+
+    if (InputMgr::IsTap(sf::Keyboard::K) || InputMgr::IsHold(sf::Keyboard::K)) {
+        transform.AddPos(Vec3(0, -1, 0) * dt * player_speed);
+    }
+
+    if (InputMgr::IsTap(sf::Keyboard::L) || InputMgr::IsHold(sf::Keyboard::L)) {
+        transform.AddPos(Vec3(1, 0, 0) * dt * player_speed);
+    }
+
     float speed = dt * player_rotate_speed;
 
     if (InputMgr::IsTap(sf::Keyboard::Z) || InputMgr::IsHold(sf::Keyboard::Z)) {
-        transform.AddRotate(Vec3(0, 0, 1) * speed); // Z축 회전 (Roll)
+        transform.AddLocalRotate(Vec3(0, 0, 1) * speed); // Z축 회전 (Roll)
     }
     if (InputMgr::IsTap(sf::Keyboard::X) || InputMgr::IsHold(sf::Keyboard::X)) {
-        transform.AddRotate(Vec3(1, 0, 0) * speed); // X축 회전 (Pitch)
+        transform.AddLocalRotate(Vec3(1, 0, 0) * speed); // X축 회전 (Pitch)
     }
     if (InputMgr::IsTap(sf::Keyboard::C) || InputMgr::IsHold(sf::Keyboard::C)) {
-        transform.AddRotate(Vec3(0, 1, 0) * speed); // Y축 회전 (Yaw)
+        transform.AddLocalRotate(Vec3(0, 1, 0) * speed); // Y축 회전 (Yaw)
     }
 
     if (InputMgr::IsTap(sf::Keyboard::O) || InputMgr::IsHold(sf::Keyboard::O)) {

@@ -44,16 +44,16 @@ void PlayScene::Init()
     sun->SetTexutre("player.png");
     sun->SetColor(sf::Color::Red);
 
-    auto script_sun = Script::CreateScript<ObjectScript>();
-    sun->SetScript(std::move(script_sun));
+    // auto script_sun = Script::CreateScript<ObjectScript>();
+    // sun->SetScript(std::move(script_sun));
 
     auto moon = Object::CreateObject(Vec3(0,0,0), Vec3(size/4));
     moon->SetMesh("square");
     moon->SetTexutre("player.png");
     moon->SetColor(sf::Color::Blue);
 
-    auto script_moon = Script::CreateScript<ObjectScript>();
-    moon->SetScript(std::move(script_moon));
+    // auto script_moon = Script::CreateScript<ObjectScript>();
+    // moon->SetScript(std::move(script_moon));
 
     // set hierarchy 
     auto& transform_player = player->GetTransform();
