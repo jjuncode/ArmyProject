@@ -16,6 +16,7 @@ void PlayerScript::Execute(float dt)
     uint32_t player_rotate_speed{50};
 
     auto &transform = SceneMgr::GetObject(GetOwnerID()).GetTransform();
+    transform.AddLocalRotate(Vec3(0,1,0) * dt * player_rotate_speed);
     // auto rigidbody = SceneMgr::GetComponent<Rigidbody>(GetOwnerID());
     auto pos = transform.GetPos();
 

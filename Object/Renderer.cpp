@@ -109,24 +109,24 @@ void Renderer::Render()
 	// Apply Animation
 	auto comp_ani = obj.GetAnimation();
 	
-	if (comp_ani){
-		const auto &vec_weight = comp_ani->GetWeight();
+	// if (comp_ani){
+	// 	const auto &vec_weight = comp_ani->GetWeight();
 
-		for (std::size_t v=0; v<vec_vertexs.size(); ++v){ // 각 정점별 수행된다.
-			const auto& weight = vec_weight[v];
+	// 	for (std::size_t v=0; v<vec_vertexs.size(); ++v){ // 각 정점별 수행된다.
+	// 		const auto& weight = vec_weight[v];
 			
-			Vec3 delta_pos{};
+	// 		Vec3 delta_pos{};
 
-			for (std::size_t i = 0; i < weight.num_connected_bones; ++i){	// 정점별로 영향을 미치는 모든 bone
-				auto& bone = comp_ani->GetBone(weight.bones[i]); // bone을 가져와서
+	// 		for (std::size_t i = 0; i < weight.num_connected_bones; ++i){	// 정점별로 영향을 미치는 모든 bone
+	// 			auto& bone = comp_ani->GetBone(weight.bones[i]); // bone을 가져와서
 
-				auto delta = (bone.bind_transform.GetPos() - bone.cur_transform.GetPos()) * weight.values[i];
-				delta_pos += delta;
-			}
+	// 			auto delta = (bone.bind_transform.GetPos() - bone.cur_transform.GetPos()) * weight.values[i];
+	// 			delta_pos += delta;
+	// 		}
 
-			vec_vertexs[v].v += delta_pos;
-		}
-	}
+	// 		vec_vertexs[v].v += delta_pos;
+	// 	}
+	// }
 	// Vertex Shader 
 	VertexShader(vec_vertexs, VM_matrix);
 

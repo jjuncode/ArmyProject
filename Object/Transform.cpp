@@ -45,10 +45,49 @@ void Transform::UpdateChildrenWorldTransform()
     }
 }
 
+void Transform::AddLocalRotate(Vec3 _offset)
+{
+    _offset.x = Vec::GetRadian(_offset.x);
+    _offset.y = Vec::GetRadian(_offset.y);
+    _offset.z = Vec::GetRadian(_offset.z);
+
+    Quaternion rotate_value;
+    rotate_value.CreateQuaternion(_offset);
+
+    m_local_transform.m_quaternion = m_local_transform.m_quaternion * rotate_value;
+    m_local_transform.m_quaternion.Normalize();
+
+    m_local_transform.m_right = m_local_transform.m_quaternion.RotateVector(Vec3(1,0,0));
+    m_local_transform.m_up = m_local_transform.m_quaternion.RotateVector(Vec3(0,1,0));
+    m_local_transform.m_forward = m_local_transform.m_quaternion.RotateVector(Vec3(0,0,1));
+
+    UpdateWorld();
+}
+
+void Transform::AddRotate(Vec3 _offset)
+{
+    _offset.x = Vec::GetRadian(_offset.x);
+    _offset.y = Vec::GetRadian(_offset.y);
+    _offset.z = Vec::GetRadian(_offset.z);
+
+    Quaternion rotate_value;
+    rotate_value.CreateQuaternion(_offset);
+
+    m_world_transform.m_quaternion = rotate_value * m_world_transform.m_quaternion;
+    m_world_transform.m_quaternion.Normalize();
+
+    m_world_transform.m_right = m_world_transform.m_quaternion.RotateVector(Vec3(1,0,0));
+    m_world_transform.m_up = m_world_transform.m_quaternion.RotateVector(Vec3(0,1,0));
+    m_world_transform.m_forward = m_world_transform.m_quaternion.RotateVector(Vec3(0,0,1));
+
+    UpdateLocal();
+}
+
 void Transform::UpdateWorld()
 {
     if (m_parent == nullptr) {
         m_world_transform = m_local_transform;
+        UpdateChildrenWorldTransform();
         return;
     }
 
@@ -60,42 +99,12 @@ void Transform::UpdateLocal()
 {
     if (m_parent == nullptr) {
         m_local_transform = m_world_transform;
+        UpdateChildrenWorldTransform();
         return;
     }
     
     m_local_transform = UpdateLocalTransformFromWorld();
     UpdateChildrenWorldTransform();
-}
-
-void TransformInfo::AddRotate(Vec3 _offset)
-{
-    //  // Update OBB rotation
-    // auto collider = SceneMgr::GetComponent<ColliderComponent>(m_owner_id);
-    // if (collider ){
-    //     collider->RotateOBB(offset);
-    //     auto obb = collider->GetOBB();
-    // }
-
-    // pitch / yaw / roll
-    _offset.x = Vec::GetRadian(_offset.x);
-    _offset.y = Vec::GetRadian(_offset.y);
-    _offset.z = Vec::GetRadian(_offset.z);
-
-    m_rotate += _offset;
-
-    if (m_rotate.x > 360.f ) m_rotate.x -= 360.f;
-    if (m_rotate.y > 360.f ) m_rotate.y -= 360.f;
-    if (m_rotate.z > 360.f ) m_rotate.z -= 360.f;
-
-    if ( m_rotate.x < 0.f ) m_rotate.x += 360.f;
-    if ( m_rotate.y < 0.f ) m_rotate.y += 360.f;
-    if ( m_rotate.z < 0.f ) m_rotate.z += 360.f;
-
-    m_quaternion.CreateQuaternion(m_rotate);
-
-    m_right = m_quaternion.RotateVector(Vec3(1,0,0));
-    m_up = m_quaternion.RotateVector(Vec3(0,1,0));
-    m_forward = m_quaternion.RotateVector(Vec3(0,0,1));
 }
 
 void TransformInfo::SetRotate(const Quaternion & _quaternion)

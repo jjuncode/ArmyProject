@@ -17,6 +17,17 @@ struct Quaternion{
     void Normalize();
     
     Quaternion& operator-();
+
+    bool IsUnitQuaternion(const Quaternion& q, float epsilon = 1e-5f)
+{
+    float norm = sqrt(q.real_part * q.real_part +
+                      q.imaginary_part.x * q.imaginary_part.x +
+                      q.imaginary_part.y * q.imaginary_part.y +
+                      q.imaginary_part.z * q.imaginary_part.z);
+
+    return fabs(norm - 1.0f) < epsilon;
+}
+
 };
 
 struct TransformInfo{
@@ -24,17 +35,15 @@ struct TransformInfo{
     Vec3 m_scale;
 
     Quaternion m_quaternion; // quaternion for rotation
-    Vec3 m_rotate;           // pitch yaw roll
 
     Vec3 m_forward;
     Vec3 m_up;
     Vec3 m_right;
 
     TransformInfo(Vec3 _pos = Vec3())
-        : m_pos{_pos}, m_scale{1, 1, 1}, m_rotate{}, m_forward{Vec3(0, 0, 1)}, m_up{Vec3(0, 1, 0)}, m_right{Vec3(1, 0, 0)}
+        : m_pos{_pos}, m_scale{1, 1, 1}, m_forward{Vec3(0, 0, 1)}, m_up{Vec3(0, 1, 0)}, m_right{Vec3(1, 0, 0)}
     {}
 
-    void AddRotate(Vec3 _offset);
     void SetRotate(const Quaternion &_quaternion);
 
     const Mat4 GetModelMatrix() const;
@@ -96,13 +105,13 @@ public:
     void SetLocalPosition(const Vec3 &_pos)             { m_local_transform.m_pos = _pos;           UpdateWorld(); };
     void SetLocalScale(const Vec3 &_scale)              { m_local_transform.m_scale = _scale;       UpdateWorld(); };
     void SetLocalRotate(const Quaternion &_quaternion)  { m_local_transform.SetRotate(_quaternion); UpdateWorld(); };
-    void AddLocalRotate(const Vec3& _offset)            { m_local_transform.AddRotate(_offset);     UpdateWorld(); };
+    void AddLocalRotate(Vec3 _offset);
 
     void SetPos(const Vec3 &_pos)                   { m_world_transform.m_pos = _pos;           UpdateLocal();}
     void AddPos(const Vec3 &offset)                 { m_world_transform.m_pos += offset;        UpdateLocal();}
-    void AddRotate(Vec3 _offset)                    { m_world_transform.AddRotate(_offset);     UpdateLocal();}
-    void SetRotate(const Quaternion &_quaternion)   { m_world_transform.SetRotate(_quaternion); UpdateLocal();}
     void SetScale(const Vec3 _scale)                { m_world_transform.m_scale = _scale;       UpdateLocal();}
+    void SetRotate(const Quaternion &_quaternion)   { m_world_transform.SetRotate(_quaternion); UpdateLocal();}
+    void AddRotate(Vec3 _offset);                   
  
     void SetForward(const Vec3 &_forward)           { m_world_transform.m_forward = _forward;   UpdateLocal();}
     void SetUp(const Vec3 &_up)                     { m_world_transform.m_up = _up;             UpdateLocal();}
