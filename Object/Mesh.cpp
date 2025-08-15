@@ -21,8 +21,57 @@ void Mesh::CreateMesh(std::string&& _name
     }
 }
 
+void Mesh::CreateMesh(std::string &&_name, const Mesh &_mesh)
+{  
+    std::size_t key = std::hash<std::string>()(_name);
+    
+    if (map_meshes.find(key) != map_meshes.end()) {
+        std::cerr << "Mesh already exists: " << _name << std::endl;
+        return; // Mesh already exists
+    } else {
+        const auto& _vec = _mesh.GetVertexs();
+        const auto& _idx = _mesh.GetIndexs();
+
+        auto mesh = std::unique_ptr<Mesh>(new Mesh(std::move(_name), _vec, _idx));
+        mesh->CreateBound();
+
+        map_meshes[key] = std::move(mesh);
+        std::cout << "Creating mesh: " << _name << std::endl;
+    }
+}
+
+void Mesh::SetTextureCoordinate(const std::vector<Vec2>&_vec)
+{
+    if (m_vertexs.size() != _vec.size()){
+        assert(false && "Vertex count does not match texture coordinates");
+    }
+
+    for (size_t i = 0; i < _vec.size(); ++i){
+        m_vertexs[i].uv = _vec[i];
+    }
+}
+
 const Mesh &Mesh::GetMesh(std::size_t _key)
 {
+    if ( map_meshes.find(_key) != map_meshes.end()) {
+        auto p_mesh = map_meshes[_key].get();
+        return *(p_mesh);
+    }
+    else{
+          if ( _key == NO_KEY ) {
+            // No Texture 
+            static Mesh default_mesh{"NULL"};  // 기본 mesh
+            return default_mesh;
+        }
+        else
+            assert(false && "Mesh not found");
+    }
+}
+
+const Mesh &Mesh::GetMesh(std::string _name)
+{
+    std::size_t _key = std::hash<std::string>()(_name);
+
     if ( map_meshes.find(_key) != map_meshes.end()) {
         auto p_mesh = map_meshes[_key].get();
         return *(p_mesh);

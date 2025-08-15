@@ -39,8 +39,3 @@ docker compose down
 docker compose up -d
 
 ssh -X // it's Fucking Good
-
-// GUI안뜨는 오류나면 얘로 실행
-가상 디스플레이라면 :1로 해야한다. 시발
-export DISPLAY=:1
-./main

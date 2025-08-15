@@ -3,18 +3,37 @@
 #include <unordered_map>
 #include "../Object/Transform.h"
 
-struct Bone{
-    std::string name;
-    
-    Transform cur_transform;
-    Transform bind_transform;
+class Bone{
+private:
+    std::string m_name;
+    std::string m_parent_name{"NULL"};
 
+    Transform m_cur_transform;
+    TransformInfo m_bind_transform;
+
+public:
     Bone() = default;
-    Bone(const std::string& _name, Vec3 _pos)
-        : name{_name}
-        , cur_transform{_pos}
-        , bind_transform{_pos}
-        {}  
+    Bone(const std::string &_name, Vec3 _pos)
+        : m_name{_name}, m_cur_transform{_pos}, m_bind_transform{_pos}
+    {}
+
+    void SetParent(Bone &_parent)
+    {
+        m_parent_name = _parent.GetName();
+        m_cur_transform.SetParent(&_parent.GetCurTransform());
+    }
+
+    bool HasParent() const{
+        if (m_parent_name == "NULL") {
+            return false; // No parent
+        }
+        return true; // Has parent
+    }
+
+    const std::string &GetName() const { return m_name; }
+    const std::string& GetParentName() const { return m_parent_name;}
+    Transform &GetCurTransform() { return m_cur_transform; }
+    TransformInfo &GetBindTransform() { return m_bind_transform; }
 };
 
 struct Weight{

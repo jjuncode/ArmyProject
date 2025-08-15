@@ -35,7 +35,7 @@ void AnimationComponent::CreateBone(const std::string&_name, const Vec3 &_pos)
     }
     else{
         auto bone = std::unique_ptr<Bone>(new Bone(_name, _pos));
-        std::cout<< "Creating Bone: " << bone->name << std::endl;
+        std::cout<< "Creating Bone: " << bone->GetName() << std::endl;
         repository_bones[key] = std::move(bone);
     }
 }

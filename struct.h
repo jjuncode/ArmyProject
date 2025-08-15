@@ -237,7 +237,7 @@ struct RGBA{
     uint8_t b;
     uint8_t a;
 
-    RGBA(uint8_t _r = 255u, uint8_t _g = 255u, uint8_t _b = 255u, uint8_t _a = 1)
+    RGBA(uint8_t _r = 0, uint8_t _g = 0, uint8_t _b = 0, uint8_t _a = 1)
         : r{_r}, g{_g}, b{_b}, a{_a} {}
 
     RGBA operator* (float v) const {

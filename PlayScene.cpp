@@ -20,18 +20,17 @@ void PlayScene::Init()
 {
     Vec3 size = Vec3(30,30,30);
 
-    auto player = Object::CreateObject(Vec3(0,0,0), Vec3(size/2));
-  //  player->GetTransform().AddRotate(Vec3(45.f,45.f,45.f));
+    //  player->GetTransform().AddRotate(Vec3(45.f,45.f,45.f));
     // player.SetCollider(CollisionEntityType::kPlayer, Vec2(size,size));
     // player.AddComponent<Rigidbody>(25.f,0.9f);
+    auto player = Object::CreateObject(Vec3(0,0,0), Vec3(size/2));
     auto script = Script::CreateScript<PlayerScript>();
     player->SetScript(std::move(script));
-    player->SetMesh("square");
-    player->SetTexutre("player.png");
+    player->SetMesh(MeshName::PlayerRightLeg);
+    player->SetTexutre(TextureName::Player);
     player->SetColor(sf::Color::Yellow);
-    //player->GetTransform().AddRotate(Vec3(0,180,0));
 
-    auto comp_ani = Component::CreateComponent<AnimationComponent>("animation_player");
+    auto comp_ani = Component::CreateComponent<AnimationComponent>(AnimationName::Player);
     player->SetAnimation(std::move(comp_ani));
 
     auto camera = Object::CreateObject();
@@ -40,16 +39,16 @@ void PlayScene::Init()
     camera->SetScript(std::move(script_camera));
 
     auto sun = Object::CreateObject(Vec3(0,0,100), Vec3(size));
-    sun->SetMesh("square");
-    sun->SetTexutre("player.png");
+    sun->SetMesh(MeshName::Cube);
+    sun->SetTexutre(TextureName::Player);
     sun->SetColor(sf::Color::Red);
 
     auto script_sun = Script::CreateScript<ObjectScript>();
     sun->SetScript(std::move(script_sun));
 
     auto moon = Object::CreateObject(Vec3(0,0,0), Vec3(size/4));
-    moon->SetMesh("square");
-    moon->SetTexutre("player.png");
+    moon->SetMesh(MeshName::Cube);
+    moon->SetTexutre(TextureName::Player);
     moon->SetColor(sf::Color::Blue);
 
     auto script_moon = Script::CreateScript<ObjectScript>();

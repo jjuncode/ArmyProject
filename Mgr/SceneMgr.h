@@ -4,6 +4,27 @@
 #include "../Script/Script.h"
 #include "../Object/Object.h"
 
+namespace MeshName {
+    constexpr const char *Cube = "cube";
+    constexpr const char *Plane = "plane";
+
+    constexpr const char *PlayerHead = "player_head";
+    constexpr const char *PlayerBody = "player_body";
+    constexpr const char *PlayerLeftArm = "player_left_arm";
+    constexpr const char *PlayerRightArm = "player_right_arm";
+    constexpr const char *PlayerLeftLeg = "player_left_leg";
+    constexpr const char *PlayerRightLeg = "player_right_leg";
+
+}
+
+namespace TextureName{
+    constexpr const char* Player = "player.png";
+}
+
+namespace AnimationName{
+    constexpr const char* Player = "player";
+}
+
 class SceneMgr{
     private:
         static std::unique_ptr<Scene> m_cur_scene;

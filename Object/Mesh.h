@@ -27,14 +27,21 @@ public:
     Mesh(const Mesh& _mesh) :m_name{_mesh.m_name}, m_vertexs{_mesh.m_vertexs}, m_indexs{_mesh.m_indexs} {}
 
     static void CreateMesh(std::string&& _name, std::vector<Vertex>&& _vec
-            ,std::vector<uint32_t>&& _idx); 
+            ,std::vector<uint32_t>&& _idx);
+    static void CreateMesh(std::string&& _name, const Mesh& _mesh);
+
+    static const Mesh &GetMesh(std::size_t _key);
+    static const Mesh &GetMesh(std::string _name);
+
+    void SetTextureCoordinate(const std::vector<Vec2>&_vec);
 
     const auto& GetVertexs() const { return m_vertexs; }
     const auto& GetIndexs() const { return m_indexs; }
     const auto& GetSphere() const { return m_bound_sphere; }
     const auto& GetBox() const { return m_bound_box; }
+    
 
-    static const Mesh& GetMesh(std::size_t _key);
+    
 
     const bool IsValid() const;
 
